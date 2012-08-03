@@ -1,0 +1,23 @@
+-main Example
+-lib mloader
+-lib mcore
+-js build/example.js
+
+--next
+
+-main Example
+-lib mloader
+-lib mcore
+-swf build/example.swf
+-swf-header 1280:720:60:0
+-debug
+
+--next
+
+-main Example
+-lib mloader
+-lib mcore
+-neko build/example.n
+
+-cmd cd build
+-cmd neko example.n

@@ -1,0 +1,9 @@
+*.js
+*.js.map
+*.swf
+*.n
+workspace.json
+TestSuite.hx
+.mcover
+
+/bin
