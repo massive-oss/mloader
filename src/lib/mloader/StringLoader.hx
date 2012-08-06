@@ -8,7 +8,7 @@ typedef StringLoaderEvent = Event<Loader<String>, LoaderEvent>;
 /**
 A loader that loads a string over HTTP.
 */
-class StringLoader extends HTTPLoader<String>
+class StringLoader extends HttpLoader<String>
 {
 	/**
 	@param url  the url to load the resource from

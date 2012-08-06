@@ -1,4 +1,4 @@
-package mcore.format.xml;
+package mloader;
 
 import massive.munit.Assert;
 

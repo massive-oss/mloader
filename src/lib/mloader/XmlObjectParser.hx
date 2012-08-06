@@ -1,6 +1,4 @@
-package mcore.format.xml;
-
-import mcore.util.Reflection;
+package mloader;
 
 /**
 Decoder is a utility class for automating the deserialization of raw xml into
@@ -49,7 +47,7 @@ var result = decoder.parse("&lt;Object&gt;&lt;widget/&gt;&lt;/Object&gt;");
 var widget:Widget = result.widget;
 </pre>
 */
-class XMLObjectParser
+class XmlObjectParser
 {
 	public var classMap(default, null):Hash<Class<Dynamic>>;
 	public var nodeMap(default, null):Hash<String>;
@@ -312,7 +310,7 @@ class XMLObjectParser
 	
 	function setProperty(object:Dynamic, property:String, value:Dynamic)
 	{
-		Reflection.setProperty(object, property, value);
+		Reflect.setProperty(object, property, value);
 	}
 	
 	function extractPattern(string:String, startToken:String, endToken:String):String

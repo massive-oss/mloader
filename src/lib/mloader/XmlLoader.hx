@@ -3,14 +3,14 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
-typedef XMLLoaderEvent = Event<Loader<Xml>, LoaderEvent>;
+typedef XmlLoaderEvent = Event<Loader<Xml>, LoaderEvent>;
 
 /**
 The XMLLoader is an extension of the HTTPLoader. It's responsible for loading 
 XML resources. If the format of the XML file is incorrect the failed signal 
 will be dispatched, indicating a FormatError.
 */
-class XMLLoader extends HTTPLoader<Xml>
+class XmlLoader extends HttpLoader<Xml>
 {
 	/**
 	@param url  the url to load the resource from
@@ -34,20 +34,5 @@ class XMLLoader extends HTTPLoader<Xml>
 		}
 		
 		loaded.dispatchType(Completed);
-	}
-
-	/**
-	Sets default content type for POST data
-	
-	@param url The URI to load.
-	@param data Xml or string to send as post data.
-	*/
-	override public function send(data:Dynamic)
-	{
-		if(!headers.exists("Content-Type"))
-		{
-			headers.set("Content-Type", "application/xml");
-		}
-		super.send(data);
 	}
 }
