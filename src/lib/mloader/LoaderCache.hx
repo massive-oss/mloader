@@ -95,7 +95,7 @@ class LoaderCache
 		{
 			case completed: loaderCompleted(loader);
 			case cancelled: loaderCancelled(loader);
-			case failed(e): loaderFailed(loader, e);
+			case failed(e): loaderFail(loader, e);
 			default:
 		}
 	}
@@ -130,7 +130,7 @@ class LoaderCache
 		}
 	}
 
-	function loaderFailed(loader:AnyLoader, error:LoaderError)
+	function loaderFail(loader:AnyLoader, error:LoaderError)
 	{
 		loader.loaded.remove(loaderLoaded);
 

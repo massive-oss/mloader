@@ -9,7 +9,7 @@ using mcore.util.Strings;
 typedef JSONLoaderEvent = Event<Loader<Dynamic>, LoaderEvent>;
 
 /**
-The JSONLoader is an extension of the HTTPLoader. It's responsible for loading 
+The JSONLoader is an extension of the HttpLoader. It's responsible for loading 
 JSON resources and serializing them into objects.
 
 Example
@@ -23,7 +23,7 @@ Example
 		trace(result.someValue)
 	}
 */
-class JSONLoader extends HTTPLoader<Dynamic>
+class JSONLoader extends HttpLoader<Dynamic>
 {
 	/**
 	@param url  the url to load the resource from

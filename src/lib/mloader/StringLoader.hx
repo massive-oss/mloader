@@ -6,7 +6,7 @@ import msignal.EventSignal;
 typedef StringLoaderEvent = Event<Loader<String>, LoaderEvent>;
 
 /**
-A loader that loads a string over HTTP.
+A loader that loads a string over Http.
 */
 class StringLoader extends HttpLoader<String>
 {

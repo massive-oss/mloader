@@ -150,4 +150,9 @@ class LoaderBase<T> implements Loader<T>
 		// dispatch event
 		loaded.dispatchType(Completed);
 	}
+
+	function loaderFail(error:LoaderError)
+	{
+		loaded.dispatchType(Failed(error));
+	}
 }

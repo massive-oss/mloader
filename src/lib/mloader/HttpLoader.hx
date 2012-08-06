@@ -9,7 +9,7 @@ import haxe.Http;
 using mcore.util.Strings;
 
 /**
-The HTTPLoader class is responsible for loading content over HTTP.
+The HttpLoader class is responsible for loading content over Http.
 */
 class HttpLoader<T> extends LoaderBase<T>
 {
@@ -24,7 +24,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	public var headers(default, null):Hash<String>;
 
 	/**
-	HTTP status code of response.
+	Http status code of response.
 	*/
 	public var statusCode(default, null):Int;
 
@@ -55,7 +55,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		if (!sys.FileSystem.exists(url))
 		{
-			loaded.dispatchType(Failed(IO("Local file does not exist: " + url)));
+			loaderFail(IO("Local file does not exist: " + url));
 		}
 		else
 		{
@@ -101,7 +101,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		catch (e:Dynamic)
 		{
 			// js can throw synchronous security error
-			loaded.dispatchType(Failed(Security(Std.string(e))));
+			loaderFail(Security(Std.string(e)));
 		}
 	}
 
@@ -168,7 +168,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		catch (e:Dynamic)
 		{
 			// js can throw synchronous security error
-			loaded.dispatchType(Failed(Security(Std.string(e))));
+			loaderFail(Security(Std.string(e)));
 		}
 		#end
 	}
@@ -206,6 +206,6 @@ class HttpLoader<T> extends LoaderBase<T>
 	
 	function httpError(error:String)
 	{
-		loaded.dispatchType(Failed(IO(error)));
+		loaderFail(IO(error));
 	}
 }

@@ -220,7 +220,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		else throw "should not be!";
 	}
 
-	function loaderFailed(loader:AnyLoader, error:LoaderError)
+	function loaderFail(loader:AnyLoader, error:LoaderError)
 	{
 		if (ignoreFailures)
 		{
@@ -293,7 +293,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		switch (event.type)
 		{
 			case completed, cancelled: loaderCompleted(loader);
-			case failed(e): loaderFailed(loader, e);
+			case failed(e): loaderFail(loader, e);
 			default:
 		}
 	}

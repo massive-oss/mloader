@@ -6,9 +6,9 @@ import msignal.EventSignal;
 typedef XmlLoaderEvent = Event<Loader<Xml>, LoaderEvent>;
 
 /**
-The XMLLoader is an extension of the HTTPLoader. It's responsible for loading 
-XML resources. If the format of the XML file is incorrect the failed signal 
-will be dispatched, indicating a FormatError.
+The XmlLoader is an extension of the HttpLoader. It's responsible for loading 
+Xml resources. If the format of the Xml file is incorrect the a failed event is 
+dispatched indicting the nature of the fault.
 */
 class XmlLoader extends HttpLoader<Xml>
 {
@@ -29,10 +29,10 @@ class XmlLoader extends HttpLoader<Xml>
 		}
 		catch (e:Dynamic)
 		{
-			loaded.dispatchType(Failed(Format(Std.string(e))));
+			loaderFail(Format(Std.string(e)));
 			return;
 		}
 		
-		loaded.dispatchType(Completed);
+		loaderComplete();
 	}
 }
