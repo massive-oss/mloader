@@ -97,7 +97,7 @@ class LoaderBase<T> implements Loader<T>
 		loaderReset();
 
 		// dispatch event
-		loaded.event(cancelled);
+		loaded.bubbleType(Cancelled);
 	}
 
 	/**
@@ -136,7 +136,7 @@ class LoaderBase<T> implements Loader<T>
 	function loaderStart()
 	{
 		// dispatch event
-		loaded.event(started);
+		loaded.dispatchType(Started);
 	}
 
 	function loaderComplete()
@@ -148,6 +148,6 @@ class LoaderBase<T> implements Loader<T>
 		loading = false;
 
 		// dispatch event
-		loaded.event(completed);
+		loaded.dispatchType(Completed);
 	}
 }

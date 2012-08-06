@@ -11,7 +11,7 @@ using mcore.util.Strings;
 /**
 The HTTPLoader class is responsible for loading content over HTTP.
 */
-class HTTPLoader<T> extends LoaderBase<T>
+class HttpLoader<T> extends LoaderBase<T>
 {
 	/**
 	The http instance used to load the content.
@@ -55,7 +55,7 @@ class HTTPLoader<T> extends LoaderBase<T>
 	{
 		if (!sys.FileSystem.exists(url))
 		{
-			loaded.event(failed(io("Local file does not exist: " + url)));
+			loaded.dispatchType(Failed(IO("Local file does not exist: " + url)));
 		}
 		else
 		{
@@ -101,7 +101,7 @@ class HTTPLoader<T> extends LoaderBase<T>
 		catch (e:Dynamic)
 		{
 			// js can throw synchronous security error
-			loaded.event(failed(security(Std.string(e))));
+			loaded.dispatchType(Failed(Security(Std.string(e))));
 		}
 	}
 
@@ -118,14 +118,19 @@ class HTTPLoader<T> extends LoaderBase<T>
 		{
 			return "application/xml";
 		}
-		else if (Std.is(data, String) && data.length > 0 &&
+		
+		data = Std.string(data);
+
+		if (data.length > 0 &&
 			(data.charAt(0) == "{" && data.charAt(data.length - 1) == "}") ||
 			(data.charAt(0) == "[" && data.charAt(data.length - 1) == "]"))
 		{
 			return "application/json";
 		}
-
-		return "application/octet-stream";
+		else
+		{
+			return "application/octet-stream";
+		}
 	}
 
 	//-------------------------------------------------------------------------- private
@@ -163,7 +168,7 @@ class HTTPLoader<T> extends LoaderBase<T>
 		catch (e:Dynamic)
 		{
 			// js can throw synchronous security error
-			loaded.event(failed(security(Std.string(e))));
+			loaded.dispatchType(Failed(Security(Std.string(e))));
 		}
 		#end
 	}
@@ -201,6 +206,6 @@ class HTTPLoader<T> extends LoaderBase<T>
 	
 	function httpError(error:String)
 	{
-		loaded.event(failed(io(error)));
+		loaded.dispatchType(Failed(IO(error)));
 	}
 }

@@ -1,7 +1,6 @@
 package mloader;
 
 import msignal.Signal;
-import msignal.Event;
 import msignal.EventSignal;
 
 /**
@@ -71,27 +70,27 @@ enum LoaderEvent
 	/**
 	Dispatched when the loading operation commences.
 	*/
-	started;
+	Started;
 
 	/**
 	Dispatched when the loading operation is cancelled before completion.
 	*/
-	cancelled;
+	Cancelled;
 
 	/**
 	Dispatched when the loading operation progresses.
 	*/
-	progressed;
+	Progressed;
 
 	/**
 	Dispatched when the loading operation completes.
 	*/
-	completed;
+	Completed;
 
 	/**
 	Dispatched when the loading operation fails due to an error.
 	*/
-	failed(error:LoaderError);
+	Failed(error:LoaderError);
 }
 
 enum LoaderError
@@ -99,24 +98,24 @@ enum LoaderError
 	/**
 	A fatal error terminates the download.
 	*/
-	io(info:String);
+	IO(info:String);
 
 	/**
 	An error indicating the loader attempted to perform an insecure operation. 
 	The definition of insecure differs between platforms, but generally 
 	indicates an attempt to load a resource outside of the security sandbox.
 	*/
-	security(info:String);
+	Security(info:String);
 
 	/**
 	An error indicating the loaded resource was in an unexpected format.
 	*/
-	format(info:String);
+	Format(info:String);
 
 	/**
 	An error that indicates the load operation failed, but properly formatted 
 	data was received. For example: a service might return a non 200 HTTP 
 	status, but also data indicating the nature of the failiure.
 	*/
-	data(info:String, data:String);
+	Data(info:String, data:String);
 }

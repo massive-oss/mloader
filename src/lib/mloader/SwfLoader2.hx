@@ -34,7 +34,7 @@ class SWFLoader extends LoaderBase<FlashLoader>
 	{
 		super(url);
 		
-		loader = new flash.display.Loader();
+		loader = new FlashLoader();
 
 		var loaderInfo = loader.contentLoaderInfo;
 		loaderInfo.addEventListener(ProgressEvent.PROGRESS, loadProgress);

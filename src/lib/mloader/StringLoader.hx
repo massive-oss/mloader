@@ -1,7 +1,7 @@
 package mloader;
 
 import mloader.Loader;
-import msignal.Event;
+import msignal.EventSignal;
 
 typedef StringLoaderEvent = Event<Loader<String>, LoaderEvent>;
 

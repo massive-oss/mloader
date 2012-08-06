@@ -1,7 +1,7 @@
 package mloader;
 
 import mloader.Loader;
-import msignal.Event;
+import msignal.EventSignal;
 
 typedef XMLLoaderEvent = Event<Loader<Xml>, LoaderEvent>;
 
@@ -29,11 +29,11 @@ class XMLLoader extends HTTPLoader<Xml>
 		}
 		catch (e:Dynamic)
 		{
-			loaded.event(failed(format(Std.string(e))));
+			loaded.dispatchType(Failed(Format(Std.string(e))));
 			return;
 		}
 		
-		loaded.event(completed);
+		loaded.dispatchType(Completed);
 	}
 
 	/**
