@@ -3,24 +3,14 @@ package mloader;
 import massive.munit.util.Timer;
 import massive.munit.Assert;
 import massive.munit.async.AsyncFactory;
-import mloader.SWFLoader;
-
+import mloader.SwfLoader;
 
 #if flash
 
 import flash.events.ProgressEvent;
 
-/**
-* Auto generated MassiveUnit Test Class  for mloader.SWFLoader 
-*/
-class SWFLoaderTest extends LoaderBaseTestBase<flash.display.Loader>
+class SWFLoaderTest
 {
-	public function new() 
-	{
-		super();
-	}
-	
-
 	@Test
 	public function should_dispatch_progress()
 	{
@@ -42,9 +32,6 @@ class SWFLoaderTest extends LoaderBaseTestBase<flash.display.Loader>
 		Assert.areEqual(1, progressedCount);
 		Assert.areEqual(0.0, progressedValue);
 	}
-
-	////////////
-
 
 	override function createLoaderBase():LoaderBase<flash.display.Loader>
 	{
@@ -72,10 +59,7 @@ import mcore.exception.UnsupportedPlatformException;
 
 class SWFLoaderTest
 {
-	public function new()
-	{
-
-	}
+	public function new() {}
 
 	@Test
 	public function should_throw_UnsupportedPlatformException()

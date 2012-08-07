@@ -1,7 +1,7 @@
 package mloader;
 
 import mloader.Loader;
-import msignal.Event;
+import msignal.EventSignal;
 
 /**
 Loads a single image at a defined url.
@@ -15,74 +15,50 @@ typedef ImageLoaderEvent = Event<Loader<js.Dom.Image>, LoaderEvent>;
 class ImageLoader extends LoaderBase<js.Dom.Image>
 {
 	/**
-	The dom object used to load an image.
-	*/
-	public var image:js.Dom.Image;
-
-	/**
 	@param url  the url to load the resource from
 	*/
 	public function new(?url:String)
 	{
 		super(url);
-		image = cast js.Lib.document.createElement("img");
 	}
 	
-	/**
-	Loads an image with the supplied url.
-	*/
-	override public function load()
+	override function loaderLoad()
 	{
-		super.load();
-
-		image.onload = imageLoad;
-		image.onerror = imageError;
-		image.src = this.url;
-
-		loaderStarted();
+		content = cast js.Lib.document.createElement("img");
+		content.onload = imageLoad;
+		content.onerror = imageError;
+		content.src = url;
 	}
 
-	/**
-	Cancels the request to load an image. Dispatches the cancelled 
-	signal when called.
-	*/
-	override public function cancel()
+	override function loaderCancel():Void
 	{
-		image.src = "";
-		loaded.event(cancelled);
+		content.src = "";
 	}
 
 	function imageLoad(event)
 	{
-		image.onload = null;
-		image.onerror = null;
-		loaderCompleted(image);
+		content.onload = null;
+		content.onerror = null;
+		loaderComplete();
 	}
 
 	function imageError(event)
 	{
-		image.onload = null;
-		image.onerror = null;
-		loaded.event(failed(io(Std.string(event))));
+		content.onload = null;
+		content.onerror = null;
+		loaderFail(IO(Std.string(event)));
 	}
 }
 
 #elseif (flash || cpp)
 
-import mloader.Loader;
-import flash.display.Bitmap;
 import flash.display.BitmapData;
-import flash.events.ProgressEvent;
-import flash.events.IOErrorEvent;
 
 typedef ImageLoaderEvent = Event<Loader<BitmapData>, LoaderEvent>;
 
 class ImageLoader extends LoaderBase<BitmapData>
 {
-	/**
-	The Loader object used to load an image.
-	*/
-	public var loader:flash.display.Loader;
+	var loader:flash.display.Loader;
 
 	public function new(?url:String)
 	{
@@ -91,33 +67,22 @@ class ImageLoader extends LoaderBase<BitmapData>
 		loader = new flash.display.Loader();
 
 		var loaderInfo = loader.contentLoaderInfo;
-		loaderInfo.addEventListener(ProgressEvent.PROGRESS, loadProgress);
-		loaderInfo.addEventListener(flash.events.Event.COMPLETE, loadComplete);
-		loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, loadError);
+		loaderInfo.addEventListener(flash.events.ProgressEvent.PROGRESS, loaderProgressed);
+		loaderInfo.addEventListener(flash.events.Event.COMPLETE, loaderCompleted);
+		loaderInfo.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loaderErrored);
 	}
 
-	/**
-	Loads an image with the supplied url.
-	
-	@param url The URI to load.
-	*/
-	override public function load()
+	override function loaderLoad()
 	{
-		super.load();
 		loader.load(new flash.net.URLRequest(url));
-		loaderStarted();
 	}
 
-	/**
-	Cancels the request to load an image. Dispatches the cancelled signal when called.
-	*/
-	override public function cancel()
+	override function loaderCancel()
 	{
 		#if !nme loader.close(); #end
-		loaded.event(cancelled);
 	}
 	
-	function loadProgress(event)
+	function loaderProgressed(event)
 	{
 		progress = 0.0;
 
@@ -126,18 +91,18 @@ class ImageLoader extends LoaderBase<BitmapData>
 			progress = event.bytesLoaded / event.bytesTotal;
 		}
 
-		loaded.event(progressed);
+		loaded.dispatchType(Progressed);
 	}
 
-	function loadComplete(event)
+	function loaderCompleted(event)
 	{
-		var bitmap:Bitmap = cast loader.content;
-		loaderCompleted(bitmap.bitmapData);
+		content = untyped loader.content.bitmapData;
+		loaderComplete();
 	}
 
-	function loadError(event)
+	function loaderErrored(event)
 	{
-		loaded.event(failed(io(Std.string(event))));
+		loaderFail(IO(Std.string(event)));
 	}
 }
 

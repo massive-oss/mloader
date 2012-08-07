@@ -75,21 +75,42 @@ class HttpLoader<T> extends LoaderBase<T>
 	*/
 	public function send(data:Dynamic)
 	{
-		if (url == null)
-			throw new ArgumentException("No url defined for Loader");
+		// if currently loading, cancel
+		if (loading) cancel();
 
-		#if debug
-			checkListeners();
-		#end
+		// if no url, throw exception
+		if (url == null) throw "No url defined for Loader";
+
+		// update state
+		loading = true;
+
+		// dispatch started
+		loaded.dispatchType(Started);
+
+		// default content type
+		var contentType = "application/octet-stream";
 		
+		if (Std.is(data, Xml))
+		{
+			// convert to string and send as application/xml
+			data = Std.string(data);
+			contentType = "application/xml";
+		}
+		else if (!Std.is(data, String))
+		{
+			// stringify and send as application/json
+			data = haxe.Json.stringify(data);
+			contentType = "application/json";
+		}
+		
+		// only set content type if not already set
 		if (!headers.exists("Content-Type"))
 		{
-			var contentType = getMIMEType(data);
 			headers.set("Content-Type", contentType);
 		}
 
 		http.url = url;
-		http.setPostData(Std.string(data));
+		http.setPostData(data);
 		
 		httpConfigure();
 		addHeaders();
@@ -102,34 +123,6 @@ class HttpLoader<T> extends LoaderBase<T>
 		{
 			// js can throw synchronous security error
 			loaderFail(Security(Std.string(e)));
-		}
-	}
-
-	/**
-	Returns the MIME type for the current data.
-	
-	Currently only auto-detects Xml and Json. Defaults to 'application/octet-stream'.
-	
-	Note: This can be overwritten by adding a 'Content-Type' to the headers hash
-	*/
-	function getMIMEType(data:Dynamic):String
-	{	
-		if (Std.is(data, Xml))
-		{
-			return "application/xml";
-		}
-		
-		data = Std.string(data);
-
-		if (data.length > 0 &&
-			(data.charAt(0) == "{" && data.charAt(data.length - 1) == "}") ||
-			(data.charAt(0) == "[" && data.charAt(data.length - 1) == "]"))
-		{
-			return "application/json";
-		}
-		else
-		{
-			return "application/octet-stream";
 		}
 	}
 

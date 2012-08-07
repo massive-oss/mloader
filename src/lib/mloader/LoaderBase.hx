@@ -50,11 +50,12 @@ class LoaderBase<T> implements Loader<T>
 	*/
 	public function new(?url:String)
 	{
-		this.url = url;
 		this.loaded = new EventSignal<Loader<T>, LoaderEvent>(this);
+		this.url = url;
 
 		// set initial state
-		loaderReset();
+		progress = 0;
+		loading = false;
 	}
 
 	/**
@@ -67,16 +68,18 @@ class LoaderBase<T> implements Loader<T>
 	{
 		// if currently loading, cancel
 		if (loading) cancel();
-		else loaderReset();
 
 		// if no url, throw exception
 		if (url == null) throw "No url defined for Loader";
 
-		// call implementation
-		loaderLoad();
-
 		// update state
 		loading = true;
+
+		// dispatch started
+		loaded.dispatchType(Started);
+		
+		// call implementation
+		loaderLoad();
 	}
 
 	/**
@@ -94,25 +97,12 @@ class LoaderBase<T> implements Loader<T>
 		loaderCancel();
 
 		// reset state
-		loaderReset();
+		progress = 0;
+		content = null;
+		loading = false;
 
 		// dispatch event
-		loaded.bubbleType(Cancelled);
-	}
-
-	/**
-	Resets the state of the loader.
-	*/
-	function loaderReset()
-	{
-		// reset progress
-		progress = 0;
-
-		// clear content
-		content = null;
-
-		// reset state
-		loading = false;
+		loaded.dispatchType(Cancelled);
 	}
 
 	//-------------------------------------------------------------------------- private
@@ -133,26 +123,23 @@ class LoaderBase<T> implements Loader<T>
 		throw "missing implementation";
 	}
 	
-	function loaderStart()
-	{
-		// dispatch event
-		loaded.dispatchType(Started);
-	}
-
 	function loaderComplete()
 	{
+		if (!loading) return;
+
 		// update progress
 		progress = 1;
 
 		// update state
 		loading = false;
-
+		
 		// dispatch event
 		loaded.dispatchType(Completed);
 	}
 
 	function loaderFail(error:LoaderError)
 	{
+		if (!loading) return;
 		loaded.dispatchType(Failed(error));
 	}
 }

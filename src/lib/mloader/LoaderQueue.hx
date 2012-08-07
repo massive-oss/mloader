@@ -2,7 +2,6 @@ package mloader;
 
 import mcore.exception.ArgumentException;
 import msignal.Signal;
-import msignal.Event;
 import msignal.EventSignal;
 import mloader.Loader;
 import mcore.util.Timer;
@@ -70,7 +69,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	public var loaded(default, null):EventSignal<Loader<Array<AnyLoader>>, LoaderEvent>;
 
 	/**
-	Defines the maximum amount of concurrent Loaders. Must be greater then 0. 
+	Defines the maximum amount of concurrent Loaders. Must be greater than 0. 
 	Default is 8.
 	*/
 	public var maxLoading:Int;
@@ -128,7 +127,8 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	This value is not used by the LoaderQueue. Added to adhere to the Loader 
 	interface.
 	*/
-	public var url:String;
+	public var url(default, set_url):String;
+	function set_url(value:String):String { return value; }
 
 	var pendingQueue:Array<PendingLoader>;
 	var activeLoaders:Array<AnyLoader>;
@@ -164,7 +164,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	{
 		pendingQueue.push({loader:loader, priority:priority});
 		pendingQueue.sort(function(a, b) { return b.priority - a.priority; });
-
+		
 		if (autoLoad) load();
 	}
 
@@ -187,20 +187,23 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	}
 
 	/**
-	Begin the loading of the queue if it's not already loading.
+	Starts loading the queue.
 	*/
 	public function load()
 	{
-		if (!loading && pendingQueue.length > 0)
-		{
-			loading = true;
-			progress = 0;
+		// if currently loading, return
+		if (loading) return;
 
-			loaded.event(started);
-			loaded.event(progressed);
+		// update state
+		loading = true;
+		numLoaded = numFailed = 0;
 
-			continueLoading();
-		}
+		// dispatch started
+		loaded.dispatchType(Started);
+		
+		// start queue if there are pending, else complete
+		if (pendingQueue.length > 0) continueLoading();
+		else queueCompleted();
 	}
 
 	function loaderCompleted(loader:AnyLoader)
@@ -210,7 +213,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		numLoaded++;
 
 		progress = numLoaded == 0 ? 0 : (numLoaded / (numLoaded + size));
-		loaded.event(progressed);
+		loaded.dispatchType(Progressed);
 
 		if (loading)
 		{
@@ -222,6 +225,8 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 
 	function loaderFail(loader:AnyLoader, error:LoaderError)
 	{
+		numFailed += 1;
+		
 		if (ignoreFailures)
 		{
 			loaderCompleted(loader);
@@ -231,8 +236,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 			loader.loaded.remove(loaderLoaded);
 			activeLoaders.remove(loader);
 
-			loaded.event(failed(error));
-			numLoaded = numFailed = 0;
+			loaded.dispatchType(Failed(error));
 			loading = false;
 		}
 	}
@@ -259,8 +263,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	*/
 	function queueCompleted()
 	{
-		loaded.event(completed);
-		numLoaded = numFailed = 0;
+		loaded.dispatchType(Completed);
 		loading = false;
 	}
 
@@ -277,10 +280,9 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 			loader.cancel();
 		}
 
-		numLoaded = numFailed = 0;
+		loading = false;
 		pendingQueue = [];
-
-		loaded.event(cancelled);
+		loaded.dispatchType(Cancelled);
 	}
 
 	/**
@@ -289,21 +291,12 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	function loaderLoaded(event:AnyLoaderEvent)
 	{
 		var loader = event.target;
-
 		switch (event.type)
 		{
-			case completed, cancelled: loaderCompleted(loader);
-			case failed(e): loaderFail(loader, e);
+			case Completed, Cancelled: loaderCompleted(loader);
+			case Failed(e): loaderFail(loader, e);
 			default:
 		}
-	}
-
-	/**
-	Determine if a loader is present in the queue.
-	*/
-	public function contains(loader:AnyLoader):Bool
-	{
-		return containsActiveLoader(loader) || containsPendingLoader(loader);
 	}
 
 	function containsActiveLoader(loader:AnyLoader)

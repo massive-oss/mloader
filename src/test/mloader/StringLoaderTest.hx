@@ -104,7 +104,7 @@ class StringLoaderTest
 	@Test
 	public function changing_url_during_loading_should_cancel_loading():Void
 	{
-		http.respondTo(VALID_URL).with(Data("content"));
+		http.respondTo(VALID_URL).with(Data("content")).afterDelay(10);
 		loader.url = VALID_URL;
 		loader.load();
 		loader.url = "m/loader/test2.txt";
@@ -186,5 +186,18 @@ class StringLoaderTest
 		loader.load();
 
 		Assert.areEqual(100, loader.statusCode);
+	}
+
+	@Test
+	public function converts_object_to_json_string_before_sending():Void
+	{
+		var object = { foo:"bar" };
+
+		http.respondTo("data.json").with(Data(""));
+		loader.url = "data.json";
+		loader.send(object);
+
+		var json =  haxe.Json.stringify(object);
+		Assert.areEqual(json, http.getPostData());
 	}
 }
