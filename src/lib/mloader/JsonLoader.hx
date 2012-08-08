@@ -6,7 +6,7 @@ import msignal.EventSignal;
 
 using mcore.util.Strings;
 
-typedef JSONLoaderEvent = Event<Loader<Dynamic>, LoaderEvent>;
+typedef JsonLoaderEvent = Event<Loader<Dynamic>, LoaderEvent>;
 
 /**
 The JsonLoader is an extension of the HttpLoader. It's responsible for loading 

@@ -1,66 +1,41 @@
 package mloader;
 
+#if flash
+
 import mloader.Loader;
-import msignal.Event;
+import msignal.EventSignal;
+
+typedef SwfLoaderEvent = Event<Loader<flash.display.Loader>, LoaderEvent>;
 
 /**
 The SWFLoader class loads an SWF file. It also raises an IO error if the
 SWF file fails to load.
 */
-
-#if flash
-import flash.net.URLRequest;
-import flash.system.LoaderContext;
-import flash.system.ApplicationDomain;
-import flash.events.ProgressEvent;
-import flash.events.IOErrorEvent;
-
-typedef FlashLoader = flash.display.Loader;
-typedef FlashEvent = flash.events.Event;
-
-typedef SWFLoaderEvent = Event<Loader<FlashLoader>, LoaderEvent>;
-
-class SWFLoader extends LoaderBase<FlashLoader>
+class SwfLoader extends LoaderBase<flash.display.DisplayObject>
 {
-	/**
-	The Loader object used to load the SWF file
-	*/
-	public var loader:FlashLoader;
+	var loader:flash.display.Loader;
 
-	/**
-	@param url  the url to load the resource from
-	*/
 	public function new(?url)
 	{
 		super(url);
 		
-		loader = new FlashLoader();
+		loader = new flash.display.Loader();
 
 		var loaderInfo = loader.contentLoaderInfo;
-		loaderInfo.addEventListener(ProgressEvent.PROGRESS, loadProgress);
-		loaderInfo.addEventListener(FlashEvent.COMPLETE, loadComplete);
-		loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, loadError);
+		loaderInfo.addEventListener(flash.events.ProgressEvent.PROGRESS, loadProgress);
+		loaderInfo.addEventListener(flash.events.Event.COMPLETE, loadComplete);
+		loaderInfo.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loadError);
 	}
 	
-	/**
-	Loads the SWF file. 
-
-	@param url The url of the flash file to load.
-	*/
-	override public function load()
+	override function loaderLoad()
 	{
-		super.load();
-		loader.load(new URLRequest(url), new LoaderContext(true, ApplicationDomain.currentDomain));
+		loader.load(new flash.net.URLRequest(url), 
+			new flash.system.LoaderContext(true, flash.system.ApplicationDomain.currentDomain));
 	}
 
-	/**
-	Cancels a request to load an SWF file. Dispatches the cancelled event when 
-	called.
-	*/
-	override public function cancel()
+	override public function loaderCancel()
 	{
 		loader.close();
-		loaded.event(cancelled);
 	}
 	
 	function loadProgress(event)
@@ -72,32 +47,30 @@ class SWFLoader extends LoaderBase<FlashLoader>
 			progress = event.bytesLoaded / event.bytesTotal;
 		}
 
-		loaded.event(progressed);
+		loaded.dispatchType(Progressed);
 	}
 
 	function loadComplete(event)
 	{
-		content = loader;
-		loaded.event(completed);
+		content = loader.content;
+		loaderComplete();
 	}
 
 	function loadError(event)
 	{
-		loaded.event(failed(io(Std.string(event))));
+		loaderFail(IO(Std.string(event)));
 	}
 }
 
 #else
-import mcore.exception.MissingImplementationException;
 
-typedef SWFLoaderEvent = Event<SWFLoader, LoaderEvent>;
-
-class SWFLoader extends LoaderBase<Dynamic>
+class SwfLoader extends LoaderBase<Dynamic>
 {
 	public function new(?url:String)
 	{
 		super(url);
-		throw new mcore.exception.UnsupportedPlatformException("mloader.SWFLoader is not implemented on this platform");
+
+		throw "mloader.SWFLoader is not implemented on this platform";
 	}
 }
 

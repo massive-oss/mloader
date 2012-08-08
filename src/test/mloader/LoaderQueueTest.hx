@@ -80,7 +80,9 @@ class LoaderQueueTest
 	{
 		var cancelled = false;
 		var loader = new LoaderMock(FAILED);
-		loader.loaded.addOnce(function(e) { Console.log(e.type); cancelled = true; }).forType(Cancelled);
+		loader.loaded.addOnce(function(e){
+			cancelled = true;
+		}).forType(Cancelled);
 
 		queue.add(loader);
 		queue.load();
@@ -135,7 +137,7 @@ class LoaderQueueTest
 	@AsyncTest
 	public function should_dispatch_completed_when_queue_is_empty(async:AsyncFactory)
 	{
-		var handler = async.createHandler(this, function(q) {}, 1000);
+		var handler = async.createHandler(this, function(q) {}, 5000);
 
 		queue.loaded.addOnce(handler).forType(Completed);
 		queue.maxLoading = 2;

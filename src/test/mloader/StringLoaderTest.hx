@@ -14,7 +14,8 @@ class StringLoaderTest
 	var loader:StringLoader;
 	var events:Array<Dynamic>;
 
-	@Before public function setup():Void
+	@Before
+	public function setup():Void
 	{
 		http = new HttpMock("");
 		events = [];
@@ -22,7 +23,8 @@ class StringLoaderTest
 		loader.loaded.add(function (e) { events.unshift(e); });
 	}
 	
-	@After public function tearDown():Void
+	@After
+	public function tearDown():Void
 	{
 		loader.loaded.removeAll();
 		loader = null;
@@ -33,9 +35,11 @@ class StringLoaderTest
 	#if neko @Ignore("Async cancel not supported in neko")#end
 	public function should_cancel_loading_loader():Void
 	{
+		http.respondTo(VALID_URL).with(Data("content")).afterDelay(1);
 		loader.url = VALID_URL;
 		loader.load();
 		loader.cancel();
+		Assert.isFalse(loader.loading);
 		Assert.isTrue(Type.enumEq(events[0].type, Cancelled));
 	}
 

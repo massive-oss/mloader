@@ -30,7 +30,7 @@ class ImageLoaderTest
 	@AsyncTest
 	public function should_load_image(async:AsyncFactory):Void
 	{
-		var handler = async.createHandler(this, assertCompleted, 300);
+		var handler = async.createHandler(this, assertCompleted, 2000);
 		loader.loaded.add(handler).forType(Completed);
 		loader.url = "m/loader/test.jpg";
 		loader.load();
@@ -44,7 +44,7 @@ class ImageLoaderTest
 	@AsyncTest
 	public function should_cancel_load(async:AsyncFactory):Void
 	{
-		var handler = async.createHandler(this, assertDidNotComplete, 300);
+		var handler = async.createHandler(this, assertDidNotComplete, 2000);
 		haxe.Timer.delay(handler, 200);
 
 		loader.url = "m/loader/test.jpg";

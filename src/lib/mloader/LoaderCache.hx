@@ -1,9 +1,9 @@
 package mloader;
 
 import mloader.Loader;
-import msignal.Event;
+import msignal.EventSignal;
 
-using mcore.util.IterableUtil;
+using mcore.util.Iterables;
 
 /**
 The LoadCache class caches any request which has it's base type of Loader. It
@@ -11,19 +11,30 @@ also stores reference to items which are currently still being loaded.
 */
 class LoaderCache
 {
-	var activeLoaders:Hash<ActiveLoader>;
-	var duplicateLoaders:Hash<Array<ActiveLoader>>;
-	var responseCache:Hash<Dynamic>;
+	/**
+	Loaders currently being loaded by the cache, indexed by url.
+	*/
+	var loadingLoaders:Hash<AnyLoader>;
+
+	/**
+	Loaders that are waiting for a loading loader to complete, indexed by url.
+	*/
+	var waitingLoaders:Hash<Array<AnyLoader>>;
+
+	/**
+	A cache of succefully loaded Loader.content, index by url.
+	*/
+	var cache:Hash<Dynamic>;
 
 	public function new()
 	{
-		activeLoaders = new Hash();
-		duplicateLoaders = new Hash();
-		responseCache = new Hash();
+		loadingLoaders = new Hash();
+		waitingLoaders = new Hash();
+		cache = new Hash();
 	}
 
 	/**
-	Request the LoaderCache to load a
+	Request the LoaderCache to load a loader.
 
 	Initially, the load method attempts to retrieve the request from the cache. 
 	If the request isn't found, then the load method checks the items currently
@@ -32,70 +43,70 @@ class LoaderCache
 	*/
 	public function load(loader:AnyLoader)
 	{
-		if (responseCache.exists(loader.url))
+		if (cache.exists(loader.url))
 		{
-			completeLoader(loader);
+			Console.log("cached " + loader.url);
+			// if the url has been cached, complete with the cached content
+			untyped loader.content = cache.get(loader.url);
+			untyped loader.progress = 1;
+			loader.loaded.dispatchType(Completed);
 		}
-		else if (activeLoaders.exists(loader.url) && activeLoaders.get(loader.url) != loader)
+		else if (loadingLoaders.exists(loader.url) && loadingLoaders.get(loader.url) != loader)
 		{
-			addDuplicate(loader);
+			Console.log("waiting " + loader.url);
+			// if the url is currently loading, add the loader to the waiting hash
+			addWaiting(loader);
 		}
 		else
 		{
-			activeLoaders.set(loader.url, loader);
-
+			Console.log("loading " + loader.url);
+			// otherwise add the loader to the loading hash, and start loading
+			loadingLoaders.set(loader.url, loader);
 			loader.loaded.add(loaderLoaded);
 			loader.load();
 		}
 	}
 
-	inline function completeLoader(loader:AnyLoader)
-	{
-		var response = responseCache.get(loader.url);
-		untyped loader.content = response;
-		loader.loaded.event(completed);
-	}
-
 	/**
-	If a Loader is requested to be loaded, and there is already an active Loader with identical url,
-	then we store this Loader in a cache until the active one has completed. At that point we'll
-	remove this Loader from cache and dispatch its completed event too, setting it with a copy
-	of the loaded content before we do so.
+	If a Loader is requested to be loaded, and there is already an active Loader 
+	with the same url, then we store this Loader in a cache until the active 
+	one has completed. At that point we'll remove this Loader from cache and 
+	dispatch its completed event too, setting it with a copy of the loaded 
+	content before we do so.
 	*/
-	function addDuplicate(loader:AnyLoader)
+	function addWaiting(loader:AnyLoader)
 	{
-		var duplicates:Array<AnyLoader>;
+		// prevents users from loading
+		untyped loader.loading = true;
 
-		if (duplicateLoaders.exists(loader.url))
+		var waiting:Array<AnyLoader>;
+
+		if (waitingLoaders.exists(loader.url))
 		{
-			duplicates = duplicateLoaders.get(loader.url);
-
-			if (duplicates.contains(loader))
-				return;
+			waiting = waitingLoaders.get(loader.url);
 		}
 		else
 		{
-			duplicates = [];
+			waiting = [];
+			waitingLoaders.set(loader.url, waiting);
 		}
 
-		loader.loaded.add(loaderLoaded);
-
-		duplicates.push(loader);
-		duplicateLoaders.set(loader.url, duplicates);
+		waiting.push(loader);
 	}
 
 	/**
-	Called when an active loader or duplicate loader dispatches a LoaderEvent.
+	Called when an active loader or dispatches a LoaderEvent.
 	*/
 	function loaderLoaded(event:AnyLoaderEvent)
 	{
+		Console.log(event.type);
 		var loader = event.target;
 
 		switch (event.type)
 		{
-			case completed: loaderCompleted(loader);
-			case cancelled: loaderCancelled(loader);
-			case failed(e): loaderFail(loader, e);
+			case Completed: loaderCompleted(loader);
+			case Cancelled: loaderCancelled(loader);
+			case Failed(e): loaderFail(loader, e);
 			default:
 		}
 	}
@@ -103,87 +114,72 @@ class LoaderCache
 	function loaderCompleted(loader:AnyLoader)
 	{
 		loader.loaded.remove(loaderLoaded);
+		loadingLoaders.remove(loader.url);
+		cache.set(loader.url, loader.content);
 
-		var activeLoader = activeLoaders.get(loader.url);
-		if (activeLoader != loader)
-			activeLoader.loaded.remove(loaderLoaded);
-
-		activeLoaders.remove(loader.url);
-		responseCache.set(loader.url, loader.content);
-
-		completeDuplicates(loader);
-	}
-
-	function completeDuplicates(loader:AnyLoader)
-	{
-		if (duplicateLoaders.exists(loader.url))
+		if (waitingLoaders.exists(loader.url))
 		{
-			for (duplicate in duplicateLoaders.get(loader.url))
+			for (waiting in waitingLoaders.get(loader.url))
 			{
-				if (duplicate != loader)
-				{
-					untyped duplicate.content = loader.content;
-					duplicate.loaded.event(completed);
-				}
+				// if user has cancelled loader, don't complete it
+				if (!waiting.loading) continue;
+
+				// update loader state
+				untyped waiting.loading = false;
+				untyped waiting.content = loader.content;
+				untyped waiting.progress = 1;
+
+				// dispatch completed
+				waiting.loaded.dispatchType(Completed);
 			}
-			duplicateLoaders.remove(loader.url);
+
+			waitingLoaders.remove(loader.url);
 		}
 	}
 
 	function loaderFail(loader:AnyLoader, error:LoaderError)
 	{
+		// remove loading loader
 		loader.loaded.remove(loaderLoaded);
+		loadingLoaders.remove(loader.url);
 
-		var activeLoader = activeLoaders.get(loader.url);
-		if (activeLoader != loader)
-			activeLoader.loaded.remove(loaderLoaded);
-
-		activeLoaders.remove(loader.url);
-		responseCache.remove(loader.url);
-
-		failDuplicates(loader);
-	}
-
-	function failDuplicates(loader:AnyLoader, error:LoaderError)
-	{
-		if (duplicateLoaders.exists(loader.url))
+		if (waitingLoaders.exists(loader.url))
 		{
-			for (duplicate in duplicateLoaders.get(loader.url))
-				if (loader != duplicate)
-					duplicate.loaded.event(failed(error));
+			for (waiting in waitingLoaders.get(loader.url))
+			{
+				// if user has cancelled loader, don't fail it
+				if (!waiting.loading) continue;
 
-			duplicateLoaders.remove(loader.url);
+				// update loader state
+				untyped waiting.loading = false;
+
+				// dispatch error
+				waiting.loaded.dispatchType(Failed(error));
+			}
+
+			waitingLoaders.remove(loader.url);
 		}
 	}
 
+	/**
+	If a loading loader is cancelled, we stop listening to it and check if there 
+	are any waiting loaders for that url. If there are, we load the first one.
+	*/
 	function loaderCancelled(loader:AnyLoader)
 	{
+		// remove loading loader
 		loader.loaded.remove(loaderLoaded);
+		loadingLoaders.remove(loader.url);
 
-		var duplicates = duplicateLoaders.get(loader.url);
-
-		if (activeLoaders.get(loader.url) == loader)
+		if (waitingLoaders.exists(loader.url))
 		{
-			activeLoaders.remove(loader.url);
-
-			if (duplicates != null)
-				load(duplicates.pop())
-		}
-		else if (duplicates != null)
-		{
-			duplicates.remove(loader);
-
-			if (duplicates.length == 0)
-				duplicateLoaders.remove(loader.url);
+			var loader = waitingLoaders.get(loader.url).shift();
+			if (loader != null)
+			{
+				// need to reset loading state to it will load
+				untyped loader.loading = false;
+				load(loader);
+			}
 		}
 	}
-}
-
-private typedef ActiveLoader =
-{
-	var loader:AnyLoader;
-	var dependencies:Array<AnyLoader>;
-	function completed(asset:Dynamic):Void;
-	function failed(error:LoaderError):Void;
-	function cancelled():Void;
 }

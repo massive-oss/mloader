@@ -66,8 +66,8 @@ class LoaderBase<T> implements Loader<T>
 	*/
 	public function load():Void
 	{
-		// if currently loading, cancel
-		if (loading) cancel();
+		// if currently loading, return
+		if (loading) return;
 
 		// if no url, throw exception
 		if (url == null) throw "No url defined for Loader";
@@ -92,6 +92,7 @@ class LoaderBase<T> implements Loader<T>
 	{
 		// if not loading, return
 		if (!loading) return;
+		loading = false;
 
 		// call implementation
 		loaderCancel();
@@ -99,8 +100,7 @@ class LoaderBase<T> implements Loader<T>
 		// reset state
 		progress = 0;
 		content = null;
-		loading = false;
-
+		
 		// dispatch event
 		loaded.dispatchType(Cancelled);
 	}
@@ -140,6 +140,7 @@ class LoaderBase<T> implements Loader<T>
 	function loaderFail(error:LoaderError)
 	{
 		if (!loading) return;
+		loading = false;
 		loaded.dispatchType(Failed(error));
 	}
 }

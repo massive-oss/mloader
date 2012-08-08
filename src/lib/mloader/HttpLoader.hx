@@ -133,7 +133,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		http.url = url;
 		httpConfigure();
 		addHeaders();
-
+		
 		#if nme
 		if (url.indexOf("http:") == 0)
 		{
