@@ -1,53 +1,60 @@
-Loaders
+MassiveLoader
 ====================
 
-Unified API for loading external data sources (String, XML, Image, JSON) over HTTP and from the local file system.
+Unified API for loading external data sources (Strings, Xml, Images, Json) over 
+HTTP and from the local file system.
 
 Features:
 
-* Notifies observers when loading progresses, completes or fails via Signals.
-* Leverages generics <T> to formalise the return type of the completed signal. 
+* Notifies observers when loading progresses, completes or fails via a signal.
+* Leverages type parameters to type loaded content.
 * Utilities for caching and queuing multiple loaders of a similar type
 
+> Warning: MassiveLoader patches haxe.Http with a minor change to enable 
+> abortable XmlHttpRequests. The patch is clearly documented in haxe/Http.hx
 
 Basic example using StringLoader
+	
+	import mloader.Loader;
 
-	var loader = new StringLoader("http://www.example.org/config.txt");
-	loader.completed.addOnce(loaderComplete);
+	...
+
+	var loader = new mloader.StringLoader("http://www.example.org/config.txt");
+	loader.loaded.addOnce(loaderComplete).forType(Completed);
 	loader.load();
 
 	...
 
-	function loaderComplete(result:String)
+	function loaderComplete(event:LoaderEvent<String>)
 	{
-		trace(result);
+		trace(event.target.content);
 	}
 
 
-Example of XML loading
-
-	var loader = new XMLLoader("http://www.example.org/config.xml");
-	loader.completed.addOnce(loaderComplete);
+Example of Xml loading
+	
+	var loader = new mloader.XmlLoader("http://www.example.org/config.xml");
+	loader.loaded.addOnce(loaderComplete).forType(Completed);
 	loader.load();
 
 	...
 
-	function loaderComplete(result:Xml)
+	function loaderComplete(event:LoaderEvent<Xml>)
 	{
 		trace(result);
 	}
 
-Example of loading through the LoadQueue
+Example of loading through the LoaderQueue
 
-	var jsonLoader = new JSONLoader("http://www.example.org/data.json");
-	jsonLoader.completed.addOnce(dataLoaded);
+	var jsonLoader = new JsonLoader("http://www.example.org/data.json");
+	jsonLoader.loaded.addOnce(dataLoaded).forType(Completed);
 
-	var queue = new LoadQueue();
+	var queue = new LoaderQueue();
 	queue.maxLoading = 2;
 	queue.ignoreFailures = false;
 
-	queue.completed.addOnce(queueComplete);
-	queue.failed.addOnce(queueFailed);
+	queue.loaded.addOnce(queueComplete).forType(Completed);
+	queue.loaded.addOnce(queueFailed).forType(Failed);
 
 	queue.add(new ImageLoader("http://www.example.org/img/01.jpg"));
 	queue.add(new ImageLoader("http://www.example.org/img/02.jpg"));
@@ -57,17 +64,17 @@ Example of loading through the LoadQueue
 
 	queue.load();
 
-	function queueComplete(queue:Loader)
+	function queueComplete(event:LoaderEvent<Dynamic>)
 	{
 		trace("load queue completed");
 	}
 
-	function queueFailed(error:LoadError)
+	function queueFailed(event:LoaderEvent<Dynamic>)
 	{
-		trace("load queue failed " + error);
+		trace("load queue failed " + event.type);
 	}
 
-	function dataLoaded(data:Dynamic)
+	function dataLoaded(event:LoaderEvent<Dynamic>)
 	{
 		trace("JSON data loaded " + Std.string(data));
 	}

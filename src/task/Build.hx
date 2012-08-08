@@ -37,7 +37,7 @@ class Build extends mtask.core.BuildBase
 	{
 		target.name = build.project.id;
 		target.version = build.project.version;
-		target.versionDescription = "Initial release. See http://github.com/massiveinteractive/minject for documentation and examples.";
+		target.versionDescription = "Initial release. See http://github.com/massiveinteractive/mloader for documentation and examples.";
 		target.url = "http://github.com/massiveinteractive/mloader";
 		target.license.organization = "Massive Interactive";
 		target.username = "massive";
@@ -45,7 +45,7 @@ class Build extends mtask.core.BuildBase
 		target.addTag("cross");
 		target.addTag("utility");
 		target.addTag("massive");
-		target.addDependency("msignal");
+		target.addDependency("msignal", "1.1.1");
 
 		target.afterCompile = function()
 		{
@@ -87,13 +87,13 @@ class Build extends mtask.core.BuildBase
 	@task function release()
 	{
 		require("clean");
-		// require("test");
+		require("test");
 		// require("build example");
 		require("build haxelib");
 	}
 
 	@task function test()
 	{
-		cmd("haxelib", ["run", "munit", "test", "-js", "-swf", "-neko"]);
+		cmd("haxelib", ["run", "munit", "test", "-js", "-as3", "-neko"]);
 	}
 }

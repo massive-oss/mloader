@@ -1,4 +1,3 @@
-/**
 Copyright (c) 2012 Massive Interactive
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
@@ -18,48 +17,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
-*/
-
-package example;
-
-import mloader.Loader;
-import mloader.SwfLoader;
-
-class ExampleSWFLoader
-{
-	var loader:SwfLoader;
-
-	public function new()
-	{
-		#if (flash || nme)
-			loader = new SwfLoader(Example.BASE_DIR + "example.swf");
-			loader.loaded.add(loaded);
-			loader.load();
-		#else
-			try
-			{
-				loader = new SwfLoader(Example.BASE_DIR + "example.swf");
-			}
-			catch(e:Dynamic)
-			{
-				trace(e.message);
-			}
-		#end
-	}
-
-	function loaded(event)
-	{
-		switch (event.type)
-		{
-			case Failed(error):
-				trace(error);
-
-			case Completed:
-				#if (flash || nme)
-				flash.Lib.current.addChild(event.target.content);
-				#end
-
-			default:
-		}
-	}
-}

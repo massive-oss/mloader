@@ -1,3 +1,25 @@
+/**
+Copyright (c) 2012 Massive Interactive
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in 
+the Software without restriction, including without limitation the rights to 
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+of the Software, and to permit persons to whom the Software is furnished to do 
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+SOFTWARE.
+*/
+
 package mloader;
 
 import msignal.Signal;
@@ -11,7 +33,7 @@ typedef AnyLoader = Loader<Dynamic>;
 /**
 A convenience type indicating an event from a loader of any type.
 */
-typedef AnyLoaderEvent = Event<AnyLoader, LoaderEvent>;
+typedef AnyLoaderEvent = Event<AnyLoader, LoaderEventType>;
 
 /**
 The Loader class defines an API for loading url's. Loaders dispatch events 
@@ -41,9 +63,9 @@ interface Loader<T>
 	var loading(default, null):Bool;
 
 	/**
-	A signal dispatched when loading status changes. See LoaderEvent.
+	A signal dispatched when loading status changes. See LoaderEventType.
 	*/
-	var loaded(default, null):EventSignal<Loader<T>, LoaderEvent>;
+	var loaded(default, null):EventSignal<Loader<T>, LoaderEventType>;
 	
 	/**
 	Starts a load operation from the loaders url.
@@ -63,9 +85,14 @@ interface Loader<T>
 }
 
 /**
+The type definition for a loader event.
+*/
+typedef LoaderEvent<T> = Event<Loader<T>, LoaderEventType>;
+
+/**
 Events indicating changes in the state of the loader.
 */
-enum LoaderEvent
+enum LoaderEventType
 {
 	/**
 	Dispatched when the loading operation commences.
@@ -90,10 +117,10 @@ enum LoaderEvent
 	/**
 	Dispatched when the loading operation fails due to an error.
 	*/
-	Failed(error:LoaderError);
+	Failed(error:LoaderErrorType);
 }
 
-enum LoaderError
+enum LoaderErrorType
 {
 	/**
 	A fatal error terminates the download.

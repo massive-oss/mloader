@@ -132,7 +132,7 @@ class Http {
 	public function request( post : Bool ) : Void {
 		var me = this;
 	#if js
-		var r = loader = new js.XMLHttpRequest();
+		var r = loader = new js.XMLHttpRequest(); // patch
 		var onreadystatechange = function() {
 			if( r.readyState != 4 )
 				return;
@@ -188,7 +188,7 @@ class Http {
 		if( !async )
 			onreadystatechange();
 	#elseif flash9
-		loader = new flash.net.URLLoader();
+		loader = new flash.net.URLLoader(); // patch
 		loader.addEventListener( "complete", function(e){
 			me.onData( loader.data );
 		});

@@ -1,13 +1,32 @@
+/**
+Copyright (c) 2012 Massive Interactive
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in 
+the Software without restriction, including without limitation the rights to 
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+of the Software, and to permit persons to whom the Software is furnished to do 
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+SOFTWARE.
+*/
+
 package mloader;
 
 import msignal.Signal;
 import msignal.EventSignal;
 import mloader.Loader;
-import mcore.util.Timer;
 
-using Lambda;
-
-typedef LoaderQueueEvent = Event<Loader<Array<AnyLoader>>, LoaderEvent>
+typedef LoaderQueueEvent = Event<Loader<Array<AnyLoader>>, LoaderEventType>
 
 /**
 A FIFO queue of Loaders with optional priority ordering.
@@ -65,7 +84,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	/**
 	Dispatched when the loading state of the queue changes.
 	*/
-	public var loaded(default, null):EventSignal<Loader<Array<AnyLoader>>, LoaderEvent>;
+	public var loaded(default, null):EventSignal<Loader<Array<AnyLoader>>, LoaderEventType>;
 
 	/**
 	Defines the maximum amount of concurrent Loaders. Must be greater than 0. 
@@ -135,7 +154,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	public function new()
 	{
 		maxLoading = DEFAULT_MAX_LOADING;
-		loaded = new EventSignal<Loader<Array<AnyLoader>>, LoaderEvent>(this);
+		loaded = new EventSignal<Loader<Array<AnyLoader>>, LoaderEventType>(this);
 
 		loading = false;
 		ignoreFailures = true;
@@ -222,7 +241,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		else throw "should not be!";
 	}
 
-	function loaderFail(loader:AnyLoader, error:LoaderError)
+	function loaderFail(loader:AnyLoader, error:LoaderErrorType)
 	{
 		numFailed += 1;
 		
@@ -285,7 +304,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	}
 
 	/**
-	Called when an active loader dispatches a LoaderEvent.
+	Called when an active loader dispatches a LoaderEventType.
 	*/
 	function loaderLoaded(event:AnyLoaderEvent)
 	{
