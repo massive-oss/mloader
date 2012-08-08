@@ -28,6 +28,7 @@ class Example
 
 	public function new()
 	{
+		Console.start();
 		new example.ExampleLoaderQueue();
 		new example.ExampleStringLoader();
 		new example.ExampleXMLLoader();

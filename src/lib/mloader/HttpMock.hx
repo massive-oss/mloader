@@ -25,7 +25,7 @@ package mloader;
 /**
 A utility class for moccking Http responses.
 */
-class HttpMock extends Http
+class HttpMock extends haxe.Http
 {
 	public var publicHeaders:Hash<String>;
 
