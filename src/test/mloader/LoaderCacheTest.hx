@@ -23,8 +23,8 @@ class LoaderCacheTest
 	@Test
 	public function load_same_url_twice_only_loads_first_but_both_complete():Void
 	{
-		var loader1 = new LoaderMock("m/loader/test.txt");
-		var loader2 = new LoaderMock("m/loader/test.txt");
+		var loader1 = new LoaderMock("test.txt");
+		var loader2 = new LoaderMock("test.txt");
 
 		cache.load(loader1);
 		cache.load(loader2);
@@ -39,8 +39,8 @@ class LoaderCacheTest
 	@Test
 	public function loading_same_url_twice_then_cancelling_first_still_completes_second():Void
 	{
-		var loader1 = new LoaderMock("m/loader/test.txt", false);
-		var loader2 = new LoaderMock("m/loader/test.txt");
+		var loader1 = new LoaderMock("test.txt", false);
+		var loader2 = new LoaderMock("test.txt");
 		
 		cache.load(loader1);
 		cache.load(loader2);

@@ -40,8 +40,10 @@ class JsonLoaderTest
 	@Test
 	public function parses_json_response_into_object()
 	{
-		http.respondTo("data.json").with(Data(response));
-		loader.url = "data.json";
+		var url = "http://localhost/data.txt";
+		
+		http.respondTo(url).with(Data(response));
+		loader.url = url;
 		loader.load();
 
 		Assert.isNotNull(loader.content.employees);

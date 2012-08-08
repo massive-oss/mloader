@@ -1,9 +1,7 @@
 package mloader;
 
-import mcore.exception.ArgumentException;
 import mloader.Loader;
 import msignal.Signal;
-import mcore.exception.Exception;
 import haxe.Http;
 
 using mcore.util.Strings;

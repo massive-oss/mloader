@@ -77,8 +77,7 @@ class XmlObjectParser
 		}
 		catch(e:Dynamic)
 		{
-			trace("Error parsing xml " + e.toString());
-			throw e;
+			throw "Error parsing xml " + e.toString();
 		}
 	}
 	

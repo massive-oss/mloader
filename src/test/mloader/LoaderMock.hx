@@ -11,13 +11,13 @@ class LoaderMock extends LoaderBase<String>
 	public var didComplete:Bool;
 	public var didFail:Bool;
 
-	public function new(url:String, ?shouldLoad:Bool=true)
+	public function new(?url:String="foo.txt", ?shouldLoad:Bool=true)
 	{
 		super(url);
 		this.shouldLoad = shouldLoad;
 		
 		didLoad = didCancel = didComplete = didFail = didCancel = false;
-		loaded.add(handler);
+		loaded.addWithPriority(handler, 1);
 	}
 
 	function handler(event)
@@ -34,22 +34,23 @@ class LoaderMock extends LoaderBase<String>
 	override function loaderLoad()
 	{
 		didLoad = true;
-
-		if (shouldLoad)
-		{
-			content = "content";
-			loaderComplete();
-		}
+		if (shouldLoad) complete();
 	}
 
 	override function loaderCancel()
 	{
-		// no nussing.
+		// ze goggles do nussing
 	}
 
 	public function fail(?error:LoaderError=null)
 	{
 		if (error == null) error = IO("Mock fail.");
 		loaderFail(error);
+	}
+
+	public function complete()
+	{
+		content = "content";
+		loaderComplete();
 	}
 }

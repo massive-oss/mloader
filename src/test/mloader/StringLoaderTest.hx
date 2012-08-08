@@ -8,7 +8,7 @@ import massive.munit.async.AsyncFactory;
 
 class StringLoaderTest
 {
-	static var VALID_URL = "m/loader/test.txt";
+	static var VALID_URL = "src/resource/test/test.txt";
 	
 	var http:HttpMock;
 	var loader:StringLoader;
@@ -84,34 +84,64 @@ class StringLoaderTest
 	{
 		loader.url = "invalid";
 		loader.load();
-		Assert.isTrue(Type.enumEq(events[0].type, Failed(IO("Http Error #404"))));
+		Assert.isTrue(typeEq(events[0].type, Failed(IO(null))));
+	}
+
+	/**
+	Compares enum equality, ignoring any non enum parameters, so that:
+		Failed(IO("One thing happened")) == Failed(IO("Another thing happened"))
+	*/
+	function typeEq(a:EnumValue, b:EnumValue)
+	{
+		if (a == b) return true;
+		if (Type.getEnum(a) != Type.getEnum(b)) return false;
+		if (Type.enumIndex(a) != Type.enumIndex(b)) return false;
+
+		var aParams = Type.enumParameters(a);
+		if (aParams.length == 0) return true;
+		var bParams = Type.enumParameters(b);
+
+		for (i in 0...aParams.length)
+		{
+			var aParam = aParams[i];
+			var bParam = bParams[i];
+
+			if (aParam == null) continue;
+			if (Type.getEnum(aParam) == null) continue;
+			if (!typeEq(aParam, bParam)) return false;
+		}
+
+		return true;
 	}
 
 	@Test
+	#if neko @Ignore("Neko has no security sandbox") #end
 	public function should_fail_with_security_on_load_insecure_url():Void
 	{
 		http.respondTo("insecure").with(Exception("Security error"));
 		loader.url = "insecure";
 		loader.load();
-		Assert.isTrue(Type.enumEq(events[0].type, Failed(Security("Security error"))));
+		Assert.isTrue(typeEq(events[0].type, Failed(Security(null))));
 	}
 
 	@Test
+	#if neko @Ignore("Neko has no security sandbox") #end
 	public function should_fail_with_security_on_send_to_insecure_url():Void
 	{
 		http.respondTo("send/securityError").with(Exception("Security error"));
 		loader.url = "send/securityError";
 		loader.send("some post data");
-		Assert.isTrue(Type.enumEq(events[0].type, Failed(Security("Security error"))));
+		Assert.isTrue(typeEq(events[0].type, Failed(Security(null))));
 	}
 
 	@Test
+	#if neko @Ignore("Async cancel not supported in neko")#end
 	public function changing_url_during_loading_should_cancel_loading():Void
 	{
 		http.respondTo(VALID_URL).with(Data("content")).afterDelay(10);
 		loader.url = VALID_URL;
 		loader.load();
-		loader.url = "m/loader/test2.txt";
+		loader.url = "test2.txt";
 		Assert.isTrue(Type.enumEq(events[0].type, Cancelled));
 	}
 
@@ -185,8 +215,11 @@ class StringLoaderTest
 	@Test
 	public function should_update_with_http_status_code()
 	{
-		http.respondTo(VALID_URL).with(Status(100));
-		loader.url = VALID_URL;
+		// needs http:// so that neko uses http instead of file system
+		var url = "http://localhost/text.txt";
+
+		http.respondTo(url).with(Status(100));
+		loader.url = url;
 		loader.load();
 
 		Assert.areEqual(100, loader.statusCode);

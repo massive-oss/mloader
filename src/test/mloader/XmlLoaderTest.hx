@@ -33,22 +33,24 @@ class XmlLoaderTest
 	{
 		var data = "<invalid";
 		var error = try { Xml.parse(data); ""; } catch (e:Dynamic) { Std.string(e); }
+		var url = "http://localhost/invalid.xml";
 
-		http.respondTo("invalid.xml").with(Data(data));
-		loader.url = "invalid.xml";
+		http.respondTo(url).with(Data(data));
+		loader.url = url;
 		loader.load();
 
 		Assert.isTrue(Type.enumEq(events[0].type, Failed(Format(error))));
 	}
 
 	@Test
-	public function should_complete_with_parser_document_on_load_valid_document():Void
+	public function should_complete_with_parsed_document_on_load_valid_document():Void
 	{
 		var data = "<valid />";
 		var xml = Xml.parse(data);
-		
-		http.respondTo("valid.xml").with(Data(data));
-		loader.url = "valid.xml";
+		var url = "http://localhost/valid.xml";
+
+		http.respondTo(url).with(Data(data));
+		loader.url = url;
 		loader.load();
 		
 		Assert.isTrue(Type.enumEq(events[0].type, Completed));

@@ -3,8 +3,6 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
-using mcore.util.Iterables;
-
 /**
 The LoadCache class caches any request which has it's base type of Loader. It
 also stores reference to items which are currently still being loaded. 
@@ -34,18 +32,16 @@ class LoaderCache
 	}
 
 	/**
-	Request the LoaderCache to load a loader.
-
-	Initially, the load method attempts to retrieve the request from the cache. 
-	If the request isn't found, then the load method checks the items currently
-	being loaded for that request. If the request is neither cached nor being 
-	loaded a new request is made.
+	Request the LoaderCache to load a loader. If a loader with the same url has 
+	previously been loaded using the cache, we check if it completed. If it did, 
+	we complete the new loader with the cached content. If it is still loading, 
+	the loader is placed in a queue, and completed when the loading loader 
+	completes.
 	*/
 	public function load(loader:AnyLoader)
 	{
 		if (cache.exists(loader.url))
 		{
-			Console.log("cached " + loader.url);
 			// if the url has been cached, complete with the cached content
 			untyped loader.content = cache.get(loader.url);
 			untyped loader.progress = 1;
@@ -53,19 +49,43 @@ class LoaderCache
 		}
 		else if (loadingLoaders.exists(loader.url) && loadingLoaders.get(loader.url) != loader)
 		{
-			Console.log("waiting " + loader.url);
 			// if the url is currently loading, add the loader to the waiting hash
 			addWaiting(loader);
 		}
 		else
 		{
-			Console.log("loading " + loader.url);
 			// otherwise add the loader to the loading hash, and start loading
 			loadingLoaders.set(loader.url, loader);
 			loader.loaded.add(loaderLoaded);
 			loader.load();
 		}
 	}
+
+	/**
+	Clears the cache. Currently loading loaders will still be cached when they 
+	complete. To cancel all current loaders, call cancel();
+	*/
+	public function clear()
+	{
+		cache = new Hash();
+	}
+
+	/**
+	Cancels any active or waiting loaders being managed by the cache.
+	*/
+	public function cancel()
+	{
+		// cancel waiting loaders
+		for (waiting in waitingLoaders)
+		{
+			for (loader in waiting) loader.cancel();
+		}
+
+		// cancel loading loaders
+		for (loader in loadingLoaders) loader.cancel();
+	}
+
+	//-------------------------------------------------------------------------- private
 
 	/**
 	If a Loader is requested to be loaded, and there is already an active Loader 
@@ -99,7 +119,6 @@ class LoaderCache
 	*/
 	function loaderLoaded(event:AnyLoaderEvent)
 	{
-		Console.log(event.type);
 		var loader = event.target;
 
 		switch (event.type)

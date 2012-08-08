@@ -1,6 +1,5 @@
 package mloader;
 
-import mcore.exception.ArgumentException;
 import mloader.Loader;
 import msignal.EventSignal;
 

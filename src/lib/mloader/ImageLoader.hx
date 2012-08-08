@@ -107,16 +107,14 @@ class ImageLoader extends LoaderBase<BitmapData>
 }
 
 #else
-import mcore.exception.MissingImplementationException;
-
-typedef ImageLoaderEvent = Event<Loader<Dynamic>, LoaderEvent>;
 
 class ImageLoader extends LoaderBase<Dynamic>
 {
 	public function new(?url:String)
 	{
 		super(url);
-		throw new MissingImplementationException("mloader.ImageLoader is not implemented on this platform");
+		
+		throw "mloader.ImageLoader is not implemented on this platform";
 	}
 }
 #end

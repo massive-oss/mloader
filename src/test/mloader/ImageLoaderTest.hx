@@ -6,6 +6,8 @@ import massive.munit.async.AsyncFactory;
 import mloader.Loader;
 import mloader.ImageLoader;
 
+#if (flash || js)
+
 class ImageLoaderTest
 {
 	var loader:ImageLoader;
@@ -32,7 +34,7 @@ class ImageLoaderTest
 	{
 		var handler = async.createHandler(this, assertCompleted, 2000);
 		loader.loaded.add(handler).forType(Completed);
-		loader.url = "m/loader/test.jpg";
+		loader.url = "test.jpg";
 		loader.load();
 	}
 
@@ -47,7 +49,7 @@ class ImageLoaderTest
 		var handler = async.createHandler(this, assertDidNotComplete, 2000);
 		haxe.Timer.delay(handler, 200);
 
-		loader.url = "m/loader/test.jpg";
+		loader.url = "test.jpg";
 		loader.load();
 		loader.cancel();
 	}
@@ -57,3 +59,25 @@ class ImageLoaderTest
 		Assert.isFalse(Type.enumEq(events[0].type, Completed));
 	}
 }
+
+#else
+
+class ImageLoaderTest
+{
+	@Test
+	public function should_throw_exception()
+	{
+		try
+		{
+			var instance = new ImageLoader();
+			Assert.fail("expected exception");
+		}
+		catch(e:Dynamic)
+		{
+			Assert.isTrue(true);
+			return;
+		}
+	}
+}
+
+#end

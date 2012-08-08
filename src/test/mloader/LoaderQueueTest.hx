@@ -31,8 +31,8 @@ class LoaderQueueTest
 	public function should_include_acitve_and_pending_loaders_in_queue_size()
 	{
 		queue.maxLoading = 1;
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
+		queue.add(new LoaderMock("", false));
+		queue.add(new LoaderMock("", false));
 		queue.load();
 
 		Assert.areEqual(2, queue.size);
@@ -42,8 +42,8 @@ class LoaderQueueTest
 	@Test
 	public function should_add_loader_to_queue_but_not_start_loading()
 	{
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
+		queue.add(new LoaderMock());
+		queue.add(new LoaderMock());
 
 		Assert.areEqual(2, queue.size);
 		Assert.isFalse(queue.loading);
@@ -54,10 +54,10 @@ class LoaderQueueTest
 	public function should_limit_num_loading_to_max_loading()
 	{
 		queue.maxLoading = 3;
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
+		queue.add(new LoaderMock("", false));
+		queue.add(new LoaderMock("", false));
+		queue.add(new LoaderMock("", false));
+		queue.add(new LoaderMock("", false));
 
 		queue.load();
 		Assert.areEqual(3, queue.numLoading);
@@ -66,7 +66,7 @@ class LoaderQueueTest
 	@Test
 	public function should_remove_loader_from_queue()
 	{
-		var loader = new LoaderMock(FAILED);
+		var loader = new LoaderMock();
 
 		queue.add(loader);
 		Assert.areEqual(1, queue.size);
@@ -78,43 +78,36 @@ class LoaderQueueTest
 	@Test
 	public function should_remove_and_cancel_active_loader()
 	{
-		var cancelled = false;
-		var loader = new LoaderMock(FAILED);
-		loader.loaded.addOnce(function(e){
-			cancelled = true;
-		}).forType(Cancelled);
+		var loader = new LoaderMock("", false);
 
 		queue.add(loader);
 		queue.load();
 		Assert.isTrue(loader.loading);
 		queue.remove(loader);
 
-		Assert.isTrue(cancelled);
+		Assert.isTrue(loader.didCancel);
 		Assert.areEqual(0, queue.size);
 	}
 
 	@Test
 	public function should_cancell_all_loaders()
 	{
-		var cancelled = 0;
-		var loaderOne = new LoaderMock(Completed);
-		loaderOne.loaded.addOnce(function(e) { cancelled++; }).forType(Cancelled);
-
-		var loaderTwo = new LoaderMock(Completed);
-		loaderTwo.loaded.addOnce(function(e) { cancelled++; }).forType(Cancelled);
-
-		var loaderThree = new LoaderMock(Completed);
-		loaderThree.loaded.addOnce(function(e) { cancelled++; }).forType(Cancelled);
+		var loader1 = new LoaderMock("", false);
+		var loader2 = new LoaderMock("", false);
+		var loader3 = new LoaderMock("", false);
 
 		queue.maxLoading = 2;
-		queue.add(loaderOne);
-		queue.add(loaderTwo);
-		queue.add(loaderThree);
+		queue.add(loader1);
+		queue.add(loader2);
+		queue.add(loader3);
 		queue.load();
 
 		queue.cancel();
 
-		Assert.areEqual(cancelled, 2); // only cancels active loaders
+		Assert.isTrue(loader1.didCancel);
+		Assert.isTrue(loader2.didCancel);
+		Assert.isFalse(loader3.didCancel); // only cancels active loaders
+		
 		Assert.areEqual(0, queue.size);
 		Assert.areEqual(0, queue.numLoading);
 		Assert.areEqual(0, queue.numLoaded);
@@ -123,7 +116,7 @@ class LoaderQueueTest
 	@Test
 	public function should_remove_externally_cancelled_loader()
 	{
-		var loader = new LoaderMock(Completed);
+		var loader = new LoaderMock("", false);
 		queue.add(loader);
 		queue.load();
 
@@ -131,28 +124,34 @@ class LoaderQueueTest
 		Assert.areEqual(queue.numLoading, 1);
 		loader.cancel();
 		Assert.areEqual(queue.numLoading, 0);
-
 	}
 
-	@AsyncTest
-	public function should_dispatch_completed_when_queue_is_empty(async:AsyncFactory)
+	@Test
+	public function should_dispatch_completed_when_queue_is_empty()
 	{
-		var handler = async.createHandler(this, function(q) {}, 5000);
+		var completed = false;
+		queue.loaded.addOnce(function(e){
+			completed = true;
+		}).forType(Completed);
 
-		queue.loaded.addOnce(handler).forType(Completed);
 		queue.maxLoading = 2;
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
+		queue.add(new LoaderMock());
+		queue.add(new LoaderMock());
 		queue.load();
+
+		Assert.isTrue(completed);
 	}
 
 	@Test
 	public function should_dispatch_completed_when_loading_an_empty_queue()
 	{
-		var completedCalled = false;
-		queue.loaded.addOnce(function(queue) { completedCalled = true; }).forType(Completed);
+		var completed = false;
+		queue.loaded.addOnce(function(e){
+			completed = true;
+		}).forType(Completed);
+
 		queue.load();
-		Assert.isTrue(completedCalled);
+		Assert.isTrue(completed);
 	}
 
 	@Test
@@ -160,19 +159,19 @@ class LoaderQueueTest
 	{
 		queue.maxLoading = 1;
 		queue.autoLoad = true;
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
+		queue.add(new LoaderMock("", false));
+		queue.add(new LoaderMock("", false));
 
 		Assert.isTrue(queue.loading);
 		Assert.areEqual(1, queue.numLoading);
 	}
 
-	@AsyncTest
-	public function should_update_progress(async:AsyncFactory)
+	@Test
+	public function should_update_progress()
 	{
-		var handler = async.createHandler(this, function() {}, 5000);
-
+		var completed = false;
 		var progressed = [];
+
 		queue.loaded.add(function(p) { progressed.push(queue.progress); }).forType(Progressed);
 		queue.loaded.addOnce(function(q) {
 			Assert.areEqual(4, progressed.length);
@@ -180,140 +179,145 @@ class LoaderQueueTest
 			Assert.areEqual(0.5, progressed[1]);
 			Assert.areEqual(0.75, progressed[2]);
 			Assert.areEqual(1, progressed[3]);
-			handler();
+			completed = true;
 		}).forType(Completed);
 
 		queue.ignoreFailures = false;
 		queue.maxLoading = 1;
 
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(Completed));
+		queue.add(new LoaderMock());
+		queue.add(new LoaderMock());
+		queue.add(new LoaderMock());
+		queue.add(new LoaderMock());
 		queue.load();
+
+		Assert.isTrue(completed);
 	}
 
-	@AsyncTest
-	public function should_fail_on_first_error(async:AsyncFactory)
+	@Test
+	public function should_fail_on_first_error()
 	{
-		var completedCount = 0;
-		var handler = async.createHandler(this, function() {}, 5000);
+		var failed = false;
 
-		queue.loaded.addOnce(function(e) {
+		var loader1 = new LoaderMock("", false);
+		var loader2 = new LoaderMock("", false);
+		var loader3 = new LoaderMock("", false);
+
+		queue.loaded.addOnce(function(e){
 			Assert.areEqual(1, queue.numFailed);
 			Assert.areEqual(1, queue.size);
 			Assert.areEqual(1, queue.numLoaded);
-			Assert.areEqual(1, completedCount);
-			handler();
+
+			Assert.isFalse(loader1.didFail);
+			Assert.isTrue(loader1.didComplete);
+
+			Assert.isTrue(loader2.didFail);
+
+			Assert.isFalse(loader3.didLoad);
+			Assert.isFalse(loader3.didFail);
+
+			failed = true;
 		}).forType(Failed(null));
-		queue.loaded.add(function(e) { completedCount++; }).forType(Progressed);
 
 		queue.ignoreFailures = false;
 		queue.maxLoading = 1;
 
-		queue.add(new LoaderMock(Completed));
-		queue.add(new LoaderMock(FAILED));
-		queue.add(new LoaderMock(Completed));
+		queue.add(loader1);
+		queue.add(loader2);
+		queue.add(loader3);
 		queue.load();
+
+		loader1.complete();
+		loader2.fail();
+
+		Assert.isTrue(failed);
 	}
 
-	@AsyncTest
-	public function should_process_queue_in_fifo_order_when_no_priority_is_set(async:AsyncFactory)
+	@Test
+	public function should_process_queue_in_fifo_order_when_no_priority_is_set()
 	{
+		var loader1 = new LoaderMock();
+		var loader2 = new LoaderMock();
+		var loader3 = new LoaderMock();
+
 		var order = [];
-		var loaderOne = new LoaderMock(Completed, 1);
-		loaderOne.loaded.addOnce(function(v) { order.push(1); }).forType(Completed);
+		loader1.loaded.addOnce(function(v) { order.push(1); }).forType(Completed);
+		loader2.loaded.addOnce(function(v) { order.push(2); }).forType(Completed);
+		loader3.loaded.addOnce(function(v) { order.push(3); }).forType(Completed);
 
-		var loaderTwo = new LoaderMock(Completed, 2);
-		loaderTwo.loaded.addOnce(function(v) { order.push(2); }).forType(Completed);
-
-		var loaderThree = new LoaderMock(Completed, 3);
-		loaderThree.loaded.addOnce(function(v) { order.push(3); }).forType(Completed);
-
-		var handler = async.createHandler(this, function(q) {
+		var completed = false;
+		queue.loaded.addOnce(function(e){
 			Assert.areEqual(3, order.length);
 			Assert.areEqual(1, order[0]);
 			Assert.areEqual(2, order[1]);
 			Assert.areEqual(3, order[2]);
-		}, 5000);
 
-		queue.loaded.addOnce(handler).forType(Completed);
+			completed = true;
+		}).forType(Completed);
+
 		queue.maxLoading = 1;
-		queue.add(loaderOne);
-		queue.add(loaderTwo);
-		queue.add(loaderThree);
+		queue.add(loader1);
+		queue.add(loader2);
+		queue.add(loader3);
 		queue.load();
+
+		Assert.isTrue(completed);
 	}
 
-	@AsyncTest
-	public function should_process_queue_in_priority_order(async:AsyncFactory)
+	@Test
+	public function should_process_queue_in_priority_order():Void
 	{
+		var loader1 = new LoaderMock();
+		var loader2 = new LoaderMock();
+		var loader3 = new LoaderMock();
+
 		var order = [];
-		var loaderOne = new LoaderMock(Completed, 1);
-		loaderOne.loaded.addOnce(function(v) { order.push(1); }).forType(Completed);
+		loader1.loaded.addOnce(function(v) { order.push(1); }).forType(Completed);
+		loader2.loaded.addOnce(function(v) { order.push(2); }).forType(Completed);
+		loader3.loaded.addOnce(function(v) { order.push(3); }).forType(Completed);
 
-		var loaderTwo = new LoaderMock(Completed, 2);
-		loaderTwo.loaded.addOnce(function(v) { order.push(2); }).forType(Completed);
-
-		var loaderThree = new LoaderMock(Completed, 3);
-		loaderThree.loaded.addOnce(function(v) { order.push(3); }).forType(Completed);
-
-		var handler = async.createHandler(this, function(q) {
+		var completed = false;
+		queue.loaded.addOnce(function(e){
 			Assert.areEqual(3, order.length);
 			Assert.areEqual(3, order[0]);
 			Assert.areEqual(2, order[1]);
 			Assert.areEqual(1, order[2]);
-		}, 5000);
 
-		queue.loaded.addOnce(handler).forType(Completed);
+			completed = true;
+		}).forType(Completed);
+
 		queue.maxLoading = 1;
-		queue.addWithPriority(loaderOne, 1);
-		queue.addWithPriority(loaderTwo, 2);
-		queue.addWithPriority(loaderThree, 3);
+		queue.addWithPriority(loader1, 1);
+		queue.addWithPriority(loader2, 2);
+		queue.addWithPriority(loader3, 3);
 		queue.load();
+
+		Assert.isTrue(completed);
 	}
 
-	@AsyncTest
-	public function should_continue_when_loader_fails_by_default(async:AsyncFactory)
+	@Test
+	public function should_continue_when_loader_fails_by_default()
 	{
-		var handler = async.createHandler(this, function() {}, 5000);
+		var loader1 = new LoaderMock("", false);
+		var loader2 = new LoaderMock("", false);
+		var loader3 = new LoaderMock("", false);
 
+		var completed = false;
 		queue.loaded.addOnce(function(q) {
 			Assert.areEqual(3, queue.numLoaded);
-			handler();
+			completed = true;
 		}).forType(Completed);
+
 		queue.maxLoading = 3;
-		queue.add(new LoaderMock(FAILED, 1));
-		queue.add(new LoaderMock(FAILED, 2));
-		queue.add(new LoaderMock(Completed, 3));
+		queue.add(loader1);
+		queue.add(loader2);
+		queue.add(loader3);
 		queue.load();
-	}
-}
 
-private class LoaderMock extends LoaderBase<Dynamic>
-{
-	public var id(default, null):Int;
-	public var outcome(default, null):LoaderEvent;
-	
-	public function new(outcome:LoaderEvent, ?id:Int=-1)
-	{
-		super("");
-		this.outcome = outcome;
-		this.id = id;
-	}
+		loader1.complete();
+		loader2.fail();
+		loader3.complete();
 
-	override function loaderLoad()
-	{
-		Timer.runOnce(done, 10);
-	}
-
-	override function loaderCancel()
-	{
-		// empty
-	}
-
-	function done()
-	{
-		loaded.dispatchType(outcome);
+		Assert.isTrue(completed);
 	}
 }

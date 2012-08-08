@@ -25,7 +25,7 @@ class SwfLoaderTest
 			Assert.areEqual(1, e.target.content.alpha);
 		}, 300);
 		loader.loaded.addOnce(handler).forType(Completed);
-		loader.url = "m/loader/test.swf";
+		loader.url = "test.swf";
 		loader.load();
 	}
 }
