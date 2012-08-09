@@ -27,6 +27,9 @@ And to point to your local fork:
 
 ## Basic Usage
 
+You can download an more comprehensive cross platform example project 
+[here](https://github.com/downloads/massiveinteractive/mloader/example.zip).
+
 To load a string:
 	
 	import mloader.Loader;
@@ -124,9 +127,6 @@ You can also listen for specific events using msignal's `forType` method:
 	{
 		trace("JSON data loaded " + Std.string(event.target.content));
 	}
-
-> You can download an more comprehensive cross platform example project 
-> [here](https://github.com/downloads/massiveinteractive/mloader/example.zip).
 
 ## Documentation
 
