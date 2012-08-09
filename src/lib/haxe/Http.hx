@@ -145,9 +145,9 @@ class Http {
 				me.onData(r.responseText);
 			else switch( s ) {
 			case null:
-				me.onError("Failed to connect or resolve host");
+				me.onError("Fail to connect or resolve host");
 			case 12029:
-				me.onError("Failed to connect to host");
+				me.onError("Fail to connect to host");
 			case 12007:
 				me.onError("Unknown host");
 			default:
@@ -244,7 +244,7 @@ class Http {
 		// on Firefox 1.5, onData is not called if host/port invalid (!)
 		r.onData = function(data) {
 			if( data == null ) {
-				me.onError("Failed to retrieve url");
+				me.onError("Fail to retrieve url");
 				return;
 			}
 			me.onData(data);
@@ -274,7 +274,7 @@ class Http {
 			}
 		}
 		if( !r.sendAndLoad(small_url,r,if( param ) { if( post ) "POST" else "GET"; } else null) )
-			onError("Failed to initialize Connection");
+			onError("Fail to initialize Connection");
 	#elseif (neko || php || cpp)
 		var me = this;
 		var output = new haxe.io.BytesOutput();

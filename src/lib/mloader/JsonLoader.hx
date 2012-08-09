@@ -26,8 +26,7 @@ import mloader.Loader;
 import msignal.EventSignal;
 
 /**
-The JsonLoader is an extension of the HttpLoader. It's responsible for loading 
-Json resources.
+An extension of the HttpLoader that attempts to parse reponses into Json objects.
 */
 class JsonLoader<T> extends HttpLoader<T>
 {

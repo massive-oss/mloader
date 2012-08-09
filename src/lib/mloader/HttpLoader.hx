@@ -26,7 +26,10 @@ import mloader.Loader;
 import haxe.Http;
 
 /**
-The HttpLoader class is responsible for loading content over Http.
+The HttpLoader class is responsible for loading content over Http, falling back 
+to file system access for local paths under Neko (as haxe.Http does not support 
+file:/// urls). Data can also be posted to a url using the `send` method, which 
+automatically detects content-type (unless you set a custom content-type header).
 */
 class HttpLoader<T> extends LoaderBase<T>
 {
@@ -66,7 +69,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	#if neko
 
 	/**
-	Workaround to enable loading relative urls in neko
+	Local urls are loaded from the file system in neko.
 	*/
 	function loadFromFileSystem(url:String)
 	{
@@ -87,8 +90,8 @@ class HttpLoader<T> extends LoaderBase<T>
 	through data with the request. It also traps any security errors and 
 	dispatches a failed signal.
 	
-	@param url The URI to load.
-	@param data Data to pass through with the request.
+	@param url The url to load.
+	@param data Data to post to the url.
 	*/
 	public function send(data:Dynamic)
 	{
@@ -102,7 +105,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		loading = true;
 
 		// dispatch started
-		loaded.dispatchType(Started);
+		loaded.dispatchType(Start);
 
 		// default content type
 		var contentType = "application/octet-stream";

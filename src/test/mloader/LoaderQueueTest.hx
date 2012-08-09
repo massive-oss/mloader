@@ -30,7 +30,7 @@ import mloader.Loader;
 
 class LoaderQueueTest
 {
-	static var FAILED = Failed(IO(""));
+	static var FAILED = Fail(IO(""));
 
 	var queue:LoaderQueue;
 	var log:Dynamic;
@@ -154,7 +154,7 @@ class LoaderQueueTest
 		var completed = false;
 		queue.loaded.addOnce(function(e){
 			completed = true;
-		}).forType(Completed);
+		}).forType(Complete);
 
 		queue.maxLoading = 2;
 		queue.add(new LoaderMock());
@@ -170,7 +170,7 @@ class LoaderQueueTest
 		var completed = false;
 		queue.loaded.addOnce(function(e){
 			completed = true;
-		}).forType(Completed);
+		}).forType(Complete);
 
 		queue.load();
 		Assert.isTrue(completed);
@@ -194,7 +194,7 @@ class LoaderQueueTest
 		var completed = false;
 		var progressed = [];
 
-		queue.loaded.add(function(p) { progressed.push(queue.progress); }).forType(Progressed);
+		queue.loaded.add(function(p) { progressed.push(queue.progress); }).forType(Progress);
 		queue.loaded.addOnce(function(q) {
 			Assert.areEqual(4, progressed.length);
 			Assert.areEqual(0.25, progressed[0]);
@@ -202,7 +202,7 @@ class LoaderQueueTest
 			Assert.areEqual(0.75, progressed[2]);
 			Assert.areEqual(1, progressed[3]);
 			completed = true;
-		}).forType(Completed);
+		}).forType(Complete);
 
 		queue.ignoreFailures = false;
 		queue.maxLoading = 1;
@@ -239,7 +239,7 @@ class LoaderQueueTest
 			Assert.isFalse(loader3.didFail);
 
 			failed = true;
-		}).forType(Failed(null));
+		}).forType(Fail(null));
 
 		queue.ignoreFailures = false;
 		queue.maxLoading = 1;
@@ -263,9 +263,9 @@ class LoaderQueueTest
 		var loader3 = new LoaderMock();
 
 		var order = [];
-		loader1.loaded.addOnce(function(v) { order.push(1); }).forType(Completed);
-		loader2.loaded.addOnce(function(v) { order.push(2); }).forType(Completed);
-		loader3.loaded.addOnce(function(v) { order.push(3); }).forType(Completed);
+		loader1.loaded.addOnce(function(v) { order.push(1); }).forType(Complete);
+		loader2.loaded.addOnce(function(v) { order.push(2); }).forType(Complete);
+		loader3.loaded.addOnce(function(v) { order.push(3); }).forType(Complete);
 
 		var completed = false;
 		queue.loaded.addOnce(function(e){
@@ -275,7 +275,7 @@ class LoaderQueueTest
 			Assert.areEqual(3, order[2]);
 
 			completed = true;
-		}).forType(Completed);
+		}).forType(Complete);
 
 		queue.maxLoading = 1;
 		queue.add(loader1);
@@ -294,9 +294,9 @@ class LoaderQueueTest
 		var loader3 = new LoaderMock();
 
 		var order = [];
-		loader1.loaded.addOnce(function(v) { order.push(1); }).forType(Completed);
-		loader2.loaded.addOnce(function(v) { order.push(2); }).forType(Completed);
-		loader3.loaded.addOnce(function(v) { order.push(3); }).forType(Completed);
+		loader1.loaded.addOnce(function(v) { order.push(1); }).forType(Complete);
+		loader2.loaded.addOnce(function(v) { order.push(2); }).forType(Complete);
+		loader3.loaded.addOnce(function(v) { order.push(3); }).forType(Complete);
 
 		var completed = false;
 		queue.loaded.addOnce(function(e){
@@ -306,7 +306,7 @@ class LoaderQueueTest
 			Assert.areEqual(1, order[2]);
 
 			completed = true;
-		}).forType(Completed);
+		}).forType(Complete);
 
 		queue.maxLoading = 1;
 		queue.addWithPriority(loader1, 1);
@@ -328,7 +328,7 @@ class LoaderQueueTest
 		queue.loaded.addOnce(function(q) {
 			Assert.areEqual(3, queue.numLoaded);
 			completed = true;
-		}).forType(Completed);
+		}).forType(Complete);
 
 		queue.maxLoading = 3;
 		queue.add(loader1);

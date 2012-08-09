@@ -25,8 +25,6 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
-typedef XmlLoaderEvent = Event<Loader<Xml>, LoaderEventType>;
-
 /**
 The XmlLoader is an extension of the HttpLoader. It's responsible for loading 
 Xml resources. If the format of the Xml file is incorrect the a failed event is 

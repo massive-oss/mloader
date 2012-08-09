@@ -26,7 +26,7 @@ import msignal.Signal;
 import msignal.EventSignal;
 import mloader.Loader;
 
-typedef LoaderQueueEvent = Event<Loader<Array<AnyLoader>>, LoaderEventType>
+typedef LoaderQueueEvent = Event<Loader<Array<Loader<Dynamic>>>, LoaderEventType>
 
 /**
 A FIFO queue of Loaders with optional priority ordering.
@@ -51,25 +51,10 @@ If you wish for the queue to not proceed after a failure then set
 LoaderQueue.ignoreFailures to false. This will cause the LoaderQueue.failed 
 signal to be dispatched when the first failure is detected. No more loaders 
 after this failure will be processed and the queue will be cleared.
-
-Example:
-
-var queue = new LoaderQueue();
-queue.maxLoading = 2;
-queue.ignoreFailures = false;
-queue.loaded.add(loaderLoaded);
-
-queue.add(imageLoaderOne);
-queue.add(imageLoaderTwo);
-queue.add(imageLoaderThree);
-queue.add(imageLoaderFour);
-queue.addWithPriority(jsonLoader, 2);
-
-queue.load();
 */
-class LoaderQueue implements Loader<Array<AnyLoader>>
+class LoaderQueue implements Loader<Array<Loader<Dynamic>>>
 {
-	public var content(default, null):Array<AnyLoader>;
+	public var content(default, null):Array<Loader<Dynamic>>;
 
 	/**
 	The default value for maxLoading.
@@ -84,7 +69,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	/**
 	Dispatched when the loading state of the queue changes.
 	*/
-	public var loaded(default, null):EventSignal<Loader<Array<AnyLoader>>, LoaderEventType>;
+	public var loaded(default, null):EventSignal<Loader<Array<Loader<Dynamic>>>, LoaderEventType>;
 
 	/**
 	Defines the maximum amount of concurrent Loaders. Must be greater than 0. 
@@ -149,12 +134,12 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	function set_url(value:String):String { return value; }
 
 	var pendingQueue:Array<PendingLoader>;
-	var activeLoaders:Array<AnyLoader>;
+	var activeLoaders:Array<Loader<Dynamic>>;
 
 	public function new()
 	{
 		maxLoading = DEFAULT_MAX_LOADING;
-		loaded = new EventSignal<Loader<Array<AnyLoader>>, LoaderEventType>(this);
+		loaded = new EventSignal<Loader<Array<Loader<Dynamic>>>, LoaderEventType>(this);
 
 		loading = false;
 		ignoreFailures = true;
@@ -168,7 +153,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	/**
 	Add a loader to the back of the queue.
 	*/
-	public function add(loader:AnyLoader)
+	public function add(loader:Loader<Dynamic>)
 	{
 		addWithPriority(loader, 0);
 	}
@@ -178,7 +163,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 
 	The standard priority is 0. Higher priorities are loaded first.
 	*/
-	public function addWithPriority(loader:AnyLoader, priority:Int)
+	public function addWithPriority(loader:Loader<Dynamic>, priority:Int)
 	{
 		pendingQueue.push({loader:loader, priority:priority});
 		pendingQueue.sort(function(a, b) { return b.priority - a.priority; });
@@ -190,7 +175,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	Remove a specific loader from the queue. If the loader is found in the 
 	queue, and is active, then it will be cancelled.
 	*/
-	public function remove(loader:AnyLoader):Void
+	public function remove(loader:Loader<Dynamic>):Void
 	{
 		if (containsActiveLoader(loader))
 		{
@@ -217,21 +202,21 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		numLoaded = numFailed = 0;
 
 		// dispatch started
-		loaded.dispatchType(Started);
+		loaded.dispatchType(Start);
 		
 		// start queue if there are pending, else complete
 		if (pendingQueue.length > 0) continueLoading();
 		else queueCompleted();
 	}
 
-	function loaderCompleted(loader:AnyLoader)
+	function loaderCompleted(loader:Loader<Dynamic>)
 	{
 		loader.loaded.remove(loaderLoaded);
 		activeLoaders.remove(loader);
 		numLoaded++;
 
 		progress = numLoaded == 0 ? 0 : (numLoaded / (numLoaded + size));
-		loaded.dispatchType(Progressed);
+		loaded.dispatchType(Progress);
 
 		if (loading)
 		{
@@ -241,7 +226,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		else throw "should not be!";
 	}
 
-	function loaderFail(loader:AnyLoader, error:LoaderErrorType)
+	function loaderFail(loader:Loader<Dynamic>, error:LoaderErrorType)
 	{
 		numFailed += 1;
 		
@@ -254,7 +239,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 			loader.loaded.remove(loaderLoaded);
 			activeLoaders.remove(loader);
 
-			loaded.dispatchType(Failed(error));
+			loaded.dispatchType(Fail(error));
 			loading = false;
 		}
 	}
@@ -281,7 +266,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 	*/
 	function queueCompleted()
 	{
-		loaded.dispatchType(Completed);
+		loaded.dispatchType(Complete);
 		loading = false;
 	}
 
@@ -300,24 +285,24 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 
 		loading = false;
 		pendingQueue = [];
-		loaded.dispatchType(Cancelled);
+		loaded.dispatchType(Cancel);
 	}
 
 	/**
 	Called when an active loader dispatches a LoaderEventType.
 	*/
-	function loaderLoaded(event:AnyLoaderEvent)
+	function loaderLoaded(event:LoaderEvent<Dynamic>)
 	{
 		var loader = event.target;
 		switch (event.type)
 		{
-			case Completed, Cancelled: loaderCompleted(loader);
-			case Failed(e): loaderFail(loader, e);
+			case Complete, Cancel: loaderCompleted(loader);
+			case Fail(e): loaderFail(loader, e);
 			default:
 		}
 	}
 
-	function containsActiveLoader(loader:AnyLoader)
+	function containsActiveLoader(loader:Loader<Dynamic>)
 	{
 		for (active in activeLoaders)
 			if (active == loader)
@@ -325,7 +310,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		return false;
 	}
 
-	function containsPendingLoader(loader:AnyLoader)
+	function containsPendingLoader(loader:Loader<Dynamic>)
 	{
 		for (pending in pendingQueue)
 			if (pending.loader == loader)
@@ -333,7 +318,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		return false;
 	}
 
-	function removeActiveLoader(loader:AnyLoader)
+	function removeActiveLoader(loader:Loader<Dynamic>)
 	{
 		var i = activeLoaders.length;
 		while (i-- > 0)
@@ -348,7 +333,7 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 		}
 	}
 
-	function removePendingLoader(loader:AnyLoader)
+	function removePendingLoader(loader:Loader<Dynamic>)
 	{
 		var i = pendingQueue.length;
 		while (i-- > 0)
@@ -359,6 +344,6 @@ class LoaderQueue implements Loader<Array<AnyLoader>>
 
 private typedef PendingLoader =
 {
-	var loader:AnyLoader;
+	var loader:Loader<Dynamic>;
 	var priority:Int;
 }

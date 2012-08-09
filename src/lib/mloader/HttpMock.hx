@@ -85,7 +85,7 @@ class HttpMock extends haxe.Http
 	}
 }
 
-class HttpResponder
+private class HttpResponder
 {
 	public var delay(default, null):Int;
 	public var response(default, null):HttpResponse;
@@ -109,7 +109,7 @@ class HttpResponder
 	}
 }
 
-enum HttpResponse
+private enum HttpResponse
 {
 	Data(data:String);
 	Status(status:Int);

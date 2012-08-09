@@ -27,8 +27,6 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
-typedef SwfLoaderEvent = Event<Loader<flash.display.Loader>, LoaderEventType>;
-
 /**
 The SWFLoader class loads an SWF file. It also raises an IO error if the
 SWF file fails to load.
@@ -69,7 +67,7 @@ class SwfLoader extends LoaderBase<flash.display.DisplayObject>
 			progress = event.bytesLoaded / event.bytesTotal;
 		}
 
-		loaded.dispatchType(Progressed);
+		loaded.dispatchType(Progress);
 	}
 
 	function loadComplete(event)

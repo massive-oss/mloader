@@ -46,7 +46,7 @@ class SwfLoaderTest
 		var handler = async.createHandler(this, function(e) {
 			Assert.areEqual(1, e.target.content.alpha);
 		}, 300);
-		loader.loaded.addOnce(handler).forType(Completed);
+		loader.loaded.addOnce(handler).forType(Complete);
 		loader.url = "test.swf";
 		loader.load();
 	}

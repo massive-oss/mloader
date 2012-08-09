@@ -62,7 +62,7 @@ class StringLoaderTest
 		loader.load();
 		loader.cancel();
 		Assert.isFalse(loader.loading);
-		Assert.isTrue(Type.enumEq(events[0].type, Cancelled));
+		Assert.isTrue(Type.enumEq(events[0].type, Cancel));
 	}
 
 	@Test
@@ -87,7 +87,7 @@ class StringLoaderTest
 		loader.load();
 
 		Assert.areEqual("content", loader.content);
-		Assert.isTrue(Type.enumEq(events[0].type, Completed));
+		Assert.isTrue(Type.enumEq(events[0].type, Complete));
 	}
 
 	@Test
@@ -98,7 +98,7 @@ class StringLoaderTest
 		loader.send("some post data");
 
 		Assert.areEqual("content", loader.content);
-		Assert.isTrue(Type.enumEq(events[0].type, Completed));
+		Assert.isTrue(Type.enumEq(events[0].type, Complete));
 	}
 
 	@Test
@@ -106,12 +106,12 @@ class StringLoaderTest
 	{
 		loader.url = "invalid";
 		loader.load();
-		Assert.isTrue(typeEq(events[0].type, Failed(IO(null))));
+		Assert.isTrue(typeEq(events[0].type, Fail(IO(null))));
 	}
 
 	/**
 	Compares enum equality, ignoring any non enum parameters, so that:
-		Failed(IO("One thing happened")) == Failed(IO("Another thing happened"))
+		Fail(IO("One thing happened")) == Fail(IO("Another thing happened"))
 	*/
 	function typeEq(a:EnumValue, b:EnumValue)
 	{
@@ -143,7 +143,7 @@ class StringLoaderTest
 		http.respondTo("insecure").with(Exception("Security error"));
 		loader.url = "insecure";
 		loader.load();
-		Assert.isTrue(typeEq(events[0].type, Failed(Security(null))));
+		Assert.isTrue(typeEq(events[0].type, Fail(Security(null))));
 	}
 
 	@Test
@@ -153,7 +153,7 @@ class StringLoaderTest
 		http.respondTo("send/securityError").with(Exception("Security error"));
 		loader.url = "send/securityError";
 		loader.send("some post data");
-		Assert.isTrue(typeEq(events[0].type, Failed(Security(null))));
+		Assert.isTrue(typeEq(events[0].type, Fail(Security(null))));
 	}
 
 	@Test
@@ -164,7 +164,7 @@ class StringLoaderTest
 		loader.url = VALID_URL;
 		loader.load();
 		loader.url = "test2.txt";
-		Assert.isTrue(Type.enumEq(events[0].type, Cancelled));
+		Assert.isTrue(Type.enumEq(events[0].type, Cancel));
 	}
 
 	@Test
@@ -174,7 +174,7 @@ class StringLoaderTest
 		loader.url = VALID_URL;
 		loader.load();
 		loader.url = VALID_URL;
-		Assert.isFalse(events.length > 0 && Type.enumEq(events[0].type, Cancelled));
+		Assert.isFalse(events.length > 0 && Type.enumEq(events[0].type, Cancel));
 	}
 
 	@Test

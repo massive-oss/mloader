@@ -55,14 +55,14 @@ class ImageLoaderTest
 	public function should_load_image(async:AsyncFactory):Void
 	{
 		var handler = async.createHandler(this, assertCompleted, 2000);
-		loader.loaded.add(handler).forType(Completed);
+		loader.loaded.add(handler).forType(Complete);
 		loader.url = "test.jpg";
 		loader.load();
 	}
 
 	function assertCompleted(event:Dynamic):Void
 	{
-		Assert.isTrue(Type.enumEq(event.type, Completed));
+		Assert.isTrue(Type.enumEq(event.type, Complete));
 	}
 
 	@AsyncTest
@@ -78,7 +78,7 @@ class ImageLoaderTest
 
 	function assertDidNotComplete()
 	{
-		Assert.isFalse(Type.enumEq(events[0].type, Completed));
+		Assert.isFalse(Type.enumEq(events[0].type, Complete));
 	}
 }
 

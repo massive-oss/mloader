@@ -98,7 +98,7 @@ class LoaderBase<T> implements Loader<T>
 		loading = true;
 
 		// dispatch started
-		loaded.dispatchType(Started);
+		loaded.dispatchType(Start);
 		
 		// call implementation
 		loaderLoad();
@@ -124,7 +124,7 @@ class LoaderBase<T> implements Loader<T>
 		content = null;
 		
 		// dispatch event
-		loaded.dispatchType(Cancelled);
+		loaded.dispatchType(Cancel);
 	}
 
 	//-------------------------------------------------------------------------- private
@@ -156,13 +156,13 @@ class LoaderBase<T> implements Loader<T>
 		loading = false;
 		
 		// dispatch event
-		loaded.dispatchType(Completed);
+		loaded.dispatchType(Complete);
 	}
 
 	function loaderFail(error:LoaderErrorType)
 	{
 		if (!loading) return;
 		loading = false;
-		loaded.dispatchType(Failed(error));
+		loaded.dispatchType(Fail(error));
 	}
 }

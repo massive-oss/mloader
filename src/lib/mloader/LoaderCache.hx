@@ -34,12 +34,12 @@ class LoaderCache
 	/**
 	Loaders currently being loaded by the cache, indexed by url.
 	*/
-	var loadingLoaders:Hash<AnyLoader>;
+	var loadingLoaders:Hash<Loader<Dynamic>>;
 
 	/**
 	Loaders that are waiting for a loading loader to complete, indexed by url.
 	*/
-	var waitingLoaders:Hash<Array<AnyLoader>>;
+	var waitingLoaders:Hash<Array<Loader<Dynamic>>>;
 
 	/**
 	A cache of succefully loaded Loader.content, index by url.
@@ -60,14 +60,14 @@ class LoaderCache
 	the loader is placed in a queue, and completed when the loading loader 
 	completes.
 	*/
-	public function load(loader:AnyLoader)
+	public function load(loader:Loader<Dynamic>)
 	{
 		if (cache.exists(loader.url))
 		{
 			// if the url has been cached, complete with the cached content
 			untyped loader.content = cache.get(loader.url);
 			untyped loader.progress = 1;
-			loader.loaded.dispatchType(Completed);
+			loader.loaded.dispatchType(Complete);
 		}
 		else if (loadingLoaders.exists(loader.url) && loadingLoaders.get(loader.url) != loader)
 		{
@@ -116,12 +116,12 @@ class LoaderCache
 	dispatch its completed event too, setting it with a copy of the loaded 
 	content before we do so.
 	*/
-	function addWaiting(loader:AnyLoader)
+	function addWaiting(loader:Loader<Dynamic>)
 	{
 		// prevents users from loading
 		untyped loader.loading = true;
 
-		var waiting:Array<AnyLoader>;
+		var waiting:Array<Loader<Dynamic>>;
 
 		if (waitingLoaders.exists(loader.url))
 		{
@@ -139,20 +139,20 @@ class LoaderCache
 	/**
 	Called when an active loader or dispatches a LoaderEventType.
 	*/
-	function loaderLoaded(event:AnyLoaderEvent)
+	function loaderLoaded(event:LoaderEvent<Dynamic>)
 	{
 		var loader = event.target;
 
 		switch (event.type)
 		{
-			case Completed: loaderCompleted(loader);
-			case Cancelled: loaderCancelled(loader);
-			case Failed(e): loaderFail(loader, e);
+			case Complete: loaderCompleted(loader);
+			case Cancel: loaderCancelled(loader);
+			case Fail(e): loaderFail(loader, e);
 			default:
 		}
 	}
 
-	function loaderCompleted(loader:AnyLoader)
+	function loaderCompleted(loader:Loader<Dynamic>)
 	{
 		loader.loaded.remove(loaderLoaded);
 		loadingLoaders.remove(loader.url);
@@ -171,14 +171,14 @@ class LoaderCache
 				untyped waiting.progress = 1;
 
 				// dispatch completed
-				waiting.loaded.dispatchType(Completed);
+				waiting.loaded.dispatchType(Complete);
 			}
 
 			waitingLoaders.remove(loader.url);
 		}
 	}
 
-	function loaderFail(loader:AnyLoader, error:LoaderErrorType)
+	function loaderFail(loader:Loader<Dynamic>, error:LoaderErrorType)
 	{
 		// remove loading loader
 		loader.loaded.remove(loaderLoaded);
@@ -195,7 +195,7 @@ class LoaderCache
 				untyped waiting.loading = false;
 
 				// dispatch error
-				waiting.loaded.dispatchType(Failed(error));
+				waiting.loaded.dispatchType(Fail(error));
 			}
 
 			waitingLoaders.remove(loader.url);
@@ -206,7 +206,7 @@ class LoaderCache
 	If a loading loader is cancelled, we stop listening to it and check if there 
 	are any waiting loaders for that url. If there are, we load the first one.
 	*/
-	function loaderCancelled(loader:AnyLoader)
+	function loaderCancelled(loader:Loader<Dynamic>)
 	{
 		// remove loading loader
 		loader.loaded.remove(loaderLoaded);

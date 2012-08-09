@@ -25,18 +25,12 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
-/**
-Loads a single image at a defined url.
-
-An IO error will be dispatched through the failed signal if the image fails to load.
-*/
 #if js
-
+/**
+Loads an image at a defined url.
+*/
 class ImageLoader extends LoaderBase<js.Dom.Image>
 {
-	/**
-	@param url  the url to load the resource from
-	*/
 	public function new(?url:String)
 	{
 		super(url);
@@ -74,6 +68,9 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 
 import flash.display.BitmapData;
 
+/**
+Loads BitmapData from a defined url.
+*/
 class ImageLoader extends LoaderBase<BitmapData>
 {
 	var loader:flash.display.Loader;
@@ -109,7 +106,7 @@ class ImageLoader extends LoaderBase<BitmapData>
 			progress = event.bytesLoaded / event.bytesTotal;
 		}
 
-		loaded.dispatchType(Progressed);
+		loaded.dispatchType(Progress);
 	}
 
 	function loaderCompleted(event)
@@ -126,6 +123,9 @@ class ImageLoader extends LoaderBase<BitmapData>
 
 #else
 
+/**
+ImageLoading is not supported in neko.
+*/
 class ImageLoader extends LoaderBase<Dynamic>
 {
 	public function new(?url:String)

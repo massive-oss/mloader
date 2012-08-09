@@ -25,10 +25,8 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
-typedef StringLoaderEvent = Event<Loader<String>, LoaderEventType>;
-
 /**
-A loader that loads a string over Http.
+A loader that loads a text content over Http.
 */
 class StringLoader extends HttpLoader<String>
 {

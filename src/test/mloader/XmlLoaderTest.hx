@@ -61,7 +61,7 @@ class XmlLoaderTest
 		loader.url = url;
 		loader.load();
 
-		Assert.isTrue(Type.enumEq(events[0].type, Failed(Format(error))));
+		Assert.isTrue(Type.enumEq(events[0].type, Fail(Format(error))));
 	}
 
 	@Test
@@ -75,7 +75,7 @@ class XmlLoaderTest
 		loader.url = url;
 		loader.load();
 		
-		Assert.isTrue(Type.enumEq(events[0].type, Completed));
+		Assert.isTrue(Type.enumEq(events[0].type, Complete));
 		Assert.isTrue(Std.is(loader.content, Xml));
 		Assert.areEqual(xml.toString(), loader.content.toString());
 	}

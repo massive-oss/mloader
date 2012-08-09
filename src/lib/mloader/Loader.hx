@@ -26,14 +26,9 @@ import msignal.Signal;
 import msignal.EventSignal;
 
 /**
-A convenience type indicating a loader of any type.
+The type definition for a loader event.
 */
-typedef AnyLoader = Loader<Dynamic>;
-
-/**
-A convenience type indicating an event from a loader of any type.
-*/
-typedef AnyLoaderEvent = Event<AnyLoader, LoaderEventType>;
+typedef LoaderEvent<T> = Event<Loader<T>, LoaderEventType>;
 
 /**
 The Loader class defines an API for loading url's. Loaders dispatch events 
@@ -85,11 +80,6 @@ interface Loader<T>
 }
 
 /**
-The type definition for a loader event.
-*/
-typedef LoaderEvent<T> = Event<Loader<T>, LoaderEventType>;
-
-/**
 Events indicating changes in the state of the loader.
 */
 enum LoaderEventType
@@ -97,27 +87,27 @@ enum LoaderEventType
 	/**
 	Dispatched when the loading operation commences.
 	*/
-	Started;
+	Start;
 
 	/**
 	Dispatched when the loading operation is cancelled before completion.
 	*/
-	Cancelled;
+	Cancel;
 
 	/**
 	Dispatched when the loading operation progresses.
 	*/
-	Progressed;
+	Progress;
 
 	/**
 	Dispatched when the loading operation completes.
 	*/
-	Completed;
+	Complete;
 
 	/**
 	Dispatched when the loading operation fails due to an error.
 	*/
-	Failed(error:LoaderErrorType);
+	Fail(error:LoaderErrorType);
 }
 
 enum LoaderErrorType

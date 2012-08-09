@@ -147,7 +147,7 @@ class XmlObjectParser
 			default:
 				if (!classMap.exists(nodeName)) return null;
 				var theClass = classMap.get(nodeName);
-				var instance = mcore.util.Types.createInstance(theClass, []);
+				var instance = Type.createInstance(theClass, []);
 				processAttributes(node, instance);
 				processElements(node, instance);
 				return instance;
