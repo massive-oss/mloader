@@ -51,10 +51,10 @@ class ExampleImageLoader
 	{
 		switch (event.type)
 		{
-			case Failed(error):
+			case Fail(error):
 				trace(error);
 
-			case Completed:
+			case Complete:
 				#if js
 				js.Lib.document.body.appendChild(event.target.content);
 				#elseif (flash || cpp)

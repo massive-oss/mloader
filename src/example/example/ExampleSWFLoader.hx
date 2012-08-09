@@ -51,10 +51,10 @@ class ExampleSWFLoader
 	{
 		switch (event.type)
 		{
-			case Failed(error):
+			case Fail(error):
 				trace(error);
 
-			case Completed:
+			case Complete:
 				#if (flash || nme)
 				flash.Lib.current.addChild(event.target.content);
 				#end

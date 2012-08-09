@@ -40,10 +40,10 @@ class ExampleXMLLoader
 	{
 		switch (event.type)
 		{
-			case Failed(error):
+			case Fail(error):
 				trace(error);
 
-			case Completed:
+			case Complete:
 				trace(event.target.content);
 				loader.url = Example.BASE_DIR + "exampleInvalid.xml";
 				loader.load();

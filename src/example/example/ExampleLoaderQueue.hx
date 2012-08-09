@@ -49,7 +49,7 @@ class ExampleLoaderQueue
 	{
 		switch (event.type)
 		{
-			case Progressed:
+			case Progress:
 				trace(event.type + ":" + event.target.progress);
 
 			default:

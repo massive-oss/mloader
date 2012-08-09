@@ -50,39 +50,31 @@ class Build extends mtask.core.BuildBase
 		target.afterCompile = function()
 		{
 			cp("src/lib/*", target.path);
-			// cmd("haxe", ["-cp", "src/lib", "-js", target.path + "/haxedoc.js", 
-			// 	"-xml", target.path + "/haxedoc.xml", "minject.Injector"]);
-			// rm(target.path + "/haxedoc.js");
+			cmd("haxe", ["-cp", "src/lib", "-swf", target.path + "/haxedoc.swf", 
+				"--no-output", "-lib", "msignal:1.1.1", "-xml", target.path + "/haxedoc.xml",
+				"mloader.Loader",
+				"mloader.StringLoader", 
+				"mloader.XmlLoader", 
+				"mloader.JsonLoader", 
+				"mloader.ImageLoader", 
+				"mloader.SwfLoader", 
+				"mloader.XmlObjectLoader", 
+				"mloader.LoaderQueue", 
+				"mloader.LoaderCache", 
+				"mloader.HttpMock"
+				]);
+			Haxe.filterXml(target.path + "/haxedoc.xml", ["mloader"]);
 		}
 	}
 
-	// function exampleHaxe(target:Haxe)
-	// {
-	// 	target.addPath("src/lib");
-	// 	target.addPath("src/example");
-	// 	target.main = "InjectionExample";
-	// }
-
-	// @target function example(target:Directory)
-	// {
-	// 	var exampleJS = new WebJS();
-	// 	exampleHaxe(exampleJS.app);
-	// 	target.addTarget("example-js", exampleJS);
-
-	// 	var exampleSWF = new WebSWF();
-	// 	exampleHaxe(exampleSWF.app);
-	// 	target.addTarget("example-swf", exampleSWF);
-
-	// 	var exampleNeko = new Neko();
-	// 	exampleHaxe(exampleNeko);
-	// 	target.addTarget("example-neko", exampleNeko);
-
-	// 	target.afterBuild = function()
-	// 	{
-	// 		cp("src/example/*", target.path);
-	// 		zip(target.path);
-	// 	}
-	// }
+	@target function example(target:Directory)
+	{
+		target.afterBuild = function()
+		{
+			cp("src/example/*", target.path);
+			zip(target.path);
+		}
+	}
 
 	@task function release()
 	{
