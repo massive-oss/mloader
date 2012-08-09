@@ -4,14 +4,18 @@ MassiveLoader
 Unified API for loading external data sources (Strings, Xml, Images, Json) over 
 HTTP and from the local file system.
 
-Features:
+## Features
 
 * Notifies observers when loading progresses, completes or fails via a signal.
 * Leverages type parameters to type loaded content.
 * Utilities for caching and queuing multiple loaders of a similar type
 
 > Warning: MassiveLoader patches haxe.Http with a minor change to enable 
-> abortable XmlHttpRequests. The patch is clearly documented in haxe/Http.hx
+> abortable Http request. The patch is clearly documented in haxe/Http.hx
+
+## Usage
+
+You can download a example of mloader in action [here](https://github.com/downloads/massiveinteractive/mloader/example.zip)
 
 Basic example using StringLoader
 	
