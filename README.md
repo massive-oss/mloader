@@ -1,84 +1,151 @@
-MassiveLoader
-====================
+# mloader
 
-Unified API for loading external data sources (Strings, Xml, Images, Json) over 
-HTTP and from the local file system.
+A cross platform Haxe library for loading resources with utilities for queueing 
+and caching requests. Supports AVM2, JavaScript, Neko and C++.
 
-## Features
+* Signal based notification of loading events and errors
+* Leverages type parameters to type loaded content
+* Utilities for caching and queuing loaders
+* Supports local urls in Neko
 
-* Notifies observers when loading progresses, completes or fails via a signal.
-* Leverages type parameters to type loaded content.
-* Utilities for caching and queuing multiple loaders of a similar type
+> Note: MassiveLoader includes a patch to haxe.Http to enable abortable Http 
+> requests. The patch is clearly documented in haxe/Http.hx
 
-> Warning: MassiveLoader patches haxe.Http with a minor change to enable 
-> abortable Http request. The patch is clearly documented in haxe/Http.hx
+## Installation
 
-## Usage
+Install mloader from haxelib:
 
-You can download a example of mloader in action [here](https://github.com/downloads/massiveinteractive/mloader/example.zip)
+	haxelib install mloader
 
-Basic example using StringLoader
+Or if you want to install the latest directly from github:
+
+	haxelib git mloader https://github.com/massiveinteractive/mloader.git src/lib
+
+And to point to your local fork:
+
+	haxelib dev mloader /ABSOLUTE_PATH_TO_REPO/src/lib
+
+## Basic Usage
+
+To load a string:
 	
 	import mloader.Loader;
 
-	...
-
-	var loader = new mloader.StringLoader("http://www.example.org/config.txt");
-	loader.loaded.addOnce(loaderComplete).forType(Completed);
-	loader.load();
-
-	...
-
-	function loaderComplete(event:LoaderEvent<String>)
+	class Main
 	{
-		trace(event.target.content);
+		public static function main()
+		{
+			var loader = new mloader.StringLoader("something.txt");
+			loader.loaded.add(onLoaded);
+			loader.load();
+		}
+
+		static function onLoaded(event:LoaderEvent<String>)
+		{
+			switch (event.type)
+			{
+				case Complete: trace(event.target.content);
+				case Fail(e): trace("Loader failed: " + e);
+			}
+		}
 	}
 
-
-Example of Xml loading
+You can also listen for specific events using msignal's `forType` method:
 	
-	var loader = new mloader.XmlLoader("http://www.example.org/config.xml");
-	loader.loaded.addOnce(loaderComplete).forType(Completed);
-	loader.load();
+	loader.loaded.add(onComplete).forType(Complete);
 
-	...
+`XmlLoader` and `JsonLoader` will attempt to parse the response:
+	
+	import mloader.Loader;
 
-	function loaderComplete(event:LoaderEvent<Xml>)
+	class Main
 	{
-		trace(result);
+		public static function main()
+		{
+			var loader = new mloader.XmlLoader("something.xml");
+			loader.loaded.add(onLoaded);
+			loader.load();
+		}
+
+		static function onLoaded(event:LoaderEvent<Xml>)
+		{
+			switch (event.type)
+			{
+				case Complete:
+					trace(event.target.content.firstElement());
+
+				case Fail(e):
+					switch (e)
+					{
+						case Format(info): trace("Could not parse Xml: " + info);
+						case IO(info): trace("URL could not be reached: " + info);
+						default: trace(e);
+					}
+			}
+		}
 	}
 
-Example of loading through the LoaderQueue
+`LoaderQueue` will sequentially load a list of loaders:
+	
+	import mloader.Loader;
+	import mloader.LoaderQueue;
+	import mloader.ImageLoader;
+	import mloader.JsonLoader;
 
-	var jsonLoader = new JsonLoader("http://www.example.org/data.json");
-	jsonLoader.loaded.addOnce(dataLoaded).forType(Completed);
+	class Main
+	{
+		public static function main()
+		{
+			var queue = new LoaderQueue();
+			queue.maxLoading = 2; // max concurrent
+			queue.ignoreFailures = false; // carry on regardless
+			queue.loaded.addOnce(queueComplete).forType(Complete);
 
-	var queue = new LoaderQueue();
-	queue.maxLoading = 2;
-	queue.ignoreFailures = false;
+			var json = new JsonLoader("data.json");
+			json.loaded.addOnce(jsonComplete).forType(Complete);
 
-	queue.loaded.addOnce(queueComplete).forType(Completed);
-	queue.loaded.addOnce(queueFailed).forType(Failed);
+			queue.add(new ImageLoader("image-01.jpg"));
+			queue.add(new ImageLoader("image-02.jpg"));
+			queue.add(new ImageLoader("image-03.jpg"));
+			queue.add(new ImageLoader("image-04.jpg"));
+			queue.addWithPriority(jsonLoader, 1); // load first
 
-	queue.add(new ImageLoader("http://www.example.org/img/01.jpg"));
-	queue.add(new ImageLoader("http://www.example.org/img/02.jpg"));
-	queue.add(new ImageLoader("http://www.example.org/img/03.jpg"));
-	queue.add(new ImageLoader("http://www.example.org/img/04.jpg"));
-	queue.addWithPriority(jsonLoader, 1);
-
-	queue.load();
+			// start the queue
+			queue.load();
+		}
+	}
 
 	function queueComplete(event:LoaderEvent<Dynamic>)
 	{
-		trace("load queue completed");
+		trace("LoaderQueue completed!");
 	}
 
-	function queueFailed(event:LoaderEvent<Dynamic>)
+	function jsonComplete(event:LoaderEvent<Dynamic>)
 	{
-		trace("load queue failed " + event.type);
+		trace("JSON data loaded " + Std.string(event.target.content));
 	}
 
-	function dataLoaded(event:LoaderEvent<Dynamic>)
-	{
-		trace("JSON data loaded " + Std.string(data));
-	}
+> You can download an more comprehensive cross platform example project 
+> [here](https://github.com/downloads/massiveinteractive/mloader/example.zip).
+
+## Documentation
+
+The API documentation is available on the [haxelib project page](http://lib.haxe.org/d/mloader).
+
+Or you can just read through the source ;)
+
+## How to contribute
+
+If you find a bug, [report it](https://github.com/massiveinteractive/mloader/issues).
+
+If you want to help, [fork it](https://github.com/massiveinteractive/mloader/fork_select).
+
+If you want to make sure it works, install [munit](https://github.com/massiveinteractive/MassiveUnit) 
+so you can run the test suite from the project root:
+
+	haxelib run munit test -js -as3 -neko
+
+## Credits
+
+This project is brought to you by [David](https://github.com/DavidPeek) and [Mike](https://github.com/mikestead) 
+from [Massive Interactive](http://massiveinteractive.com)

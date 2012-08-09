@@ -1,0 +1,9 @@
+<project name="mloader" url="http://github.com/massiveinteractive/mloader" license="MIT">
+	<user name="massive"/>
+	<description>A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.</description>
+	<version name="0.9.0">Alpha release, API subject to change.</version>
+	<depends name="msignal"/>
+	<tag v="cross"/>
+	<tag v="utility"/>
+	<tag v="massive"/>
+</project>

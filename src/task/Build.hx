@@ -37,18 +37,19 @@ class Build extends mtask.core.BuildBase
 	{
 		target.name = build.project.id;
 		target.version = build.project.version;
-		target.versionDescription = "Initial release. See http://github.com/massiveinteractive/mloader for documentation and examples.";
+		target.versionDescription = "Alpha release, API subject to change.";
 		target.url = "http://github.com/massiveinteractive/mloader";
 		target.license.organization = "Massive Interactive";
 		target.username = "massive";
-		target.description = "A cross platform API for loading files.";
+		target.description = "A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.";
 		target.addTag("cross");
 		target.addTag("utility");
 		target.addTag("massive");
-		target.addDependency("msignal", "1.1.1");
+		target.addDependency("msignal");
 
 		target.afterCompile = function()
 		{
+			cp(target.path + "/haxelib.xml", "src/lib");
 			cp("src/lib/*", target.path);
 			cmd("haxe", ["-cp", "src/lib", "-swf", target.path + "/haxedoc.swf", 
 				"--no-output", "-lib", "msignal:1.1.1", "-xml", target.path + "/haxedoc.xml",
@@ -80,7 +81,7 @@ class Build extends mtask.core.BuildBase
 	{
 		require("clean");
 		require("test");
-		// require("build example");
+		require("build example");
 		require("build haxelib");
 	}
 
