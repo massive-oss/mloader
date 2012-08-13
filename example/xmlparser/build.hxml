@@ -1,20 +1,23 @@
 -main Example
 -cp src
--cp ../../../src
+-lib mloader
+-lib mconsole
 -js build/example.js
 
 --next
 
 -main Example
 -cp src
--cp ../../../src
+-lib mloader
+-lib mconsole
 -swf build/example.swf
 
 --next
 
 -main Example
 -cp src
--cp ../../../src
+-lib mloader
+-lib mconsole
 -neko build/example.n
 
 -cmd cd build
