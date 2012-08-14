@@ -161,7 +161,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		else
 		{
-			var result = nme.installer.Assets.getText("root/" + url);
+			var result = nme.installer.Assets.getText(url);
 			haxe.Timer.delay(callback(httpData, result), 10);
 		}
 		#elseif neko
