@@ -89,7 +89,19 @@ class ImageLoader extends LoaderBase<BitmapData>
 
 	override function loaderLoad()
 	{
+		#if nme
+		if (url.indexOf("http://") == 0)
+		{
+			loader.load(new flash.net.URLRequest(url));
+		}
+		else
+		{
+			content = nme.installer.Assets.getBitmapData(url);
+			loaderComplete();
+		}
+		#else
 		loader.load(new flash.net.URLRequest(url));
+		#end
 	}
 
 	override function loaderCancel()

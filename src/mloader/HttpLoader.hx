@@ -148,6 +148,14 @@ class HttpLoader<T> extends LoaderBase<T>
 
 	//-------------------------------------------------------------------------- private
 	
+	#if nme
+	function urlLoaderComplete(e:Dynamic)
+	{
+		e.target.removeEventListener(urlLoaderComplete);
+		httpData(Std.string(e.target.data));
+	}
+	#end
+
 	override function loaderLoad()
 	{
 		http.url = url;
@@ -157,7 +165,10 @@ class HttpLoader<T> extends LoaderBase<T>
 		#if nme
 		if (url.indexOf("http:") == 0)
 		{
-			haxe.Timer.delay(callback(http.request, false), 10);
+			var loader = new flash.net.URLLoader();
+			loader.load(new flash.net.URLRequest(url));
+			loader.addEventListener(flash.events.Event.COMPLETE, urlLoaderComplete);
+			// haxe.Timer.delay(callback(http.request, false), 10);
 		}
 		else
 		{

@@ -49,7 +49,6 @@ class Build extends mtask.core.BuildBase
 
 		target.afterCompile = function()
 		{
-			cp(target.path + "/haxelib.xml", "src");
 			cp("src/*", target.path);
 			cmd("haxe", ["-cp", "src", "-swf", target.path + "/haxedoc.swf", 
 				"--no-output", "-lib", "msignal:1.1.1", "-xml", target.path + "/haxedoc.xml",
