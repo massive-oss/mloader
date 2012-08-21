@@ -22,3 +22,14 @@
 
 -cmd cd build
 -cmd neko example.n
+
+
+
+--next
+
+-main Example
+-lib mloader
+-lib mconsole
+-cpp build/example_cpp
+-cmd cd build
+-cmd example_cpp/Example

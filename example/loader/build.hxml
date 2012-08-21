@@ -18,3 +18,10 @@
 -lib mloader
 -lib mconsole
 -neko build/example.n
+
+--next
+
+-main Example
+-lib mloader
+-lib mconsole
+-cpp build/example_cpp

@@ -8,3 +8,5 @@ TestSuite.hx
 
 /bin
 .DS_Store
+/example/loader/build/Example
+/example/loader/build/example_cpp/

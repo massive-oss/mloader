@@ -57,7 +57,7 @@ class ExampleImageLoader
 			case Complete:
 				#if js
 				js.Lib.document.body.appendChild(event.target.content);
-				#elseif (flash || cpp)
+				#elseif (flash || nme)
 				var bitmap = new flash.display.Bitmap(event.target.content);
 				flash.Lib.current.addChild(bitmap);
 				#end
