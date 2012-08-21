@@ -66,10 +66,10 @@ class HttpLoader<T> extends LoaderBase<T>
 		headers = new Hash();
 	}
 	
-	#if neko
+	#if (sys||neko||cpp)
 
 	/**
-	Local urls are loaded from the file system in neko.
+	Local urls are loaded from the file system in neko or cpp.
 	*/
 	function loadFromFileSystem(url:String)
 	{
@@ -175,7 +175,7 @@ class HttpLoader<T> extends LoaderBase<T>
 			var result = nme.installer.Assets.getText(url);
 			haxe.Timer.delay(callback(httpData, result), 10);
 		}
-		#elseif neko
+		#elseif (sys||neko||cpp)
 		if (url.indexOf("http:") == 0)
 		{
 			http.request(false);

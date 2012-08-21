@@ -49,10 +49,10 @@ class HttpMock extends haxe.Http
 		}
 		else
 		{
-			#if neko
-				respond(responder.response);
-			#else
+			#if (flash||js||nme)
 				haxe.Timer.delay(callback(respond, responder.response), responder.delay);
+			#else
+				respond(responder.response);
 			#end
 		}
 	}

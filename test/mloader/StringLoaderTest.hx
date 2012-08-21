@@ -30,7 +30,7 @@ import massive.munit.async.AsyncFactory;
 
 class StringLoaderTest
 {
-	static var VALID_URL = "src/resource/test/test.txt";
+	static var VALID_URL = "resource/test/test.txt";
 	
 	var http:HttpMock;
 	var loader:StringLoader;
@@ -54,7 +54,7 @@ class StringLoaderTest
 	}
 
 	@Test
-	#if neko @Ignore("Async cancel not supported in neko")#end
+	#if (neko||cpp) @Ignore("Async cancel not supported in current target")#end
 	public function should_cancel_loading_loader():Void
 	{
 		http.respondTo(VALID_URL).with(Data("content")).afterDelay(1);
@@ -106,18 +106,29 @@ class StringLoaderTest
 	{
 		loader.url = "invalid";
 		loader.load();
-		Assert.isTrue(typeEq(events[0].type, Fail(IO(null))));
+
+
+		var areEqual = assertEnumEq( Fail(IO(null)), events[0].type);
+
+		Assert.isTrue(areEqual);
 	}
 
 	/**
 	Compares enum equality, ignoring any non enum parameters, so that:
 		Fail(IO("One thing happened")) == Fail(IO("Another thing happened"))
+
+	@param a	expected value
+	@param b	actual value
+	@return true if asserts all passed
 	*/
-	function typeEq(a:EnumValue, b:EnumValue)
+	function assertEnumEq(a:EnumValue, b:EnumValue, ?posInfos:haxe.PosInfos):Bool
 	{
 		if (a == b) return true;
-		if (Type.getEnum(a) != Type.getEnum(b)) return false;
-		if (Type.enumIndex(a) != Type.enumIndex(b)) return false;
+
+		var failMessage = "Enum [" + Std.string(b) + "] was not equal to expected value [" + Std.string(a) + "] at " + posInfos.className + "#" + posInfos.methodName + " (" + posInfos.lineNumber + ")";
+
+		if (Type.getEnum(a) != Type.getEnum(b)) Assert.fail(failMessage);
+		if (Type.enumIndex(a) != Type.enumIndex(b)) Assert.fail(failMessage);
 
 		var aParams = Type.enumParameters(a);
 		if (aParams.length == 0) return true;
@@ -130,34 +141,36 @@ class StringLoaderTest
 
 			if (aParam == null) continue;
 			if (Type.getEnum(aParam) == null) continue;
-			if (!typeEq(aParam, bParam)) return false;
+			if (!assertEnumEq(aParam, bParam, posInfos)) Assert.fail(failMessage);
 		}
-
 		return true;
 	}
 
 	@Test
-	#if neko @Ignore("Neko has no security sandbox") #end
+	#if (neko||cpp) @Ignore("Current target has no security sandbox")#end
 	public function should_fail_with_security_on_load_insecure_url():Void
 	{
 		http.respondTo("insecure").with(Exception("Security error"));
 		loader.url = "insecure";
 		loader.load();
-		Assert.isTrue(typeEq(events[0].type, Fail(Security(null))));
+		var areEqual = assertEnumEq(Fail(Security(null)), events[0].type);
+		Assert.isTrue(areEqual);
 	}
 
 	@Test
-	#if neko @Ignore("Neko has no security sandbox") #end
+	#if (neko||cpp) @Ignore("Current target has no security sandbox")#end
 	public function should_fail_with_security_on_send_to_insecure_url():Void
 	{
 		http.respondTo("send/securityError").with(Exception("Security error"));
 		loader.url = "send/securityError";
 		loader.send("some post data");
-		Assert.isTrue(typeEq(events[0].type, Fail(Security(null))));
+
+		var areEqual = assertEnumEq(Fail(Security(null)), events[0].type);
+		Assert.isTrue(areEqual);
 	}
 
 	@Test
-	#if neko @Ignore("Async cancel not supported in neko")#end
+	#if (neko||cpp) @Ignore("Async cancel not supported in current target")#end
 	public function changing_url_during_loading_should_cancel_loading():Void
 	{
 		http.respondTo(VALID_URL).with(Data("content")).afterDelay(10);

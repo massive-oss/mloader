@@ -64,7 +64,7 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 	}
 }
 
-#elseif (flash || cpp)
+#elseif (flash || nme)
 
 import flash.display.BitmapData;
 

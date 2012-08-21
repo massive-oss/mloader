@@ -4,4 +4,4 @@ bin=bin/test
 report=bin/test-report
 hxml=test/targets.hxml
 classPaths=src
-resources=res/test
+resources=resource/test
