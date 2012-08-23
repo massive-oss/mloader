@@ -1,6 +1,6 @@
-# mloader
+## Overview
 
-A cross platform Haxe library for loading resources with utilities for queueing 
+MLoader is a cross platform Haxe library for loading resources with utilities for queueing 
 and caching requests. Supports AVM2, JavaScript, Neko and C++.
 
 * Signal based notification of loading events and errors
@@ -11,7 +11,7 @@ and caching requests. Supports AVM2, JavaScript, Neko and C++.
 > Note: MassiveLoader includes a patch to haxe.Http to enable abortable Http 
 > requests. The patch is clearly documented in haxe/Http.hx
 
-## Installation
+**Installation**
 
 Install mloader from haxelib:
 
