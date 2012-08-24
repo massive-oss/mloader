@@ -2,11 +2,13 @@
 *.js.map
 *.swf
 *.n
-workspace.json
+
 TestSuite.hx
 .mcover
 
 /bin
+/.temp
+
 .DS_Store
 /example/loader/build/Example
 /example/loader/build/example_cpp/
