@@ -111,19 +111,20 @@ class JsonLoader<T> extends HttpLoader<T>
 		try
 		{
 			content = parseData(raw);
+			loaderComplete();
 		}
 		catch (loaderError:LoaderErrorType)
 		{
 			loaderFail(loaderError);
 			return;
 		}
-		catch(e:Dynamic)
+		catch (e:Dynamic)
 		{
 			loaderFail(Data(Std.string(e), data));
 			return;
 		}
 
-		loaderComplete();
+		
 		
 	}
 }

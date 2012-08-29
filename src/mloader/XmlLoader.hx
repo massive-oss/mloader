@@ -121,6 +121,7 @@ class XmlLoader extends HttpLoader<Xml>
 		try
 		{
 			content = parseData(xml);
+			loaderComplete();
 		}
 		catch (loaderError:LoaderErrorType)
 		{
@@ -133,6 +134,6 @@ class XmlLoader extends HttpLoader<Xml>
 			return;
 		}
 
-		loaderComplete();
+		
 	}
 }
