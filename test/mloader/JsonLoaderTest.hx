@@ -111,7 +111,7 @@ class JsonLoaderTest
 	}
 
 	@Test
-	public function fails_from_external_parseData()
+	public function should_fail_with_default_data_error_if_parseData_throws_exception()
 	{
 		var url = "http://localhost/data.txt";
 		
@@ -129,6 +129,28 @@ class JsonLoaderTest
 	function parseDataFail(data:Dynamic):Employees
 	{
 		throw "Some parsing error";
+		return null;
+	}
+
+	@Test
+	public function should_fail_with_loader_error_type_if_parseData_throws_loader_error()
+	{
+		var url = "http://localhost/data.txt";
+		
+		http.respondTo(url).with(Data(response));
+		loader.url = url;
+		loader.parseData = parseDataWithLoaderError;
+		loader.load();
+
+		Assert.isNull(loader.content);
+
+		var expected = Fail(Data("Error 1", "Something"));
+		LoaderAssert.assertEnumTypeEq(expected, events[0].type);
+	}
+
+	function parseDataWithLoaderError(data:Dynamic):Employees
+	{
+		throw Data("Error 1", "Something");
 		return null;
 	}
 }

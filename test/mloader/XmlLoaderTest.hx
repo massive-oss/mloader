@@ -108,7 +108,7 @@ class XmlLoaderTest
 	}
 
 	@Test
-	public function fails_from_external_parseData()
+	public function should_fail_with_default_data_error_if_parseData_throws_exception()
 	{
 		var data = "<valid><data/></valid>";
 		var xml = Xml.parse(data);
@@ -129,6 +129,30 @@ class XmlLoaderTest
 	function parseDataFail(data:Xml):Xml
 	{
 		throw "Some parsing error";
+		return null;
+	}
+
+	@Test
+	public function should_fail_with_loader_error_type_if_parseData_throws_loader_error()
+	{
+		var data = "<valid><data/></valid>";
+		var xml = Xml.parse(data);
+		var url = "http://localhost/valid.xml";
+		
+		http.respondTo(url).with(Data(data));
+		loader.url = url;
+		loader.parseData = parseDataWithLoaderError;
+		loader.load();
+
+		Assert.isNull(loader.content);
+
+		var expected = Fail(Data("Error 1", "Something"));
+		LoaderAssert.assertEnumTypeEq(expected, events[0].type);
+	}
+
+	function parseDataWithLoaderError(data:Xml):Xml
+	{
+		throw Data("Error 1", "Something");
 		return null;
 	}
 }

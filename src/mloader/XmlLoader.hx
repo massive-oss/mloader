@@ -121,6 +121,11 @@ class XmlLoader extends HttpLoader<Xml>
 		{
 			content = parseData(xml);
 		}
+		catch (loaderError:LoaderErrorType)
+		{
+			loaderFail(loaderError);
+			return;
+		}
 		catch (e:Dynamic)
 		{
 			loaderFail(Data(Std.string(e), data));
