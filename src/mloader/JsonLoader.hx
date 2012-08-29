@@ -105,6 +105,7 @@ class JsonLoader<T> extends HttpLoader<T>
 		{
 			content = raw;
 			loaderComplete();
+			return;
 		}
 
 		try

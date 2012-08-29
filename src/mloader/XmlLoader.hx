@@ -115,6 +115,7 @@ class XmlLoader extends HttpLoader<Xml>
 		{
 			content = xml;
 			loaderComplete();
+			return;
 		}
 
 		try
