@@ -51,6 +51,7 @@ class Build extends mtask.core.BuildBase
 	{
 		target.beforeCompile = function(path)
 		{
+			mkdir(path);
 			cp("example/*", path);
 		}
 	}
