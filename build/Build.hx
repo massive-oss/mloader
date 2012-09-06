@@ -21,10 +21,7 @@ SOFTWARE.
 */
 
 import mtask.target.HaxeLib;
-import mtask.target.Neko;
 import mtask.target.Directory;
-import mtask.target.Web;
-import mtask.target.Haxe;
 
 class Build extends mtask.core.BuildBase
 {
@@ -44,32 +41,17 @@ class Build extends mtask.core.BuildBase
 		target.addTag("massive");
 		target.addDependency("msignal");
 
-		target.afterCompile = function()
+		target.afterCompile = function(path)
 		{
-			cp("src/*", target.path);
-			cmd("haxe", ["-cp", "src", "-swf", target.path + "/haxedoc.swf", 
-				"--no-output", "-lib", "msignal", "-xml", target.path + "/haxedoc.xml",
-				"mloader.Loader",
-				"mloader.StringLoader", 
-				"mloader.XmlLoader", 
-				"mloader.JsonLoader", 
-				"mloader.ImageLoader", 
-				"mloader.SwfLoader", 
-				"mloader.XmlObjectLoader", 
-				"mloader.LoaderQueue", 
-				"mloader.LoaderCache", 
-				"mloader.HttpMock"
-				]);
-			Haxe.filterXml(target.path + "/haxedoc.xml", ["mloader"]);
+			cp("src/*", path);
 		}
 	}
 
 	@target function example(target:Directory)
 	{
-		target.afterBuild = function()
+		target.beforeCompile = function(path)
 		{
-			cp("example/*", target.path);
-			zip(target.path);
+			cp("example/*", path);
 		}
 	}
 

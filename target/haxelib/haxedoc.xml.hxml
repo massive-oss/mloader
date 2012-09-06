@@ -1,0 +1,5 @@
+-swf haxedoc.swf
+--no-output
+-cp src
+-lib msignal
+--macro include('mloader')
