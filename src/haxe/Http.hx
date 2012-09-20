@@ -47,7 +47,7 @@ private typedef AbstractSocket = {
 }
 #end
 
-@IgnoreCover
+@:IgnoreCover
 class Http {
 //---------------------------------------------------------------------- patch
 	
