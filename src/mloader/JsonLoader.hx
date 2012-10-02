@@ -123,8 +123,5 @@ class JsonLoader<T> extends HttpLoader<T>
 			loaderFail(Data(Std.string(e), data));
 			return;
 		}
-
-		
-		
 	}
 }
