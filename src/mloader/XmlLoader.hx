@@ -26,12 +26,68 @@ import mloader.Loader;
 import msignal.EventSignal;
 
 /**
-The XmlLoader is an extension of the HttpLoader. It's responsible for loading 
+The XmlLoader is an extension of the HttpLoader responsible for loading 
 Xml resources. If the format of the Xml file is incorrect the a failed event is 
 dispatched indicting the nature of the fault.
+
+Provides an optional callback <code>parseData</code> to validate/intercept the
+parsed Xml object prior to triggering loaderComplete
+
+<pre><code>
+
+function execute()
+{
+	var loader:XmlLoader = new XmlLoader("http://localhost/data.xml");
+	loader.parseData = customDataParser;
+	loader.loaded.add(errorHandler).forType(LoaderEventType.Fail(null));
+	loader.loaded.add(completedHandler).forType(LoaderEventType.complete);
+	loader.load();
+}
+
+function customDataParser(xml:Xml):Xml
+{
+	for(element in xml.elements())
+	{
+		if(element.nodeName == "errorCode")
+		{
+			throw "XML Error " + element.nodeValue;
+		}
+		else if(element.nodeName == "payload")
+		{
+			return element;
+		}
+	}
+	
+	throw "Missing XML payload";
+	return null;
+}
+
+function errorHandler(event:LoaderEvent)
+{
+	//error handling logic
+}
+
+function completedHandler(event:LoaderEvent)
+{
+	...
+}
+</code></pre>
+
 */
+
 class XmlLoader extends HttpLoader<Xml>
 {
+	/**
+	Optional method for post processing XML object before loaderComplete is triggered.
+	This can be used to validate XML payload or extract a sub element to return
+	as the content payload.
+	
+	@param raw xml object
+	@returns the xml content to return on loaderComplete
+	@throws any exception to trigger a Fail (exception will be wrapped in a LoaderErrorType.Data(e, raw))
+	*/
+	public var parseData:Xml->Xml;
+
 	/**
 	@param url  the url to load the resource from
 	@param http optional Http instance to use for the load request
@@ -43,16 +99,41 @@ class XmlLoader extends HttpLoader<Xml>
 
 	override function httpData(data:String)
 	{
+		var xml:Xml = null;
+
 		try
 		{
-			content = Xml.parse(data);
+			xml = Xml.parse(data);
 		}
 		catch (e:Dynamic)
 		{
 			loaderFail(Format(Std.string(e)));
 			return;
 		}
+
+		if(parseData == null)
+		{
+			content = xml;
+			loaderComplete();
+			return;
+		}
+
+		try
+		{
+			content = parseData(xml);
+			loaderComplete();
+		}
+		catch (loaderError:LoaderErrorType)
+		{
+			loaderFail(loaderError);
+			return;
+		}
+		catch (e:Dynamic)
+		{
+			loaderFail(Data(Std.string(e), data));
+			return;
+		}
+
 		
-		loaderComplete();
 	}
 }
