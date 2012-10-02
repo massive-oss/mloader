@@ -39,7 +39,7 @@ class JsonLoaderTest
 	]
 }";
 	var http:HttpMock;
-	var loader:JsonLoader<Dynamic>;
+	var loader:JsonLoader<Employees>;
 	var events:Array<Dynamic>;
 	
 	@Before
@@ -73,4 +73,96 @@ class JsonLoaderTest
 		Assert.areEqual("John", loader.content.employees[0].firstName);
 		Assert.areEqual("Smith", loader.content.employees[1].lastName);
 	}
+
+	@Test
+	public function fails_if_invalid_json_string()
+	{
+		var url = "http://localhost/data.txt";
+		
+		http.respondTo(url).with(Data("asfdasfsa{]asfsdc/sdfdsgds"));
+		loader.url = url;
+		loader.load();
+
+		Assert.isNull(loader.content);
+
+		var expected = Fail(Format(null));
+		LoaderAssert.assertEnumTypeEq(expected, events[0].type);
+	}
+
+	@Test
+	public function calls_external_parseData()
+	{
+		var url = "http://localhost/data.txt";
+		
+		http.respondTo(url).with(Data(response));
+		loader.url = url;
+		loader.parseData = parseData;
+		loader.load();
+
+		Assert.isNotNull(loader.content.employees);
+		Assert.areEqual(1, loader.content.employees.length);
+		Assert.areEqual("John", loader.content.employees[0].firstName);
+	}
+
+	function parseData(data:Dynamic):Employees
+	{
+		data.employees.pop();
+		return data;
+	}
+
+	@Test
+	public function should_fail_with_default_data_error_if_parseData_throws_exception()
+	{
+		var url = "http://localhost/data.txt";
+		
+		http.respondTo(url).with(Data(response));
+		loader.url = url;
+		loader.parseData = parseDataFail;
+		loader.load();
+
+		Assert.isNull(loader.content);
+
+		var expected = Fail(Data("Some parsing error", response));
+		LoaderAssert.assertEnumTypeEq(expected, events[0].type);
+	}
+
+	function parseDataFail(data:Dynamic):Employees
+	{
+		throw "Some parsing error";
+		return null;
+	}
+
+	@Test
+	public function should_fail_with_loader_error_type_if_parseData_throws_loader_error()
+	{
+		var url = "http://localhost/data.txt";
+		
+		http.respondTo(url).with(Data(response));
+		loader.url = url;
+		loader.parseData = parseDataWithLoaderError;
+		loader.load();
+
+		Assert.isNull(loader.content);
+
+		var expected = Fail(Data("Error 1", "Something"));
+		LoaderAssert.assertEnumTypeEq(expected, events[0].type);
+	}
+
+	function parseDataWithLoaderError(data:Dynamic):Employees
+	{
+		throw Data("Error 1", "Something");
+		return null;
+	}
+}
+
+
+private typedef Employee = 
+{
+	firstName:String,
+	lastName:String
+}
+
+private typedef Employees =
+{
+	employees:Array<Employee>
 }
