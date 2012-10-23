@@ -41,7 +41,7 @@ class Build extends mtask.core.BuildBase
 		target.addTag("massive");
 		target.addDependency("msignal");
 
-		target.afterCompile = function(path)
+		target.beforeCompile = function(path)
 		{
 			cp("src/*", path);
 		}
@@ -56,16 +56,17 @@ class Build extends mtask.core.BuildBase
 		}
 	}
 
-	@task function release()
-	{
-		invoke("clean");
-		invoke("test");
-		invoke("build example");
-		invoke("build haxelib");
-	}
-
 	@task function test()
 	{
 		cmd("haxelib", ["run", "munit", "test", "-coverage"]);
+	}
+
+	@task function teamcity()
+	{
+		invoke("test");
+		cmd("haxelib", ["run", "munit", "report", "teamcity"]);
+
+		invoke("build haxelib");
+		invoke("build example");
 	}
 }
