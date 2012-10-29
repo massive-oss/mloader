@@ -33,10 +33,22 @@ automatically detects content-type (unless you set a custom content-type header)
 */
 class HttpLoader<T> extends LoaderBase<T>
 {
+	#if nme
+	/**
+	The URLLoader used to load content.
+	*/
+	public var loader:flash.net.URLLoader;
+
+	/**
+	The URLRequest to load.
+	*/
+	var urlRequest:flash.net.URLRequest;
+	#else
 	/**
 	The http instance used to load the content.
 	*/
 	var http:Http;
+	#end
 
 	/**
 	The headers to pass through with the http request.
@@ -56,14 +68,22 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		super(url);
 		
+		headers = new Hash();
+
+		#if nme
+		urlRequest = new flash.net.URLRequest();
+		loader = new flash.net.URLLoader();
+
+		loader.addEventListener(flash.events.Event.COMPLETE, loaderEvent);
+		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loaderEvent);
+		#else
 		if (http == null) http = new Http("");
 
 		this.http = http;
 		http.onData = httpData;
 		http.onError = httpError;
 		http.onStatus = httpStatus;
-
-		headers = new Hash();
+		#end
 	}
 	
 	#if (sys||neko||cpp)
@@ -129,12 +149,18 @@ class HttpLoader<T> extends LoaderBase<T>
 			headers.set("Content-Type", contentType);
 		}
 
-		http.url = url;
-		http.setPostData(data);
-		
 		httpConfigure();
 		addHeaders();
 
+		#if nme
+		urlRequest.url = url;
+		urlRequest.method = flash.net.URLRequestMethod.POST;
+		urlRequest.data = data;
+		loader.load(urlRequest);
+		#else
+		http.url = url;
+		http.setPostData(data);
+		
 		try
 		{
 			http.request(true);
@@ -144,38 +170,31 @@ class HttpLoader<T> extends LoaderBase<T>
 			// js can throw synchronous security error
 			loaderFail(Security(Std.string(e)));
 		}
+		#else
+		#end
 	}
 
 	//-------------------------------------------------------------------------- private
 	
-	#if nme
-	function urlLoaderComplete(e:Dynamic)
-	{
-		e.target.removeEventListener(urlLoaderComplete);
-		httpData(Std.string(e.target.data));
-	}
-	#end
-
 	override function loaderLoad()
 	{
-		http.url = url;
 		httpConfigure();
 		addHeaders();
 		
 		#if nme
+		urlRequest.url = url;
 		if (url.indexOf("http:") == 0)
 		{
-			var loader = new flash.net.URLLoader();
-			loader.load(new flash.net.URLRequest(url));
-			loader.addEventListener(flash.events.Event.COMPLETE, urlLoaderComplete);
-			// haxe.Timer.delay(callback(http.request, false), 10);
+			loader.load(urlRequest);
 		}
 		else
 		{
 			var result = nme.installer.Assets.getText(url);
 			haxe.Timer.delay(callback(httpData, result), 10);
 		}
-		#elseif (sys||neko||cpp)
+		#else
+		http.url = url;
+		#if (sys||neko||cpp)
 		if (url.indexOf("http:") == 0)
 		{
 			http.request(false);
@@ -195,11 +214,14 @@ class HttpLoader<T> extends LoaderBase<T>
 			loaderFail(Security(Std.string(e)));
 		}
 		#end
+		#end
 	}
 	
 	override function loaderCancel():Void
 	{
-		#if !(cpp || neko || php)
+		#if nme
+		loader.close();
+		#elseif !(cpp || neko || php)
 		http.cancel();
 		#end
 	}
@@ -211,10 +233,19 @@ class HttpLoader<T> extends LoaderBase<T>
 	
 	function addHeaders()
 	{
+		#if nme
+		var requestHeaders = [];
+		for (name in headers.keys())
+		{
+			requestHeaders.push(new flash.net.URLRequestHeader(name, headers.get(name)));
+		}
+		urlRequest.requestHeaders = requestHeaders;
+		#else
 		for (name in headers.keys())
 		{
 			http.setHeader(name, headers.get(name));
 		}
+		#end
 	}
 	
 	function httpData(data:String)
@@ -232,4 +263,20 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		loaderFail(IO(error));
 	}
+
+	#if nme
+
+	function loaderEvent(e:Dynamic)
+	{
+		switch (e.type)
+		{
+			case flash.events.Event.COMPLETE:
+			httpData(Std.string(e.target.data));
+
+			case flash.events.IOErrorEvent.IO_ERROR:
+			httpError(Std.string(e));
+		}
+	}
+
+	#end
 }
