@@ -27,7 +27,7 @@ package haxe;
 #if neko 
 import neko.net.Host;
 import neko.net.Socket;
-#elseif cpp
+#elseif (cpp&&!nme)
 import cpp.net.Host;
 import cpp.net.Socket;
 #elseif php
@@ -35,7 +35,7 @@ import php.net.Host;
 import php.net.Socket;
 #end
 
-#if (neko || php || cpp)
+#if ((neko || php || cpp)&&!nme)
 private typedef AbstractSocket = {
 	var input(default,null) : haxe.io.Input;
 	var output(default,null) : haxe.io.Output;
@@ -51,7 +51,7 @@ private typedef AbstractSocket = {
 class Http {
 //---------------------------------------------------------------------- patch
 	
-#if flash
+#if (flash || nme)
 	var loader:flash.net.URLLoader;
 
 	public function cancel()
@@ -78,7 +78,7 @@ class Http {
 
 //---------------------------------------------------------------------- /patch
 	public var url : String;
-#if (neko || php || cpp)
+#if ((neko || php || cpp)&&!nme)
 	public var noShutdown : Bool;
 	public var cnxTimeout : Float;
 	public var responseHeaders : Hash<String>;
@@ -92,7 +92,7 @@ class Http {
 	var headers : Hash<String>;
 	var params : Hash<String>;
 
-	#if (neko || php || cpp)
+	#if ((neko || php || cpp)&&!nme)
 	public static var PROXY : { host : String, port : Int, auth : { user : String, pass : String } } = null;
 	#end
 
@@ -106,7 +106,7 @@ class Http {
 		params = new Hash();
 		#if js
 		async = true;
-		#elseif (neko || php || cpp)
+		#elseif ((neko || php || cpp)&&!nme)
 		cnxTimeout = 10;
 		#end
 		#if php
@@ -187,7 +187,7 @@ class Http {
 		r.send(uri);
 		if( !async )
 			onreadystatechange();
-	#elseif flash9
+	#elseif (flash9 || nme)
 		loader = new flash.net.URLLoader(); // patch
 		loader.addEventListener( "complete", function(e){
 			me.onData( loader.data );
@@ -275,7 +275,7 @@ class Http {
 		}
 		if( !r.sendAndLoad(small_url,r,if( param ) { if( post ) "POST" else "GET"; } else null) )
 			onError("Fail to initialize Connection");
-	#elseif (neko || php || cpp)
+	#elseif ((neko || php || cpp)&&!nme)
 		var me = this;
 		var output = new haxe.io.BytesOutput();
 		var old = onError;
@@ -294,7 +294,7 @@ class Http {
 	#end
 	}
 
-#if (neko || php || cpp)
+#if ((neko || php || cpp)&&!nme)
 
 	public function fileTransfert( argname : String, filename : String, file : haxe.io.Input, size : Int ) {
 		this.file = { param : argname, filename : filename, io : file, size : size };

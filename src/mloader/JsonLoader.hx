@@ -101,7 +101,7 @@ class JsonLoader<T> extends HttpLoader<T>
 			return;
 		}
 
-		if(parseData == null)
+		if (parseData == null)
 		{
 			content = raw;
 			loaderComplete();
