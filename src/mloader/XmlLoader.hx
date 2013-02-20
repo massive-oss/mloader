@@ -75,7 +75,7 @@ function completedHandler(event:LoaderEvent)
 
 */
 
-class XmlLoader extends HttpLoader<Xml>
+class XmlLoader extends NativeHttpLoader<Xml>
 {
 	/**
 	Optional method for post processing XML object before loaderComplete is triggered.

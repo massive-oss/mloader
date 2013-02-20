@@ -28,7 +28,7 @@ import msignal.EventSignal;
 /**
 A loader that loads a text content over Http.
 */
-class StringLoader extends HttpLoader<String>
+class StringLoader extends NativeHttpLoader<String>
 {
 	/**
 	@param url  the url to load the resource from

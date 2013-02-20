@@ -29,7 +29,7 @@ The XmlObjectLoader loads an Xml resource of a specific format. Node names are
 mapped against actual class names so that the Xml resource is parsed directly 
 into a typed object.
 */
-class XmlObjectLoader<T> extends HttpLoader<T>
+class XmlObjectLoader<T> extends NativeHttpLoader<T>
 {
 	/**
 	The XmlObjectParser used to parse responses into objects.

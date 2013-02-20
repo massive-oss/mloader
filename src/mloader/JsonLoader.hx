@@ -69,7 +69,7 @@ function completedHandler(event:LoaderEvent)
 </code></pre>
 
 */
-class JsonLoader<T> extends HttpLoader<T>
+class JsonLoader<T> extends NativeHttpLoader<T>
 {
 	/**
 	Optional method for post processing JSON object before loaderComplete is triggered.
