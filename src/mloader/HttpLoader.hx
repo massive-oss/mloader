@@ -33,16 +33,22 @@ automatically detects content-type (unless you set a custom content-type header)
 */
 class HttpLoader<T> extends LoaderBase<T>
 {
+	#if nme
+	/**
+	The URLLoader used to load content.
+	*/
+	public var loader:flash.net.URLLoader;
+
+	/**
+	The URLRequest to load.
+	*/
+	var urlRequest:flash.net.URLRequest;
+	#else
 	/**
 	The http instance used to load the content.
 	*/
 	var http:Http;
-
-	#if nme
-	var loader:flash.net.URLLoader;
-	var urlRequest:flash.net.URLRequest;
 	#end
-
 
 	/**
 	The headers to pass through with the http request.
@@ -62,24 +68,25 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		super(url);
 
-		// make sure not null even under nme for backwards compatibility 
-		if (http == null) http = new Http("");
-		this.http = http;
+		headers = new Hash();
 
 		#if nme
+		urlRequest = new flash.net.URLRequest();
 		loader = new flash.net.URLLoader();
-		loader.addEventListener(flash.events.Event.COMPLETE, urlLoaderComplete);
-		loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-		loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
-		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, ioErrorHandler);
 
+		loader.addEventListener(flash.events.Event.COMPLETE, loaderEvent);
+		loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, loaderEvent);
+		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loaderEvent);
+		loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, loaderEvent);
+		
 		#else
+		if (http == null) http = new Http("");
+
+		this.http = http;
 		http.onData = httpData;
 		http.onError = httpError;
 		http.onStatus = httpStatus;
 		#end
-
-		headers = new Hash();
 	}
 
 	#if (sys||neko||cpp)
@@ -145,16 +152,13 @@ class HttpLoader<T> extends LoaderBase<T>
 			headers.set("Content-Type", contentType);
 		}
 
-		#if nme
-		urlRequest = new flash.net.URLRequest(url);
-		urlRequest.method = flash.net.URLRequestMethod.POST;
-		urlRequest.data = data;
-		#end
-
 		httpConfigure();
 		addHeaders();
 
 		#if nme
+		urlRequest.url = url;
+		urlRequest.method = flash.net.URLRequestMethod.POST;
+		urlRequest.data = data;
 		loader.load(urlRequest);
 		#else
 		http.url = url;
@@ -169,43 +173,21 @@ class HttpLoader<T> extends LoaderBase<T>
 			// js can throw synchronous security error
 			loaderFail(Security(Std.string(e)));
 		}
+		#else
 		#end
 	}
 
 	//-------------------------------------------------------------------------- private
 
-	#if nme
-	function urlLoaderComplete(e:Dynamic)
-	{
-		e.target.removeEventListener(urlLoaderComplete);
-		httpData(Std.string(e.target.data));
-	}
-
-	function httpStatusHandler(e:Dynamic)
-	{
-		httpStatus(e.status);
-	}
-
-	function securityErrorHandler(e:Dynamic)
-	{
-		httpError(Std.string(e));
-	}
- 
-	function ioErrorHandler(e:Dynamic)
-	{
-		httpError(Std.string(e));
-	}
-	#end
-
 	override function loaderLoad()
 	{
+		httpConfigure();
+		addHeaders();
+
 		#if nme
-		if (url.indexOf("http") == 0 || url.indexOf("https:") == 0)
+		urlRequest.url = url;
+		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
-			urlRequest = new flash.net.URLRequest(url);
-			httpConfigure();
-			addHeaders();
-			
 			loader.load(urlRequest);
 		}
 		else
@@ -213,28 +195,20 @@ class HttpLoader<T> extends LoaderBase<T>
 			var result = nme.installer.Assets.getText(url);
 			haxe.Timer.delay(callback(httpData, result), 10);
 		}
-		
-		#elseif (sys||neko||cpp)
+		#else
+		http.url = url;
+		#if (sys||neko||cpp)
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
-			http.url = url;
-			httpConfigure();
-			addHeaders();
-			
 			http.request(false);
 		}
 		else
 		{	
 			loadFromFileSystem(url);
 		}
-		
 		#else
 		try
 		{
-			http.url = url;
-			httpConfigure();
-			addHeaders();
-		
 			http.request(false);
 		}
 		catch (e:Dynamic)
@@ -243,12 +217,13 @@ class HttpLoader<T> extends LoaderBase<T>
 			loaderFail(Security(Std.string(e)));
 		}
 		#end
+		#end
 	}
 
 	override function loaderCancel():Void
 	{
 		#if nme
- 		try { loader.close(); } catch(e:Dynamic) {}
+		try { loader.close(); } catch(e:Dynamic) {}
 		#elseif !(cpp || neko || php)
 		http.cancel();
 		#end
@@ -261,14 +236,19 @@ class HttpLoader<T> extends LoaderBase<T>
 
 	function addHeaders()
 	{
+		#if nme
+		var requestHeaders = [];
 		for (name in headers.keys())
 		{
-			#if nme
-			urlRequest.requestHeaders.push(new flash.net.URLRequestHeader(name, headers.get(name)));
-			#else
-			http.setHeader(name, headers.get(name));
-			#end
+			requestHeaders.push(new flash.net.URLRequestHeader(name, headers.get(name)));
 		}
+		urlRequest.requestHeaders = requestHeaders;
+		#else
+		for (name in headers.keys())
+		{
+			http.setHeader(name, headers.get(name));
+		}
+		#end
 	}
 
 	function httpData(data:String)
@@ -286,4 +266,31 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		loaderFail(IO(error));
 	}
+
+	function httpSecurityError(error:String)
+	{
+		loaderFail(Security(error));
+	}
+
+	#if nme
+
+	function loaderEvent(e:Dynamic)
+	{
+		switch (e.type)
+		{
+			case flash.events.HTTPStatusEvent.HTTP_STATUS:
+			httpStatus(e.status);
+			
+			case flash.events.Event.COMPLETE:
+			httpData(Std.string(e.target.data));
+
+			case flash.events.IOErrorEvent.IO_ERROR:
+			httpError(Std.string(e));
+			
+			case flash.events.SecurityErrorEvent.SECURITY_ERROR:
+			httpSecurityError(Std.string(e));
+		}
+	}
+
+	#end
 }
