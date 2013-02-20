@@ -69,7 +69,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		super(url);
 		
 		headers = new Hash();
-		
+
 		#if nme
 		urlRequest = new flash.net.URLRequest();
 		loader = new flash.net.URLLoader();
@@ -177,12 +177,12 @@ class HttpLoader<T> extends LoaderBase<T>
 	}
 
 	//-------------------------------------------------------------------------- private
-
+	
 	override function loaderLoad()
 	{
 		httpConfigure();
 		addHeaders();
-
+		
 		#if nme
 		urlRequest.url = url;
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
@@ -227,7 +227,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		http.cancel();
 		#end
 	}
-	
+
 	function httpConfigure()
 	{
 		// abstract
