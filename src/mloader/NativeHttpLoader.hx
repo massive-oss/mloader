@@ -38,7 +38,7 @@ class NativeHttpLoader<T> extends HttpLoader<T>
 		if (native_new == null)
 		{
 			native_new = nme.JNI.createStaticMethod("mloader/nme/extension/android/HttpLoader", "<init>", "(Ljava/lang/String;)V");
-			native_addHeader = nme.JNI.createMemberMethod("mloader/nme/extension/android/HttpLoader", "addHeader", "(Ljava/lang/String;Ljava/lang/String;)V");
+			native_setHeader = nme.JNI.createMemberMethod("mloader/nme/extension/android/HttpLoader", "setHeader", "(Ljava/lang/String;Ljava/lang/String;)V");
 			native_setUserAgent = nme.JNI.createMemberMethod("mloader/nme/extension/android/HttpLoader", "setUserAgent", "(Ljava/lang/String;)V");
 			native_get = nme.JNI.createMemberMethod("mloader/nme/extension/android/HttpLoader", "get", "(Lorg/haxe/nme/HaxeObject;)V");
 			native_post = nme.JNI.createMemberMethod("mloader/nme/extension/android/HttpLoader", "post", "(Ljava/lang/String;Lorg/haxe/nme/HaxeObject;)V");
@@ -108,7 +108,7 @@ class NativeHttpLoader<T> extends HttpLoader<T>
 	override function addHeaders()
 	{
 		for (name in headers.keys())
-			native_addHeader(handle, name, headers.get(name));
+			native_setHeader(handle, name, headers.get(name));
 	}
 
 	override function loaderCancel()
@@ -117,7 +117,7 @@ class NativeHttpLoader<T> extends HttpLoader<T>
 	}
 	
 	static var native_new:Dynamic;
-	static var native_addHeader:Dynamic;
+	static var native_setHeader:Dynamic;
 	static var native_setUserAgent:Dynamic;
 	static var native_get:Dynamic;
 	static var native_post:Dynamic;

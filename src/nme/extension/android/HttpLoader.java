@@ -74,16 +74,16 @@ public class HttpLoader
 		this.url = url;
 		headers = new HashMap<String, String>();
 		userAgent = DEFAULT_USER_AGENT;
-		addDefaultHeaders();
+		setDefaultHeaders();
 	}
 
-	protected void addDefaultHeaders()
+	protected void setDefaultHeaders()
 	{
-		addHeader("Content-Type", "application/x-www-form-urlencoded");
-		addHeader("Content-Language", "en-US");
+		setHeader("Content-Type", "application/x-www-form-urlencoded");
+		setHeader("Content-Language", "en-US");
 	}
 
-	public void addHeader(String name, String value)
+	public void setHeader(String name, String value)
 	{
 		headers.put(name.toLowerCase(), value);
 	}
@@ -96,13 +96,13 @@ public class HttpLoader
 	public void get(final HaxeObject listener)
 	{
 		cancel();
-		activeTask = new HttpLoaderBackgroundTask(url, "GET", headers, userAgent, listener).execute();
+		activeTask = new HttpLoaderBackgroundTask(url, HttpMethod.GET, headers, userAgent, listener).execute();
 	}
 
 	public void post(String payload, final HaxeObject listener)
 	{
 		cancel();
-		activeTask = new HttpLoaderBackgroundTask(url, "POST", payload, headers, userAgent, listener).execute();
+		activeTask = new HttpLoaderBackgroundTask(url, HttpMethod.POST, payload, headers, userAgent, listener).execute();
 	}
 
 	public void cancel()
@@ -120,18 +120,18 @@ public class HttpLoader
 	private class HttpLoaderBackgroundTask extends AsyncTask<Void, Void, HttpResult>
 	{
 		private final URL url;
-		private final String method;
+		private final HttpMethod method;
 		private final Map<String, String> headers;
 		private final String payload;
 		private final HaxeObject listener;
 		private final String userAgent;
 
-		public HttpLoaderBackgroundTask(String url, String method, Map<String, String> headers, String userAgent, HaxeObject listener)
+		public HttpLoaderBackgroundTask(String url, HttpMethod method, Map<String, String> headers, String userAgent, HaxeObject listener)
 		{
 			this(url, method, null, headers, userAgent, listener);
 		}
 
-		public HttpLoaderBackgroundTask(String url, String method, String payload, Map<String, String> headers, String userAgent, HaxeObject listener)
+		public HttpLoaderBackgroundTask(String url, HttpMethod method, String payload, Map<String, String> headers, String userAgent, HaxeObject listener)
 		{
 			this.url = stringToURL(url);
 			this.method = method;
@@ -167,14 +167,12 @@ public class HttpLoader
 			String errorMessage = null;
 
 			try {
-				if (method.toUpperCase() == "GET") {
-					result = httpGet();
-				}
-				else if (method.toUpperCase() == "POST") {
-					result = httpPost();
-				}
-				else {
-					throw new Exception("Unsupported http method: " + method.toUpperCase());
+				switch (method) {
+					case GET: result = httpGet();
+						break;
+					case POST: result = httpPost();
+						break;
+					default: throw new Exception("Unsupported http method: " + method);
 				}
 			}
 			catch (UnsupportedEncodingException e) {
@@ -255,7 +253,7 @@ public class HttpLoader
 		{
 			GameActivity.getInstance().runOnUiThread
 			(
-				new Runnable() 
+				new Runnable()
 				{
 					public void run()
 					{
@@ -275,7 +273,7 @@ public class HttpLoader
 		}
 	}
 
-	public class HttpResult
+	private class HttpResult
 	{
 		private boolean isSuccessful;
 		private String value;
@@ -302,5 +300,11 @@ public class HttpLoader
 		{
 			return statusCode;
 		}
+	}
+
+	private enum HttpMethod
+	{
+		GET,
+		POST
 	}
 }
