@@ -78,7 +78,6 @@ class HttpLoader<T> extends LoaderBase<T>
 		loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, loaderEvent);
 		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loaderEvent);
 		loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, loaderEvent);
-		
 		#else
 		if (http == null) http = new Http("");
 
@@ -88,7 +87,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		http.onStatus = httpStatus;
 		#end
 	}
-
+	
 	#if (sys||neko||cpp)
 
 	/**
@@ -132,7 +131,7 @@ class HttpLoader<T> extends LoaderBase<T>
 
 		// default content type
 		var contentType = "application/octet-stream";
-
+		
 		if (Std.is(data, Xml))
 		{
 			// convert to string and send as application/xml
@@ -145,7 +144,7 @@ class HttpLoader<T> extends LoaderBase<T>
 			data = haxe.Json.stringify(data);
 			contentType = "application/json";
 		}
-
+		
 		// only set content type if not already set
 		if (!headers.exists("Content-Type"))
 		{
@@ -219,7 +218,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#end
 		#end
 	}
-
+	
 	override function loaderCancel():Void
 	{
 		#if nme
@@ -228,12 +227,12 @@ class HttpLoader<T> extends LoaderBase<T>
 		http.cancel();
 		#end
 	}
-
+	
 	function httpConfigure()
 	{
 		// abstract
 	}
-
+	
 	function addHeaders()
 	{
 		#if nme
@@ -250,23 +249,23 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		#end
 	}
-
+	
 	function httpData(data:String)
 	{
 		content = cast data;
 		loaderComplete();
 	}
-
+	
 	function httpStatus(status:Int)
 	{
 		statusCode = status;
 	}
-
+	
 	function httpError(error:String)
 	{
 		loaderFail(IO(error));
 	}
-
+	
 	function httpSecurityError(error:String)
 	{
 		loaderFail(Security(error));
