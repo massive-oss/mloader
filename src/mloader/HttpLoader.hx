@@ -200,7 +200,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	override function loaderLoad()
 	{
 		#if nme
-		if (url.indexOf("http") == 0)
+		if (url.indexOf("http") == 0 || url.indexOf("https:") == 0)
 		{
 			urlRequest = new flash.net.URLRequest(url);
 			httpConfigure();
@@ -215,7 +215,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		
 		#elseif (sys||neko||cpp)
-		if (url.indexOf("http") == 0)
+		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			http.url = url;
 			httpConfigure();
