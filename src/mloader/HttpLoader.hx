@@ -201,8 +201,8 @@ class HttpLoader<T> extends LoaderBase<T>
     #end
 
 	override function loaderLoad()
-{
-	#if nme
+	{
+		#if nme
 		if (url.indexOf("http") == 0)
 		{
 			urlRequest = new flash.net.URLRequest(url);
@@ -233,20 +233,20 @@ class HttpLoader<T> extends LoaderBase<T>
 		
 		#else
 		try
-{
-	http.url = url;
-	httpConfigure();
-	addHeaders();
-
-	http.request(false);
-}
-catch (e:Dynamic)
-{
-	// js can throw synchronous security error
-	loaderFail(Security(Std.string(e)));
-}
-	#end
-}
+		{
+			http.url = url;
+			httpConfigure();
+			addHeaders();
+		
+			http.request(false);
+		}
+		catch (e:Dynamic)
+		{
+			// js can throw synchronous security error
+			loaderFail(Security(Std.string(e)));
+		}
+		#end
+	}
 
 	override function loaderCancel():Void
 	{
