@@ -69,9 +69,9 @@ class HttpLoader<T> extends LoaderBase<T>
 		#if nme
 		loader = new flash.net.URLLoader();
 		loader.addEventListener(flash.events.Event.COMPLETE, urlLoaderComplete);
-        loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-        loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
-        loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, ioErrorHandler);
+		loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+		loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, ioErrorHandler);
 
 		#else
 		http.onData = httpData;
@@ -155,7 +155,6 @@ class HttpLoader<T> extends LoaderBase<T>
 		addHeaders();
 
 		#if nme
-		trace("URL " + url);
 		loader.load(urlRequest);
 		#else
 		http.url = url;
@@ -181,24 +180,22 @@ class HttpLoader<T> extends LoaderBase<T>
 		e.target.removeEventListener(urlLoaderComplete);
 		httpData(Std.string(e.target.data));
 	}
-	
+
+	function httpStatusHandler(e:Dynamic)
+	{
+		httpStatus(e.status);
+	}
+
 	function securityErrorHandler(e:Dynamic)
 	{
-        trace("securityErrorHandler: " + e);
-        httpError("" + e);
-    }
+		httpError(Std.string(e));
+	}
  
-    function httpStatusHandler(e:Dynamic)
-    {
-        statusCode = e.status;
-    }
- 
-    function ioErrorHandler(e:Dynamic)
-    {
-        trace("ioErrorHandler: " + e);
-        httpError("" + e);
-    }
-    #end
+	function ioErrorHandler(e:Dynamic)
+	{
+		httpError(Std.string(e));
+	}
+	#end
 
 	override function loaderLoad()
 	{
@@ -267,7 +264,6 @@ class HttpLoader<T> extends LoaderBase<T>
 		for (name in headers.keys())
 		{
 			#if nme
-			trace("add header: " + name + ":::" + headers.get(name));
 			urlRequest.requestHeaders.push(new flash.net.URLRequestHeader(name, headers.get(name)));
 			#else
 			http.setHeader(name, headers.get(name));
