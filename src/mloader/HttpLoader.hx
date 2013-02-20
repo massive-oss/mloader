@@ -67,15 +67,15 @@ class HttpLoader<T> extends LoaderBase<T>
 	function new(?url:String, ?http:Http)
 	{
 		super(url);
-
+		
 		headers = new Hash();
-
+		
 		#if nme
 		urlRequest = new flash.net.URLRequest();
 		loader = new flash.net.URLLoader();
 
-		loader.addEventListener(flash.events.Event.COMPLETE, loaderEvent);
 		loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, loaderEvent);
+		loader.addEventListener(flash.events.Event.COMPLETE, loaderEvent);
 		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loaderEvent);
 		loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, loaderEvent);
 		#else
@@ -162,7 +162,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#else
 		http.url = url;
 		http.setPostData(data);
-
+		
 		try
 		{
 			http.request(true);
