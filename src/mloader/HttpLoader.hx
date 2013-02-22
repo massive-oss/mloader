@@ -74,8 +74,10 @@ class HttpLoader<T> extends LoaderBase<T>
 		urlRequest = new flash.net.URLRequest();
 		loader = new flash.net.URLLoader();
 
+		loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, loaderEvent);
 		loader.addEventListener(flash.events.Event.COMPLETE, loaderEvent);
 		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loaderEvent);
+		loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, loaderEvent);
 		#else
 		if (http == null) http = new Http("");
 
@@ -183,7 +185,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		
 		#if nme
 		urlRequest.url = url;
-		if (url.indexOf("http:") == 0)
+		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			loader.load(urlRequest);
 		}
@@ -195,7 +197,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#else
 		http.url = url;
 		#if (sys||neko||cpp)
-		if (url.indexOf("http:") == 0)
+		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			http.request(false);
 		}
@@ -220,7 +222,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	override function loaderCancel():Void
 	{
 		#if nme
-		loader.close();
+		try { loader.close(); } catch(e:Dynamic) {}
 		#elseif !(cpp || neko || php)
 		http.cancel();
 		#end
@@ -263,6 +265,11 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		loaderFail(IO(error));
 	}
+	
+	function httpSecurityError(error:String)
+	{
+		loaderFail(Security(error));
+	}
 
 	#if nme
 
@@ -270,11 +277,17 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		switch (e.type)
 		{
+			case flash.events.HTTPStatusEvent.HTTP_STATUS:
+			httpStatus(e.status);
+			
 			case flash.events.Event.COMPLETE:
 			httpData(Std.string(e.target.data));
 
 			case flash.events.IOErrorEvent.IO_ERROR:
 			httpError(Std.string(e));
+			
+			case flash.events.SecurityErrorEvent.SECURITY_ERROR:
+			httpSecurityError(Std.string(e));
 		}
 	}
 
