@@ -1,9 +1,12 @@
 {
-	"name":"MassiveLoader",
-	"version":"0.9.0",
-	"id":"mloader",
-	"dependencies":
+	"project": 
 	{
-		"msignal":"~1.1"
+		"name": "MassiveLoader",
+		"version": "1.1.0",
+		"id": "mloader",
+		"dependencies": 
+		{
+			"msignal": ">= 1.1 < 2.0.0"
+		}
 	}
 }

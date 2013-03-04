@@ -1,4 +1,0 @@
-1.x.x
-- added optional parseData methods for XmlLoader and JsonLoader
-
-1.0.0		Initial release
