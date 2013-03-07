@@ -13,3 +13,5 @@ TestSuite.hx
 .DS_Store
 /example/loader/build/Example
 /example/loader/build/example_cpp/
+/mloader.sublime-project
+/mloader.sublime-workspace
