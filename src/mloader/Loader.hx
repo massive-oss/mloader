@@ -134,5 +134,5 @@ enum LoaderErrorType
 	data was received. For example: a service might return a non 200 Http 
 	status, but also data indicating the nature of the failiure.
 	*/
-	Data(info:String, data:String);
+	Data(info:String, data:Dynamic);
 }
