@@ -90,7 +90,7 @@ class ImageLoader extends LoaderBase<BitmapData>
 	override function loaderLoad()
 	{
 		#if nme
-		if (url.indexOf("http://") == 0)
+		if (url.indexOf("http://") == 0 || url.indexOf("https://") == 0)
 		{
 			loader.load(new flash.net.URLRequest(url));
 		}
