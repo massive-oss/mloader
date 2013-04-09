@@ -24,7 +24,10 @@ DAMAGE.
 */
 package haxe;
 
-#if neko 
+#if sys
+import sys.net.Host;
+import sys.net.Socket;
+#elseif neko 
 import neko.net.Host;
 import neko.net.Socket;
 #elseif cpp
@@ -47,6 +50,12 @@ private typedef AbstractSocket = {
 }
 #end
 
+#if haxe3
+private typedef StringMap<T> = haxe.ds.StringMap<T>;
+#else
+private typedef StringMap<T> = Hash<T>;
+#end
+
 @:IgnoreCover
 class Http {
 //---------------------------------------------------------------------- patch
@@ -63,7 +72,11 @@ class Http {
 		}
 	}
 #elseif js
+	#if haxe3
+	var loader:js.html.XMLHttpRequest;
+	#else
 	var loader:js.XMLHttpRequest;
+	#end
 
 	public function cancel()
 	{
@@ -81,7 +94,7 @@ class Http {
 #if (neko || php || cpp)
 	public var noShutdown : Bool;
 	public var cnxTimeout : Float;
-	public var responseHeaders : Hash<String>;
+	public var responseHeaders : StringMap<String>;
 	var chunk_size : Null<Int>;
 	var chunk_buf : haxe.io.Bytes;
 	var file : { param : String, filename : String, io : haxe.io.Input, size : Int };
@@ -89,8 +102,8 @@ class Http {
 	public var async : Bool;
 #end
 	var postData : String;
-	var headers : Hash<String>;
-	var params : Hash<String>;
+	var headers : StringMap<String>;
+	var params : StringMap<String>;
 
 	#if (neko || php || cpp)
 	public static var PROXY : { host : String, port : Int, auth : { user : String, pass : String } } = null;
@@ -102,8 +115,8 @@ class Http {
 	 */
 	public function new( url : String ) {
 		this.url = url;
-		headers = new Hash();
-		params = new Hash();
+		headers = new StringMap();
+		params = new StringMap();
 		#if js
 		async = true;
 		#elseif (neko || php || cpp)
@@ -132,7 +145,11 @@ class Http {
 	public function request( post : Bool ) : Void {
 		var me = this;
 	#if js
-		var r = loader = new js.XMLHttpRequest(); // patch
+		#if haxe3
+		var r:Dynamic = loader = new js.html.XMLHttpRequest(); // patch
+		#else
+		var r:Dynamic = loader = new js.XMLHttpRequest(); // patch
+		#end
 		var onreadystatechange = function() {
 			if( r.readyState != 4 )
 				return;
@@ -143,16 +160,15 @@ class Http {
 				me.onStatus(s);
 			if( s != null && s >= 200 && s < 400 )
 				me.onData(r.responseText);
-			else switch( s ) {
-			case null:
+			else if (s == null)
 				me.onError("Fail to connect or resolve host");
-			case 12029:
+			else if (s == 12029)
 				me.onError("Fail to connect to host");
-			case 12007:
+			else if (s == 12007)
 				me.onError("Unknown host");
-			default:
+			else
 				me.onError("Http Error #"+r.status);
-			}
+			
 		};
 		if( async )
 			r.onreadystatechange = onreadystatechange;
@@ -534,7 +550,7 @@ class Http {
 		// remove the two lasts \r\n\r\n
 		headers.pop();
 		headers.pop();
-		responseHeaders = new Hash();
+		responseHeaders = new StringMap();
 		var size = null;
 		for( hline in headers ) {
 			var a = hline.split(": ");

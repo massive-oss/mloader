@@ -47,7 +47,7 @@ class LoaderMock extends LoaderBase<String>
 		switch (event.type)
 		{
 			case Complete: didComplete = true;
-			case Fail(e): didFail = true;
+			case Fail(_): didFail = true;
 			case Cancel: didCancel = true;
 			default:
 		}

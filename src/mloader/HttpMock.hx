@@ -22,19 +22,25 @@ SOFTWARE.
 
 package mloader;
 
+#if haxe3
+private typedef StringMap<T> = haxe.ds.StringMap<T>;
+#else
+private typedef StringMap<T> = Hash<T>;
+#end
+
 /**
 A utility class for moccking Http responses.
 */
 class HttpMock extends haxe.Http
 {
-	public var publicHeaders:Hash<String>;
+	public var publicHeaders:StringMap<String>;
 
-	var responders:Hash<HttpResponder>;
+	var responders:StringMap<HttpResponder>;
 	
 	public function new(url:String)
 	{
 		super(url);
-		responders = new Hash<HttpResponder>();
+		responders = new StringMap<HttpResponder>();
 		publicHeaders = headers;
 	}
 
@@ -50,7 +56,11 @@ class HttpMock extends haxe.Http
 		else
 		{
 			#if (flash||js||nme)
+				#if haxe3
+				haxe.Timer.delay(respond.bind(responder.response), responder.delay);
+				#else
 				haxe.Timer.delay(callback(respond, responder.response), responder.delay);
+				#end
 			#else
 				respond(responder.response);
 			#end

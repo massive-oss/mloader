@@ -29,7 +29,6 @@ import massive.munit.TestRunner;
 
 #if js
 import js.Lib;
-import js.Dom;
 #end
 
 /**
@@ -76,7 +75,7 @@ class TestMain
             #elseif js
                 js.Lib.eval("testResult(" + successful + ");");
             #elseif neko
-                neko.Sys.exit(0);
+                Sys.exit(0);
             #end
         }
         // if run from outside browser can get error which we can ignore

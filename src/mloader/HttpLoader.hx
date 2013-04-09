@@ -25,6 +25,12 @@ package mloader;
 import mloader.Loader;
 import haxe.Http;
 
+#if haxe3
+private typedef StringMap<T> = haxe.ds.StringMap<T>;
+#else
+private typedef StringMap<T> = Hash<T>;
+#end
+
 /**
 The HttpLoader class is responsible for loading content over Http, falling back 
 to file system access for local paths under Neko (as haxe.Http does not support 
@@ -53,7 +59,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	/**
 	The headers to pass through with the http request.
 	*/
-	public var headers(default, null):Hash<String>;
+	public var headers(default, null):StringMap<String>;
 
 	/**
 	Http status code of response.
@@ -68,7 +74,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		super(url);
 		
-		headers = new Hash();
+		headers = new StringMap();
 
 		#if nme
 		urlRequest = new flash.net.URLRequest();
