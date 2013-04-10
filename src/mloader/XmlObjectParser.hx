@@ -23,8 +23,8 @@ SOFTWARE.
 package mloader;
 
 #if haxe3
-private typedef StringMap<T> = haxe.ds.StringMap<T>;
-private typedef IntMap<T> = haxe.ds.IntMap<T>;
+import haxe.ds.StringMap;
+import haxe.ds.IntMap;
 #else
 private typedef StringMap<T> = Hash<T>;
 private typedef IntMap<T> = IntHash<T>;

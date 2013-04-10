@@ -51,7 +51,7 @@ private typedef AbstractSocket = {
 #end
 
 #if haxe3
-private typedef StringMap<T> = haxe.ds.StringMap<T>;
+import haxe.ds.StringMap;
 #else
 private typedef StringMap<T> = Hash<T>;
 #end
