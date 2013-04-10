@@ -38,6 +38,12 @@ import php.net.Host;
 import php.net.Socket;
 #end
 
+#if haxe3
+import haxe.ds.StringMap;
+#else
+private typedef StringMap<T> = Hash<T>;
+#end
+
 #if (neko || php || cpp)
 private typedef AbstractSocket = {
 	var input(default,null) : haxe.io.Input;
@@ -48,12 +54,6 @@ private typedef AbstractSocket = {
 	function close() : Void;
 	function shutdown( read : Bool, write : Bool ) : Void;
 }
-#end
-
-#if haxe3
-import haxe.ds.StringMap;
-#else
-private typedef StringMap<T> = Hash<T>;
 #end
 
 @:IgnoreCover
