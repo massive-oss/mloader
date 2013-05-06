@@ -31,7 +31,7 @@ private typedef StringMap<T> = Hash<T>;
 /**
 A utility class for moccking Http responses.
 */
-class HttpMock extends haxe.Http
+class HttpMock extends Http
 {
 	public var publicHeaders:StringMap<String>;
 
@@ -44,7 +44,11 @@ class HttpMock extends haxe.Http
 		publicHeaders = headers;
 	}
 
-	override public function request(post:Bool)
+	#if haxe3
+	override public function request(?post:Bool):Void
+	#else
+	override public function request(post:Bool):Void
+	#end
 	{
 		var responder = if (responders.exists(url)) responders.get(url);
 		else new HttpResponder().with(Error("Http Error #404"));

@@ -23,7 +23,6 @@ SOFTWARE.
 package mloader;
 
 import mloader.Loader;
-import haxe.Http;
 
 #if haxe3
 import haxe.ds.StringMap;
