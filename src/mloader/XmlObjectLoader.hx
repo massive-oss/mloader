@@ -42,7 +42,7 @@ class XmlObjectLoader<T> extends HttpLoader<T>
 			passed through a new instance will be created.
 	@param http optional Http instance to use for the load request
 	*/
-	public function new(?url:String, ?parser:XmlObjectParser, ?http:haxe.Http)
+	public function new(?url:String, ?parser:XmlObjectParser, ?http:Http)
 	{
 		super(url, http);
 		

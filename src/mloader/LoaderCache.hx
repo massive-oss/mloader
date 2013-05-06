@@ -25,6 +25,12 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
+#if haxe3
+import haxe.ds.StringMap;
+#else
+private typedef StringMap<T> = Hash<T>;
+#end
+
 /**
 The LoadCache class caches any request which has it's base type of Loader. It
 also stores reference to items which are currently still being loaded. 
@@ -34,23 +40,23 @@ class LoaderCache
 	/**
 	Loaders currently being loaded by the cache, indexed by url.
 	*/
-	var loadingLoaders:Hash<Loader<Dynamic>>;
+	var loadingLoaders:StringMap<Loader<Dynamic>>;
 
 	/**
 	Loaders that are waiting for a loading loader to complete, indexed by url.
 	*/
-	var waitingLoaders:Hash<Array<Loader<Dynamic>>>;
+	var waitingLoaders:StringMap<Array<Loader<Dynamic>>>;
 
 	/**
 	A cache of succefully loaded Loader.content, index by url.
 	*/
-	var cache:Hash<Dynamic>;
+	var cache:StringMap<Dynamic>;
 
 	public function new()
 	{
-		loadingLoaders = new Hash();
-		waitingLoaders = new Hash();
-		cache = new Hash();
+		loadingLoaders = new StringMap();
+		waitingLoaders = new StringMap();
+		cache = new StringMap();
 	}
 
 	/**
@@ -89,7 +95,7 @@ class LoaderCache
 	*/
 	public function clear()
 	{
-		cache = new Hash();
+		cache = new StringMap();
 	}
 
 	/**

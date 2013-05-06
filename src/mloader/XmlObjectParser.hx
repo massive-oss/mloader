@@ -22,6 +22,14 @@ SOFTWARE.
 
 package mloader;
 
+#if haxe3
+import haxe.ds.StringMap;
+import haxe.ds.IntMap;
+#else
+private typedef StringMap<T> = Hash<T>;
+private typedef IntMap<T> = IntHash<T>;
+#end
+
 /**
 Decoder is a utility class for automating the deserialization of raw xml into
 data objects based on individual node names
@@ -71,13 +79,13 @@ var widget:Widget = result.widget;
 */
 class XmlObjectParser
 {
-	public var classMap(default, null):Hash<Class<Dynamic>>;
-	public var nodeMap(default, null):Hash<String>;
+	public var classMap(default, null):StringMap<Class<Dynamic>>;
+	public var nodeMap(default, null):StringMap<String>;
 	
 	public function new()
 	{
-		classMap = new Hash<Class<Dynamic>>();
-		nodeMap = new Hash<String>();
+		classMap = new StringMap<Class<Dynamic>>();
+		nodeMap = new StringMap<String>();
 	}
 	
 	/**
@@ -132,10 +140,10 @@ class XmlObjectParser
 			case "Array":
 				return parseArray(node);
 				
-			case "Hash":
+			case "Hash", "StringMap":
 				return parseHash(node);
 			
-			case "IntHash":
+			case "IntHash", "IntMap":
 				return parseIntHash(node);
 
 			case "Object":
@@ -286,7 +294,7 @@ class XmlObjectParser
 	
 	function parseHash(node:Xml):Dynamic
 	{
-		var hash:Hash<Dynamic> = new Hash();
+		var hash:StringMap<Dynamic> = new StringMap();
 		for (element in node.elements()) 
 		{
 			var id = getIdFromNode(element);
@@ -297,7 +305,7 @@ class XmlObjectParser
 
 	function parseIntHash(node:Xml):Dynamic
 	{
-		var hash:IntHash<Dynamic> = new IntHash();
+		var hash:IntMap<Dynamic> = new IntMap();
 		for (element in node.elements()) 
 		{
 			var id = Std.parseInt(getIdFromNode(element));

@@ -29,7 +29,11 @@ import msignal.EventSignal;
 /**
 Loads an image at a defined url.
 */
+#if haxe3
+class ImageLoader extends LoaderBase<js.html.ImageElement>
+#else
 class ImageLoader extends LoaderBase<js.Dom.Image>
+#end
 {
 	public function new(?url:String)
 	{
@@ -38,7 +42,11 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 	
 	override function loaderLoad()
 	{
+		#if haxe3
+		content = cast js.Browser.document.createElement("img");
+		#else
 		content = cast js.Lib.document.createElement("img");
+		#end
 		content.onload = imageLoad;
 		content.onerror = imageError;
 		content.src = url;

@@ -82,7 +82,7 @@ class JsonLoader<T> extends HttpLoader<T>
 	*/
 	public var parseData:Dynamic->T;
 
-	public function new(?url:String, ?http:haxe.Http)
+	public function new(?url:String, ?http:Http)
 	{
 		super(url, http);
 	}

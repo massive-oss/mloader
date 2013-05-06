@@ -24,6 +24,12 @@ package mloader;
 
 import massive.munit.Assert;
 
+#if haxe3
+private typedef StringMap<T> = haxe.ds.StringMap<T>;
+#else
+private typedef StringMap<T> = Hash<T>;
+#end
+
 class XmlObjectParserTest
 {
 	var decoder:XmlObjectParser;
@@ -44,8 +50,7 @@ class XmlObjectParserTest
 
 		var xml = Xml.parse('<Hash><Bool id="' + HASH_ID_ONE + '">true</Bool><String id="' + HASH_ID_TWO + '">yo</String></Hash>');
 
-
-		var hash = cast(decoder.parse(xml), Hash<Dynamic>);
+		var hash:StringMap<Dynamic> = decoder.parse(xml);
 
 		Assert.isNotNull(hash);
 		Assert.isTrue(hash.get(HASH_ID_ONE));
@@ -110,7 +115,7 @@ class XmlObjectParserTest
 	@Test
 	public function parses_hash()
 	{
-		var hash:Hash<Dynamic> = parse("<Hash><String id='foo'>bar</String><Object><id>bing</id><test>baz</test></Object></Hash>");
+		var hash = parse("<Hash><String id='foo'>bar</String><Object><id>bing</id><test>baz</test></Object></Hash>");
 		Assert.areEqual("bar", hash.get("foo"));
 		Assert.areEqual("baz", hash.get("bing").test);
 	}

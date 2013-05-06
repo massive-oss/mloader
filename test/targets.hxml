@@ -58,13 +58,13 @@
 
 ## CPP
 
--main TestMain
--lib munit
--lib hamcrest
--lib msignal
--lib mconsole
--lib mcore
--cp src
--cp test
--debug
--cpp bin/test/cpp_test
+# -main TestMain
+# -lib munit
+# -lib hamcrest
+# -lib msignal
+# -lib mconsole
+# -lib mcore
+# -cp src
+# -cp test
+# -debug
+# -cpp bin/test/cpp_test
