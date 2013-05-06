@@ -1,7 +1,7 @@
 <project name="mloader" url="http://github.com/massiveinteractive/mloader" license="MIT">
-	<user name="massive"/>
+	<user name="default.user"/>
 	<description><![CDATA[A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.]]></description>
-	<version name="1.1.0"><![CDATA[NME support, custom data parsing hooks]]></version>
+	<version name="1.2.1"><![CDATA[Supporting the loading of images over https using ImageLoader]]></version>
 	<depends name="msignal"/>
 	<tag v="cross"/>
 	<tag v="utility"/>
