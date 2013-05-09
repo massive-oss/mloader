@@ -1,7 +1,7 @@
 <project name="mloader" url="http://github.com/massiveinteractive/mloader" license="MIT">
 	<user name="massive"/>
 	<description><![CDATA[A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.]]></description>
-	<version name="2.0.0"><![CDATA[Removed haxe.Http, added support for Haxe 3.]]></version>
+	<version name="2.0.1"><![CDATA[Fixed runtime exception in mloader.Http in flash.]]></version>
 	<depends name="msignal"/>
 	<tag v="cross"/>
 	<tag v="utility"/>

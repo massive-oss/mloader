@@ -10,3 +10,4 @@
   instance you will now need to use mloader.Http instead (which subclasses 
   haxe.Http and adds the ability to cancel requests to flash9/js). In the 
   future we might override/add other things.
+2.0.1 Fixed runtime exception in mloader.Http under flash.
