@@ -38,7 +38,7 @@ class Http extends haxe.Http
 		loader.addEventListener( "complete", function(e) {
 			me.responseData = loader.data;
 			me.loader = null;
-			me.onData( loader.data );
+			me.onData(me.responseData);
 		});
 		loader.addEventListener( "httpStatus", function(e:flash.events.HTTPStatusEvent){
 			// on Firefox 1.5, Flash calls onHTTPStatus with 0 (!??)
