@@ -35,6 +35,7 @@ class Http extends haxe.Http
 		var me = this;
 		me.responseData = null;
 		loader = new flash.net.URLLoader();
+
 		loader.addEventListener( "complete", function(e) {
 			me.responseData = loader.data;
 			me.loader = null;
@@ -74,6 +75,9 @@ class Http extends haxe.Http
 		var bug = small_url.split("xxx");
 
 		var request = new flash.net.URLRequest( small_url );
+		#if air
+		untyped request.authenticate = true;
+		#end
 		for( k in headers.keys() )
 			request.requestHeaders.push( new flash.net.URLRequestHeader(k,headers.get(k)) );
 
