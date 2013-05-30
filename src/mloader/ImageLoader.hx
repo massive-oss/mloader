@@ -66,6 +66,9 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 
 	function imageError(event)
 	{
+		if (content == null)
+			return;
+		
 		content.onload = null;
 		content.onerror = null;
 		loaderFail(IO(Std.string(event)));
