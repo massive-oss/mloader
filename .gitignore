@@ -15,3 +15,5 @@ TestSuite.hx
 /example/loader/build/example_cpp/
 /mloader.sublime-project
 /mloader.sublime-workspace
+/.idea/
+/mloader.iml

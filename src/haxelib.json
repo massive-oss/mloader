@@ -1,0 +1,14 @@
+{
+	"name": "mloader",
+	"license": "MIT",
+	"tags": ["cross","utility","massive"],
+	"description": "A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.",
+	"contributors": ["massive"],
+	"releasenote": "Added haxelib.json.",
+	"version": "2.0.2",
+	"url": "http://github.com/massiveinteractive/mloader",
+	"dependencies": 
+	{
+		"msignal": ""
+	}
+}
