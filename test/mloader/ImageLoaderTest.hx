@@ -80,6 +80,26 @@ class ImageLoaderTest
 	{
 		Assert.isFalse(Type.enumEq(events[0].type, Complete));
 	}
+	
+	#if js
+	
+	@Test
+	public function should_load_into_defined_image_element()
+	{
+		#if haxe3
+		var image:Dynamic = js.Browser.document.createElement("img");
+		#else
+		var image:Dynamic = js.Lib.document.createElement("img");
+		#end
+
+		loader.image = image;
+		loader.url = "test.jpg";
+		loader.load();
+		Assert.areEqual(image, loader.content);
+		loader.cancel();
+	}
+	
+	#end
 }
 
 #else
