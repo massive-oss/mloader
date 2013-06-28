@@ -35,6 +35,15 @@ class ImageLoader extends LoaderBase<js.html.ImageElement>
 class ImageLoader extends LoaderBase<js.Dom.Image>
 #end
 {
+	/**
+		Specify your own image element to load the image into.
+	*/
+	#if haxe3
+	public var image:js.html.Image;
+	#else
+	public var image:js.Dom.Image;
+	#end
+	
 	public function new(?url:String)
 	{
 		super(url);
@@ -42,11 +51,19 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 	
 	override function loaderLoad()
 	{
-		#if haxe3
-		content = cast js.Browser.document.createElement("img");
-		#else
-		content = cast js.Lib.document.createElement("img");
-		#end
+		if (image == null)
+		{
+			#if haxe3
+			content = cast js.Browser.document.createElement("img");
+			#else
+			content = cast js.Lib.document.createElement("img");
+			#end
+		}
+		else
+		{
+			content = image;
+		}
+		
 		content.onload = imageLoad;
 		content.onerror = imageError;
 		content.src = url;
