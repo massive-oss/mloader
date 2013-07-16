@@ -19,3 +19,4 @@
 2.0.2 Added haxelib.json.
 
 2.1.0 Support the setting of a custom image element on ImageLoader uder js.
+2.1.1 Updated msignal dependency with priority fix that was failing test

@@ -2,11 +2,11 @@
 	"project": 
 	{
 		"name": "MassiveLoader",
-		"version": "2.1.0",
+		"version": "2.1.1",
 		"id": "mloader",
 		"dependencies": 
 		{
-			"msignal":">=1.2 <2"
+			"msignal":">=1.2.2 <2"
 		},
 		"devDependencies":
 		{
