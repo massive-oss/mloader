@@ -64,6 +64,7 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 			content = image;
 		}
 		
+		#if !haxe3 untyped #end content.crossOrigin = "Anonymous";
 		content.onload = imageLoad;
 		content.onerror = imageError;
 		content.src = url;
