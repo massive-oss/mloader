@@ -32,12 +32,12 @@ class ExampleLoaderQueue
 		var queue = new LoaderQueue();
 		queue.ignoreFailures = false;
 
-		#if (js || flash || nme)
+		#if (js || flash || nme || openfl)
 		queue.add(new mloader.ImageLoader(Example.BASE_DIR + "example.jpg"));
 		#end
 		queue.add(new mloader.JsonLoader(Example.BASE_DIR + "example.json"));
 		queue.add(new mloader.StringLoader(Example.BASE_DIR + "example.txt"));
-		#if (flash || nme)
+		#if (flash || nme || openfl)
 		queue.add(new mloader.SwfLoader(Example.BASE_DIR + "example.swf"));
 		#end
 		queue.add(new mloader.XmlLoader(Example.BASE_DIR + "example.xmls"));

@@ -31,7 +31,7 @@ class ExampleImageLoader
 
 	public function new()
 	{
-		#if (js || flash || nme)
+		#if (js || flash || nme || openfl)
 			loader = new ImageLoader(Example.BASE_DIR + "example.jpg");
 			loader.loaded.add(loaded);
 			loader.load();
@@ -57,7 +57,7 @@ class ExampleImageLoader
 			case Complete:
 				#if js
 				js.Lib.document.body.appendChild(event.target.content);
-				#elseif (flash || nme)
+				#elseif (flash || nme || openfl)
 				var bitmap = new flash.display.Bitmap(event.target.content);
 				flash.Lib.current.addChild(bitmap);
 				#end

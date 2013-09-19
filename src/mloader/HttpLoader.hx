@@ -38,7 +38,7 @@ automatically detects content-type (unless you set a custom content-type header)
 */
 class HttpLoader<T> extends LoaderBase<T>
 {
-	#if nme
+	#if (nme || openfl)
 	/**
 	The URLLoader used to load content.
 	*/
@@ -75,7 +75,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		
 		headers = new StringMap();
 
-		#if nme
+		#if (nme || openfl)
 		urlRequest = new flash.net.URLRequest();
 		loader = new flash.net.URLLoader();
 
@@ -159,7 +159,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		httpConfigure();
 		addHeaders();
 
-		#if nme
+		#if (nme || openfl)
 		urlRequest.url = url;
 		urlRequest.method = flash.net.URLRequestMethod.POST;
 		urlRequest.data = data;
@@ -188,7 +188,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		httpConfigure();
 		addHeaders();
 		
-		#if nme
+		#if (nme || openfl)
 		urlRequest.url = url;
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
@@ -196,7 +196,11 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		else
 		{
-			var result = nme.installer.Assets.getText(url);
+			#if openfl
+			var result = openfl.Assets.getText(url);
+			#else
+			var result = nme.installer.Assets.getBitmapData(url);
+			#end
 			haxe.Timer.delay(callback(httpData, result), 10);
 		}
 		#else
@@ -226,7 +230,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	
 	override function loaderCancel():Void
 	{
-		#if nme
+		#if (nme || openfl)
 		try { loader.close(); } catch(e:Dynamic) {}
 		#elseif !(cpp || neko || php)
 		http.cancel();
@@ -240,7 +244,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	
 	function addHeaders()
 	{
-		#if nme
+		#if (nme || openfl)
 		var requestHeaders = [];
 		for (name in headers.keys())
 		{
@@ -277,7 +281,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		loaderFail(Security(error));
 	}
 
-	#if nme
+	#if (nme || openfl)
 
 	function loaderEvent(e:Dynamic)
 	{

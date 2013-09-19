@@ -31,7 +31,7 @@ class ExampleSWFLoader
 
 	public function new()
 	{
-		#if (flash || nme)
+		#if (flash || nme || openfl)
 			loader = new SwfLoader(Example.BASE_DIR + "example.swf");
 			loader.loaded.add(loaded);
 			loader.load();
@@ -55,7 +55,7 @@ class ExampleSWFLoader
 				trace(error);
 
 			case Complete:
-				#if (flash || nme)
+				#if (flash || nme || openfl)
 				flash.Lib.current.addChild(event.target.content);
 				#end
 

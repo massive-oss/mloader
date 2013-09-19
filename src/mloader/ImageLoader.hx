@@ -93,7 +93,7 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 	}
 }
 
-#elseif (flash || nme)
+#elseif (flash || nme || openfl)
 
 import flash.display.BitmapData;
 
@@ -118,14 +118,18 @@ class ImageLoader extends LoaderBase<BitmapData>
 
 	override function loaderLoad()
 	{
-		#if nme
+		#if (nme || openfl)
 		if (url.indexOf("http://") == 0 || url.indexOf("https://") == 0)
 		{
 			loader.load(new flash.net.URLRequest(url));
 		}
 		else
 		{
+			#if openfl
+			content = openfl.Assets.getBitmapData(url);
+			#else
 			content = nme.installer.Assets.getBitmapData(url);
+			#end
 			loaderComplete();
 		}
 		#else
@@ -135,7 +139,9 @@ class ImageLoader extends LoaderBase<BitmapData>
 
 	override function loaderCancel()
 	{
-		#if !nme loader.close(); #end
+		#if !(nme || openfl)
+		loader.close();
+		#end
 	}
 	
 	function loaderProgressed(event)
