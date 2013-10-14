@@ -268,6 +268,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	
 	function httpError(error:String)
 	{
+		content = cast http.responseData;
 		loaderFail(IO(error));
 	}
 	
