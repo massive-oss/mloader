@@ -1,5 +1,9 @@
 package mloader;
 
+#if openfl
+typedef Http = haxe.Http;
+#else
+
 /**
 	This class is what happens when you override things in the std library.
 **/
@@ -190,3 +194,4 @@ class Http extends haxe.Http
 	}
 #end
 }
+#end
