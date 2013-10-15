@@ -277,7 +277,9 @@ class HttpLoader<T> extends LoaderBase<T>
 	
 	function httpError(error:String)
 	{
+		#if !openfl
 		content = cast http.responseData;
+		#end
 		loaderFail(IO(error));
 	}
 	
