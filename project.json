@@ -2,17 +2,17 @@
 	"project": 
 	{
 		"name": "MassiveLoader",
-		"version": "2.1.1",
+		"version": "2.2.0",
 		"id": "mloader",
+		"devDependencies": 
+		{
+			"mcover": "2.x",
+			"mtask": "2.x",
+			"munit": "2.x"
+		},
 		"dependencies": 
 		{
-			"msignal":">=1.2.2 <2"
-		},
-		"devDependencies":
-		{
-			"mtask":"2.x",
-			"munit":"2.x",
-			"mcover":"2.x"
+			"msignal": ">=1.2.2 <2"
 		}
 	}
 }

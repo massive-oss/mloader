@@ -4,8 +4,8 @@
 	"tags": ["cross","utility","massive"],
 	"description": "A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.",
 	"contributors": ["massive"],
-	"releasenote": "Updated msignal dependency with priority fix that was failing test.",
-	"version": "2.1.1",
+	"releasenote": "Adds support for OpenFL, and other fixes.",
+	"version": "2.2.0",
 	"url": "http://github.com/massiveinteractive/mloader",
 	"dependencies": 
 	{

@@ -1,3 +1,9 @@
+## 2.2.0
+
+- Update ImageLoader.hx
+- Set HttpLoader.content to http.responseData onError if applicable.
+- Adds support for openfl
+
 1.0.0 Initial release
 
 1.1.0 NME support, custom data parsing hooks
