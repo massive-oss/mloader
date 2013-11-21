@@ -25,7 +25,7 @@ package mloader;
 import mloader.Loader;
 import msignal.EventSignal;
 
-#if js
+#if (js && !(nme || openfl))
 /**
 Loads an image at a defined url.
 */
