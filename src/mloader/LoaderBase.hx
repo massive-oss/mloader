@@ -43,7 +43,7 @@ class LoaderBase<T> implements Loader<T>
 	{
 		if (value == url) return url;
 		if (loading) cancel();
-		return url = value;
+		return url = sanitizeUrl(value);
 	}
 
 	/**
@@ -73,7 +73,7 @@ class LoaderBase<T> implements Loader<T>
 	public function new(?url:String)
 	{
 		this.loaded = new EventSignal<Loader<T>, LoaderEventType>(this);
-		this.url = url;
+		this.url = sanitizeUrl(url);
 
 		// set initial state
 		progress = 0;
@@ -164,5 +164,20 @@ class LoaderBase<T> implements Loader<T>
 		if (!loading) return;
 		loading = false;
 		loaded.dispatchType(Fail(error));
+	}
+
+	/**
+	 * Android doesn't like unencoded spaces in URLs (and won't encode them itself),
+	 * but calling StringTools.encode() on the entire URL will 'over encode' it.
+	 */
+	function sanitizeUrl(url:String):String
+	{
+		var sanitized:String = url;
+
+		#if (openfl && android)
+		sanitized = StringTools.replace(sanitized, " ", "%20");
+		#end
+
+		return sanitized;
 	}
 }

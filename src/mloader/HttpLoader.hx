@@ -149,12 +149,24 @@ class HttpLoader<T> extends LoaderBase<T>
 			data = haxe.Json.stringify(data);
 			contentType = "application/json";
 		}
-		
+		else if (Std.is(data, String) && validateJSONdata(data))
+		{
+			//data is already a valid JSON string
+			contentType = "application/json";
+		}
+
+		#if (openfl && android)
+		/* Android will receive a 400 Bad Request status if the Content-Type is set directly
+		 * in the headers.
+		 */
+		urlRequest.contentType = contentType;
+		#else
 		// only set content type if not already set
 		if (!headers.exists("Content-Type"))
 		{
 			headers.set("Content-Type", contentType);
 		}
+		#end
 
 		httpConfigure();
 		addHeaders();
@@ -286,6 +298,16 @@ class HttpLoader<T> extends LoaderBase<T>
 	function httpSecurityError(error:String)
 	{
 		loaderFail(Security(error));
+	}
+
+	function validateJSONdata(data:String):Bool
+	{
+		var isValid:Bool = true;
+
+		try { haxe.Json.parse(data); }
+		catch (error:Dynamic) { isValid = false; }
+
+		return isValid;
 	}
 
 	#if (nme || openfl)
