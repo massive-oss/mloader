@@ -174,7 +174,7 @@ class LoaderBase<T> implements Loader<T>
 	{
 		var sanitized:String = url;
 
-		#if (cpp || (openfl && android))
+		#if openfl
 		sanitized = StringTools.replace(sanitized, " ", "%20");
 		#end
 
