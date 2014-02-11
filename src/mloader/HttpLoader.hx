@@ -220,7 +220,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		#else
 		http.url = url;
-		#if ((sys||neko||cpp) && !ios)
+		#if (sys||neko||cpp)
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			http.request(false);
