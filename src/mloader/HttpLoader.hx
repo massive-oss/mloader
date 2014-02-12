@@ -93,7 +93,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#end
 	}
 	
-	#if ((sys||neko||cpp) && !ios)
+	#if (sys && !openfl)
 
 	/**
 	Local urls are loaded from the file system in neko or cpp.
@@ -220,7 +220,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		#else
 		http.url = url;
-		#if (sys||neko||cpp)
+		#if sys
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			http.request(false);
@@ -247,7 +247,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		#if (nme || openfl)
 		try { loader.close(); } catch(e:Dynamic) {}
-		#elseif !(cpp || neko || php)
+		#elseif !sys
 		http.cancel();
 		#end
 	}
