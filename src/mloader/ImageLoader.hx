@@ -133,7 +133,8 @@ class ImageLoader extends LoaderBase<BitmapData>
 			loaderComplete();
 		}
 		#else
-		loader.load(new flash.net.URLRequest(url));
+		var loaderContext = new flash.system.LoaderContext(true);
+		loader.load(new flash.net.URLRequest(url), loaderContext);
 		#end
 	}
 
