@@ -93,7 +93,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#end
 	}
 	
-	#if (sys||neko||cpp)
+	#if (sys && !openfl)
 
 	/**
 	Local urls are loaded from the file system in neko or cpp.
@@ -155,10 +155,8 @@ class HttpLoader<T> extends LoaderBase<T>
 			contentType = "application/json";
 		}
 
-		#if (openfl && android)
-		/* Android will receive a 400 Bad Request status if the Content-Type is set directly
-		 * in the headers.
-		 */
+		#if openfl
+		//OpenFL Native targets cannot set the Content-Type directly in the headers
 		urlRequest.contentType = contentType;
 		#else
 		// only set content type if not already set
@@ -222,7 +220,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		#else
 		http.url = url;
-		#if (sys||neko||cpp)
+		#if sys
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			http.request(false);
@@ -249,7 +247,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		#if (nme || openfl)
 		try { loader.close(); } catch(e:Dynamic) {}
-		#elseif !(cpp || neko || php)
+		#elseif !sys
 		http.cancel();
 		#end
 	}
