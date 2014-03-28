@@ -29,11 +29,7 @@ import msignal.EventSignal;
 /**
 Loads an image at a defined url.
 */
-#if haxe3
-class ImageLoader extends LoaderBase<js.html.ImageElement>
-#else
-class ImageLoader extends LoaderBase<js.Dom.Image>
-#end
+class ImageLoader extends LoaderBase<LoadableImage>
 {
 	/**
 		Specify your own image element to load the image into.
@@ -95,12 +91,10 @@ class ImageLoader extends LoaderBase<js.Dom.Image>
 
 #elseif (flash || nme || openfl)
 
-import flash.display.BitmapData;
-
 /**
 Loads BitmapData from a defined url.
 */
-class ImageLoader extends LoaderBase<BitmapData>
+class ImageLoader extends LoaderBase<LoadableImage>
 {
 	var loader:flash.display.Loader;
 
@@ -174,7 +168,7 @@ class ImageLoader extends LoaderBase<BitmapData>
 /**
 ImageLoading is not supported in neko.
 */
-class ImageLoader extends LoaderBase<Dynamic>
+class ImageLoader extends LoaderBase<LoadableImage>
 {
 	public function new(?url:String)
 	{
