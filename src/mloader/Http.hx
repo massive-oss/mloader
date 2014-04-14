@@ -181,14 +181,11 @@ class Http extends haxe.Http
 			onError(e.toString());
 			return;
 		}
-		var hasContentType = false;
+		if( !Lambda.exists(headers, function(h) return h.header == "Content-Type") && post && postData == null )
+				r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 		for ( h in headers ) {
-			if ( h.header == "Content-Type" && h.value != null )
-				hasContentType = true
 			r.setRequestHeader(h.header,h.value);
 		}
-		if( !hasContentType && post && postData == null )
-				r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 		r.send(uri);
 		if( !async )
 			#if haxe3
