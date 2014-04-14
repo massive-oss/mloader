@@ -21,13 +21,14 @@ class Http extends haxe.Http
 #if flash9
 	var loader:flash.net.URLLoader;
 
-	public function cancel()
+	override public function cancel()
 	{
 		if (loader != null)
 		{
 			loader.close();
 			loader = null;
 		}
+		super.cancel();
 	}
 
 	#if haxe3
@@ -62,9 +63,9 @@ class Http extends haxe.Http
 		// headers
 		var param = false;
 		var vars = new flash.net.URLVariables();
-		for( k in params.keys() ){
+		for( k in params ){
 			param = true;
-			Reflect.setField(vars,k,params.get(k));
+			Reflect.setField(vars,k.parma,k.value);
 		}
 		var small_url = url;
 		if( param && !post ){
@@ -78,8 +79,8 @@ class Http extends haxe.Http
 		var bug = small_url.split("xxx");
 
 		var request = new flash.net.URLRequest( small_url );
-		for( k in headers.keys() )
-			request.requestHeaders.push( new flash.net.URLRequestHeader(k,headers.get(k)) );
+		for( k in headers )
+			request.requestHeaders.push( new flash.net.URLRequestHeader(k.header,k.value) );
 
 		if( postData != null ) {
 			request.data = postData;
@@ -103,13 +104,14 @@ class Http extends haxe.Http
 	var loader:js.XMLHttpRequest;
 	#end
 
-	public function cancel()
+	override public function cancel()
 	{
 		if (loader != null)
 		{
 			loader.abort();
 			loader = null;
 		}
+		super.cancel();
 	}
 
 	#if haxe3
@@ -158,12 +160,12 @@ class Http extends haxe.Http
 		var uri = postData;
 		if( uri != null )
 			post = true;
-		else for( p in params.keys() ) {
+		else for( p in params ) {
 			if( uri == null )
 				uri = "";
 			else
 				uri += "&";
-			uri += StringTools.urlEncode(p)+"="+StringTools.urlEncode(params.get(p));
+			uri += StringTools.urlEncode(p.param)+"="+StringTools.urlEncode(p.value);
 		}
 		try {
 			if( post )
@@ -179,11 +181,14 @@ class Http extends haxe.Http
 			onError(e.toString());
 			return;
 		}
-		if( headers.get("Content-Type") == null && post && postData == null )
-			r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-
-		for( h in headers.keys() )
-			r.setRequestHeader(h,headers.get(h));
+		var hasContentType = false;
+		for ( h in headers ) {
+			if ( h.header == "Content-Type" && h.value != null )
+				hasContentType = true
+			r.setRequestHeader(h.header,h.value);
+		}
+		if( !hasContentType && post && postData == null )
+				r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 		r.send(uri);
 		if( !async )
 			#if haxe3
