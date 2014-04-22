@@ -1,6 +1,6 @@
 package mloader;
 
-#if openfl
+#if (openfl || (haxe_ver >= 3.1))
 typedef Http = haxe.Http;
 #else
 
