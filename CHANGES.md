@@ -1,3 +1,13 @@
+## 2.2.1
+
+- ImageLoader works with openfl html target
+- Identify valid JSON strings and fix Android Content-type headers
+- Apply URL space encoding fix to C++ targets
+- Simplify conditional logic for openFL targets
+- Flash: added LoaderContext.checkPolicyFile to ImageLoader request
+- Create a typedef for the image type to be loaded in ImageLoader
+- For haxe >= 3.1 use the haxe Http class as it has cancel() function
+
 ## 2.2.0
 
 - Update ImageLoader.hx
