@@ -34,7 +34,7 @@ class Build extends mtask.core.BuildBase
 	{
 		target.url = "http://github.com/massiveinteractive/mloader";
 		target.description = "A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.";
-		target.versionDescription = "Adds support for OpenFL, and other fixes.";
+		target.versionDescription = "See https://github.com/massiveinteractive/mloader/blob/master/CHANGES.md";
 		target.username = "massive";
 
 		target.addTag("cross");

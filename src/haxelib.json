@@ -4,8 +4,8 @@
 	"tags": ["cross","utility","massive"],
 	"description": "A cross platform Haxe library for loading resources with utilities for queueing and caching requests. Supports AVM2, JavaScript, Neko and C++.",
 	"contributors": ["massive"],
-	"releasenote": "Adds support for OpenFL, and other fixes.",
-	"version": "2.2.0",
+	"releasenote": "See https://github.com/massiveinteractive/mloader/blob/master/CHANGES.md",
+	"version": "2.2.1",
 	"url": "http://github.com/massiveinteractive/mloader",
 	"dependencies": 
 	{
