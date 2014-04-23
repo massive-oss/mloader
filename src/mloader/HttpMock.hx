@@ -44,10 +44,10 @@ class HttpMock extends Http
 		publicHeaders = new StringMap<String>();
 	}
 	
-	override public function setHeader(header:String, value:String):Http
+	override public function setHeader(header:String, value:String):haxe.Http
 	{
 		publicHeaders.set(header, value);
-		return super.setHeader(header, value);
+		return cast super.setHeader(header, value);
 	}
 
 	#if haxe3
