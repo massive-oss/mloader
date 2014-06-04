@@ -60,7 +60,9 @@ class ImageLoader extends LoaderBase<LoadableImage>
 			content = image;
 		}
 		
-		#if !haxe3 untyped #end content.crossOrigin = "Anonymous";
+		#if !default_cross_origin
+			#if !haxe3 untyped #end content.crossOrigin = "Anonymous";
+		#end
 		content.onload = imageLoad;
 		content.onerror = imageError;
 		content.src = url;
