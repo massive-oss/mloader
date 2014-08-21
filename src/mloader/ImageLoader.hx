@@ -70,6 +70,8 @@ class ImageLoader extends LoaderBase<LoadableImage>
 
 	override function loaderCancel():Void
 	{
+		content.onload = null;
+		content.onerror = null;
 		content.src = "";
 	}
 
