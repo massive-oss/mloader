@@ -1,3 +1,8 @@
+## 2.2.3
+
+- ImageLoader now nullifies listeners on loaderCancel
+- Major version bump of mtask to 3.x
+
 ## 2.2.2
 
 - Allow opt-out of anonymous cross origin for images
