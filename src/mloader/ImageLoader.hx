@@ -75,6 +75,9 @@ class ImageLoader extends LoaderBase<LoadableImage>
 
 	function imageLoad(event)
 	{
+		if (content == null)
+			return;
+
 		content.onload = null;
 		content.onerror = null;
 		loaderComplete();
