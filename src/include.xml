@@ -9,6 +9,6 @@
 	<dependency name="Security.framework" if="ios" />
 	<dependency name="SystemConfiguration.framework" if="ios" />
 
-	<classpath name="src" />
+	<classpath name="." />
 
 	</project>
