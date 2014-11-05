@@ -5,21 +5,19 @@ import mloader.NativeUrlLoader;
 
 class NativeHttpLoader extends mloader.HttpLoader<Dynamic>
 {
+	#if ios
 	var nativeLoader:NativeUrlLoader;
 
 	public function new(?url:String, ?http:Http)
 	{
 		super(url, http);
 
-		#if ios
 		nativeLoader = new NativeUrlLoader();
 		nativeLoader.onDatas = httpData;
-		#end
 	}
 
 	override public function send(data:Dynamic)
 	{
-		trace("send :::: " + data);
 		// if currently loading, cancel
 		if (loading) cancel();
 
@@ -77,4 +75,5 @@ class NativeHttpLoader extends mloader.HttpLoader<Dynamic>
 
 	}
 	
+	#end
 }
