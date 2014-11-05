@@ -11,16 +11,6 @@
 		<compilerflag value="-Iinclude"/>
 		<set name="IPHONE_VER" value="7.0" />
 
-		<file name="ios/AFNetworking/AFHTTPRequestOperation.m"/>
-		<file name="ios/AFNetworking/AFHTTPRequestOperationManager.m"/>
-		<file name="ios/AFNetworking/AFHTTPSessionManager.m"/>
-		<file name="ios/AFNetworking/AFNetworkReachabilityManager.m"/>
-		<file name="ios/AFNetworking/AFSecurityPolicy.m"/>
-		<file name="ios/AFNetworking/AFURLConnectionOperation.m"/>
-		<file name="ios/AFNetworking/AFURLRequestSerialization.m"/>
-		<file name="ios/AFNetworking/AFURLResponseSerialization.m"/>
-		<file name="ios/AFNetworking/AFURLSessionManager.m"/>
-
 		<file name="ios/HttpLoader.mm"/>
 	</files>
 	

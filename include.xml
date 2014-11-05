@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<ndll name="mloader" />
+	<ndll name="mloader" if="ios"/>
 
 	<haxelib name="inthebox-macros"/>
 	
@@ -9,9 +9,13 @@
     <dependency name="Security.framework" if="ios" />
     <dependency name="SystemConfiguration.framework" if="ios" />
 
+    <echo value='|-------------------------------------------------|' if="ios"/>
+
 	<!-- Use the following for an Android Java extension, not needed otherwise -->
 	
 	<!-- <dependency name="mloader_native" path="dependencies/android" if="android" /> -->
 	<!-- <android extension="org.haxe.extension.Mloader_native" /> -->
+
+	<classpath name="src" />
 	
 </project>
