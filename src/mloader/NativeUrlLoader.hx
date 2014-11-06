@@ -10,6 +10,7 @@ import msignal.Signal;
 class NativeUrlLoader
 {
 	public var onDatas:String->Void;
+	public var onError:Int->String->Void;
 
 	public function new()
 	{
@@ -48,12 +49,20 @@ class NativeUrlLoader
 	
 
 		Native.setListener(handler, listener);
+		Native.setErrorListener(handler, errorListener);
 		Native.load(handler);
 	}
 
-	function listener(data:String):Void
+	function listener(data:String)
 	{
-		onDatas(data);
+		if (onDatas != null)
+			onDatas(data);
+	}
+
+	function errorListener(code:Int, data:String)
+	{
+		if (onError != null)
+			onError(code, data);
 	}
 
 	public function close()
@@ -67,21 +76,14 @@ class NativeUrlLoader
 @CPP_PRIMITIVE_PREFIX("mloader")
 class Native
 {
-	@IOS public static function create(url:String):Dynamic
-	{
-		throw "iOS only";
-	}
-
-	@IOS public static function test(handler:Dynamic, url:String):Dynamic
-	{
-		throw "iOS only";
-	}
-
 	@IOS public static function configure(handle:Dynamic, method:String, data:String):Void;
+	@IOS public static function create(url:String):Dynamic{ throw "iOS only";}
 	@IOS public static function load(handler:Dynamic):Void;
-	@IOS public static function setHeaderField(handle:Dynamic,name:String, value:String):Void;
+	@IOS public static function setErrorListener(handler:Dynamic, listener:Int->String->Void):Void;
+	@IOS public static function setHeaderField(handle:Dynamic, name:String, value:String):Void;
 	@IOS public static function setHttpBody(handle:Dynamic, value:String):Void;
 	@IOS public static function setListener(handler:Dynamic, listener:String->Void):Void;
 	@IOS public static function setUrl(handler:Dynamic, url:String):Void;
 	@IOS public static function setUrlVariable(handle:Dynamic,name:String, value:String):Void;
+	@IOS public static function test(handler:Dynamic, url:String):Dynamic{ throw "iOS only"; }
 }

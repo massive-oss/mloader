@@ -10,11 +10,12 @@ class HttpLoader
 		HttpLoader(const char* url);
 		~HttpLoader();
 		void configure(const char* method, const char* data);
-		void setListener(AutoGCRoot *listener);
-		void setHeader(const char* key, const char* value);
-		void setUrl(const char *url);
-		void setHttpBody(const char *url);
 		void load();
+		void setErrorListener(AutoGCRoot *listener);
+		void setHeader(const char* key, const char* value);
+		void setHttpBody(const char *url);
+		void setListener(AutoGCRoot *listener);
+		void setUrl(const char *url);
 		void setUrlVariable(const char* name, const char *value);
 
 	private:

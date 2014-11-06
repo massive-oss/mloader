@@ -74,6 +74,17 @@ static value mloader_setListener(value handler, value haxeListener)
 }
 DEFINE_PRIM(mloader_setListener, 2);
 
+static value mloader_setErrorListener(value handler, value haxeListener)
+{
+	AutoGCRoot *listener = new AutoGCRoot(haxeListener);
+	HttpLoader* result = (HttpLoader*)(intptr_t)val_float (handler);
+	if (result != NULL)
+		result->setErrorListener(listener);
+
+	return alloc_null();
+}
+DEFINE_PRIM(mloader_setErrorListener, 2);
+
 static value mloader_setHttpBody(value handler, value url)
 {
 	HttpLoader* result = (HttpLoader*)(intptr_t)val_float (handler);
@@ -92,6 +103,15 @@ extern "C" void mloader_callListener(AutoGCRoot *listener, const char* data)
 	}
 }
 
+extern "C" void mloader_callErrorListener(AutoGCRoot *listener, 
+	int code, const char* data)
+{
+	if(listener->get() != NULL)
+	{		
+		val_call2(listener->get(), alloc_int(code), alloc_string(data));
+	}
+}
+
 static value mloader_load(value handler)
 {
 	HttpLoader* result = (HttpLoader*)(intptr_t)val_float (handler);
@@ -99,14 +119,6 @@ static value mloader_load(value handler)
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_load, 1);
-
-// static value mloader_setUrlVariable(value handler,value name, value data)
-// {
-// 	HttpLoader* result = (HttpLoader*)(intptr_t)val_float (handler);
-// 	result->setUrlVariable(val_string(name), val_string(data));
-// 	return alloc_null();
-// }
-// DEFINE_PRIM(mloader_setUrlVariable, 3);
 
 #endif
 

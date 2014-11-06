@@ -6,10 +6,13 @@
 extern "C"
 {
 	void mloader_callListener(AutoGCRoot *listener, const char* data);
+	void mloader_callErrorListener(AutoGCRoot *listener, 
+		int code, const char* data);
 }
 
 NSMutableDictionary *variables;
 AutoGCRoot *listener;
+AutoGCRoot *errorListener;
 
 NSString *method;
 NSString *rawDatas;
@@ -35,6 +38,11 @@ HttpLoader::~HttpLoader()
 void HttpLoader::setListener(AutoGCRoot *value)
 {
 	listener = value;
+}
+
+void HttpLoader::setErrorListener(AutoGCRoot *value)
+{
+	errorListener = value;
 }
 
 HttpLoader* HttpLoader::create(const char* url)
@@ -93,13 +101,19 @@ void HttpLoader::load()
 		if (error)
 		{
 		    NSLog(@"Error,%@", [error localizedDescription]);
+		    int code = [error code];
+		    NSString *description = [error localizedDescription];
+		    dispatch_async(dispatch_get_main_queue(), ^{
+		    	const char *utf8String = [description UTF8String];
+				mloader_callErrorListener(errorListener, code, utf8String);
+			});
 		}
 		else 
 		{
 		    NSString *result = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-		    // NSLog(@"result = %@", result);
-		    const char *utf8String = [result UTF8String];
+		    
 		    dispatch_async(dispatch_get_main_queue(), ^{
+		    	const char *utf8String = [result UTF8String];
 				mloader_callListener(listener, utf8String);
 			});
 		} 
