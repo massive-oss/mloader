@@ -1,7 +1,9 @@
 package mloader;
 
 import mloader.Http;
+#if ios
 import mloader.NativeUrlLoader;
+#end
 
 class NativeHttpLoader extends mloader.HttpLoader<Dynamic>
 {
@@ -13,7 +15,7 @@ class NativeHttpLoader extends mloader.HttpLoader<Dynamic>
 		super(url, http);
 
 		nativeLoader = new NativeUrlLoader();
-		nativeLoader.onDatas = httpData;
+		nativeLoader.setListeners(httpData, nativeHttpError);
 	}
 
 	override public function send(data:Dynamic)
@@ -72,7 +74,13 @@ class NativeHttpLoader extends mloader.HttpLoader<Dynamic>
 		{
 			nativeLoader.load(urlRequest);
 		}
+	}
 
+	function nativeHttpError(code:Int, data:String)
+	{
+		trace("nativeHttpError ::: " + code + " /// " + data);
+		httpStatus(code);
+		httpError(data);
 	}
 	
 	#end

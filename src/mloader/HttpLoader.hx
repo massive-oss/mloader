@@ -26,8 +26,17 @@ import mloader.Loader;
 
 #if haxe3
 import haxe.ds.StringMap;
+import mloader.NativeUrlLoader;
 #else
 private typedef StringMap<T> = Hash<T>;
+#end
+
+#if openfl
+#if ios
+typedef URLLoader = NativeUrlLoader;
+#else
+typedef URLLoader = flash.net.URLLoader;
+#end
 #end
 
 /**
@@ -42,7 +51,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	/**
 	The URLLoader used to load content.
 	*/
-	public var loader:flash.net.URLLoader;
+	public var loader:URLLoader;
 
 	/**
 	The URLRequest to load.
@@ -77,12 +86,20 @@ class HttpLoader<T> extends LoaderBase<T>
 
 		#if (nme || openfl)
 		urlRequest = new flash.net.URLRequest();
-		loader = new flash.net.URLLoader();
-
+		loader = new URLLoader();
+		#if ios
+		loader = new NativeUrlLoader();
+		loader.setListeners(httpData, function(code:Int, error:String)
+		{
+			httpStatus(code);
+			httpError(error);
+		});
+		#else
 		loader.addEventListener(flash.events.HTTPStatusEvent.HTTP_STATUS, loaderEvent);
 		loader.addEventListener(flash.events.Event.COMPLETE, loaderEvent);
 		loader.addEventListener(flash.events.IOErrorEvent.IO_ERROR, loaderEvent);
 		loader.addEventListener(flash.events.SecurityErrorEvent.SECURITY_ERROR, loaderEvent);
+		#end
 		#else
 		if (http == null) http = new Http("");
 

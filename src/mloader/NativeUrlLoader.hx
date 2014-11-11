@@ -9,12 +9,19 @@ import msignal.Signal;
 
 class NativeUrlLoader
 {
-	public var onDatas:String->Void;
-	public var onError:Int->String->Void;
+	#if ios
+	public var onDatas(default, null):String->Void;
+	public var onError(default, null):Int->String->Void;
 
 	public function new()
 	{
 		
+	}
+
+	public function setListeners(onDatas:String->Void, onError:Int->String->Void)
+	{
+		this.onDatas = onDatas;
+		this.onError = onError;
 	}
 
 	public function load(request:URLRequest)
@@ -55,7 +62,7 @@ class NativeUrlLoader
 
 	function listener(data:String)
 	{
-		if (onDatas != null)
+		if (onDatas != null && data != "")
 			onDatas(data);
 	}
 
@@ -86,4 +93,5 @@ class Native
 	@IOS public static function setUrl(handler:Dynamic, url:String):Void;
 	@IOS public static function setUrlVariable(handle:Dynamic,name:String, value:String):Void;
 	@IOS public static function test(handler:Dynamic, url:String):Dynamic{ throw "iOS only"; }
+	#end
 }

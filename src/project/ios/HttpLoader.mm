@@ -2,6 +2,7 @@
 #import <UIKit/UIKit.h>
 
 #include "HttpLoader.h"
+#include "AFNetworking.h"
 
 extern "C"
 {
@@ -24,8 +25,14 @@ HttpLoader::HttpLoader(const char* url)
 	source = url;
 	NSString* nsSource = [NSString stringWithUTF8String:source];
 
+	NSURL *nsUrl = [NSURL URLWithString:nsSource];
+
+	//Temp debug
+	AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+	manager.securityPolicy.allowInvalidCertificates = YES; // not recommended for production
+
 	request = [NSMutableURLRequest 
-		requestWithURL:[NSURL URLWithString:nsSource]
+		requestWithURL:nsUrl
 		cachePolicy:NSURLRequestReloadIgnoringCacheData  
 		timeoutInterval:100];
 }
@@ -93,29 +100,27 @@ void HttpLoader::setHeader(const char* key, const char* value)
 
 void HttpLoader::load()
 {
-	// NSURL *url = [NSURL URLWithString:urlString];
-	NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-	[NSURLConnection sendAsynchronousRequest:request queue:queue 
-		completionHandler:^(NSURLResponse *response, NSData *data, NSError *error)
+	AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] 
+		initWithRequest:request];
+
+	[op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
 	{
-		if (error)
-		{
-		    NSLog(@"Error,%@", [error localizedDescription]);
-		    int code = [error code];
-		    NSString *description = [error localizedDescription];
-		    dispatch_async(dispatch_get_main_queue(), ^{
-		    	const char *utf8String = [description UTF8String];
-				mloader_callErrorListener(errorListener, code, utf8String);
-			});
-		}
-		else 
-		{
-		    NSString *result = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-		    
-		    dispatch_async(dispatch_get_main_queue(), ^{
-		    	const char *utf8String = [result UTF8String];
-				mloader_callListener(listener, utf8String);
-			});
-		} 
+		NSString *result = [operation responseString];
+
+	    dispatch_async(dispatch_get_main_queue(), ^{
+	    	const char *utf8String = [result UTF8String];
+			mloader_callListener(listener, utf8String);
+		});
+	} 
+	failure:^(AFHTTPRequestOperation *operation, NSError *error)
+	{
+	    NSInteger statusCode = operation.response.statusCode;
+		NSString *result = [operation responseString];
+
+	     dispatch_async(dispatch_get_main_queue(), ^{
+	    	const char *utf8String = [result UTF8String];
+			mloader_callErrorListener(errorListener, statusCode, utf8String);
+		});
 	}];
+	[[NSOperationQueue mainQueue] addOperation:op];
 }
