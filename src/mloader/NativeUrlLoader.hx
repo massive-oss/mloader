@@ -1,12 +1,13 @@
 package mloader;
 
+#if ios
 import openfl.net.URLRequest;
 import openfl.net.URLVariables;
 
 import mloader.NativeUrlLoader;
 
 import msignal.Signal;
-
+#end
 class NativeUrlLoader
 {
 	#if ios
