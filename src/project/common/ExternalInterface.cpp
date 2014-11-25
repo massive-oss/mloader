@@ -108,7 +108,8 @@ extern "C" void mloader_callErrorListener(AutoGCRoot *listener,
 {
 	if(listener->get() != NULL)
 	{		
-		val_call2(listener->get(), alloc_int(code), alloc_string(data));
+		val_call2(listener->get(), alloc_int(code), data == NULL 
+			? alloc_null() : alloc_string(data));
 	}
 }
 
