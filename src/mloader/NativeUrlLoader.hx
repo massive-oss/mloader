@@ -63,8 +63,14 @@ class NativeUrlLoader
 
 	function listener(data:String)
 	{
-		if (onDatas != null && data != "")
+		if (data == null)
+		{
+			errorListener(-1, data);
+		}
+		else if (onDatas != null && data != "" )
+		{
 			onDatas(data);
+		}
 	}
 
 	function errorListener(code:Int, data:String)

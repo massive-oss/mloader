@@ -8,6 +8,7 @@
 	</files>
 
 	<files id="ios">
+		<compilerflag value="-DDEBUG" if="debug"/>
 		<compilerflag value="-Iinclude"/>
 		<compilerflag value="-Iafnetwork_include"/>
 		<set name="IPHONE_VER" value="7.0" />
@@ -28,11 +29,9 @@
 	<set name="SLIBEXT" value=".lib" if="windows"/>
 	<set name="SLIBEXT" value=".a" unless="windows"/>
 	<set name="SLIBEXT" value=".so" if="webos"/>
-	
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
 	
-	<target id="NDLL" output="${LIBPREFIX}mloader${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" 
-		tool="linker" toolid="${STD_MODULE_LINK}">
+	<target id="NDLL" output="${LIBPREFIX}mloader${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 		
 		<outdir name="../ndll/${BINDIR}"/>
 		<ext value=".ndll" if="windows || mac || linux"/>
