@@ -27,17 +27,17 @@ class NativeUrlLoader
 
 	public function load(request:URLRequest)
 	{
-		var handler = Native.create(request.url);
-		Native.configure(handler, request.method + "", request.data);
+		var taskId = Native.create(request.url);
+		Native.configure(taskId, request.method + "", request.data);
 
 		//Headers
 		for (header in request.requestHeaders)
 		{
-			Native.setHeaderField(handler, header.name, header.value);
+			Native.setHeaderField(taskId, header.name, header.value);
 		}
-
-		Native.setHeaderField(handler, "Content-Type", request.contentType);
-		Native.setHeaderField(handler, "User-Agent", request.userAgent);
+		
+		Native.setHeaderField(taskId, "Content-Type", request.contentType);
+		Native.setHeaderField(taskId, "User-Agent", request.userAgent);
 		
 		//Variables
 		if (request.data != null && Std.is(request.data, URLVariables) 
@@ -45,20 +45,19 @@ class NativeUrlLoader
 		{
 			for(key in Reflect.fields(request.data))
 			{
-				Native.setUrlVariable(handler, key, 
-					Reflect.field(request.data, key));
+				Native.setUrlVariable(taskId, key, Reflect.field(request.data, key));
 			}
 		}
 		else if (request.data != null && Std.is(request.data, String) && 
 			request.data != "")
 		{
-			Native.setHttpBody(handler, request.data);
+			Native.setHttpBody(taskId, request.data);
 		}
 	
 
-		Native.setListener(handler, listener);
-		Native.setErrorListener(handler, errorListener);
-		Native.load(handler);
+		Native.setListener(taskId, listener);
+		Native.setErrorListener(taskId, errorListener);
+		Native.load(taskId);
 	}
 
 	function listener(data:String)
@@ -81,7 +80,7 @@ class NativeUrlLoader
 
 	public function close()
 	{
-
+		Native.close(taskId);
 	}
 }
 
@@ -90,15 +89,15 @@ class NativeUrlLoader
 @CPP_PRIMITIVE_PREFIX("mloader")
 class Native
 {
-	@IOS public static function configure(handle:Dynamic, method:String, data:String):Void;
-	@IOS public static function create(url:String):Dynamic{ throw "iOS only";}
+	@IOS public static function configure(taskId:String, method:String, data:String):Void;
+	@IOS public static function create(url:String):String{ throw "iOS only";}
 	@IOS public static function load(handler:Dynamic):Void;
-	@IOS public static function setErrorListener(handler:Dynamic, listener:Int->String->Void):Void;
-	@IOS public static function setHeaderField(handle:Dynamic, name:String, value:String):Void;
-	@IOS public static function setHttpBody(handle:Dynamic, value:String):Void;
-	@IOS public static function setListener(handler:Dynamic, listener:String->Void):Void;
-	@IOS public static function setUrl(handler:Dynamic, url:String):Void;
-	@IOS public static function setUrlVariable(handle:Dynamic,name:String, value:String):Void;
-	@IOS public static function test(handler:Dynamic, url:String):Dynamic{ throw "iOS only"; }
+	@IOS public static function setErrorListener(taskId:String, listener:Int->String->Void):Void;
+	@IOS public static function setHeaderField(taskId:String, name:String, value:String):Void;
+	@IOS public static function setHttpBody(taskId:String, value:String):Void;
+	@IOS public static function setListener(taskId:String, listener:String->Void):Void;
+	@IOS public static function setUrl(taskId:String, url:String):Void;
+	@IOS public static function setUrlVariable(taskId:String,name:String, value:String):Void;
+	@IOS public static function close(taskId:String);
 	#end
 }

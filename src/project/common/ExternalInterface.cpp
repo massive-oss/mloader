@@ -36,98 +36,89 @@ DEFINE_KIND(kHttpLoader);
 
 static value mloader_create(value url)
 {
-	HttpLoader *result = HttpLoader::create(val_string(url));
-	return alloc_float(intptr_t(result));
+	const char *taskId = HttpLoader::create(val_string(url));
+	return alloc_string(taskId);
 }
 DEFINE_PRIM(mloader_create, 1);
 
-static value mloader_setUrlVariable(value handler, value key, value data)
+static value mloader_setUrlVariable(value taskId, value key, value data)
 {
+	IfNullReturn(taskId, alloc_null());
 	IfNullReturn(key, alloc_null());
 	IfNullReturn(data, alloc_null());
-
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	IfNullReturn(result, alloc_null());
-	result->setUrlVariable(val_string(key), val_string(data));
-
+	HttpLoader::setVariable(val_string(taskId), val_string(key), val_string(data));
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_setUrlVariable, 3);
 
-static value mloader_setHeaderField(value handler, value key, value data)
+static value mloader_setHeaderField(value taskId, value key, value data)
 {
 	IfNullReturn(key, alloc_null());
 	IfNullReturn(data, alloc_null());
-
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	if (result != NULL)
-		result->setHeader(val_string(key), val_string(data));
-
+	HttpLoader::setHeader(val_string(taskId), val_string(key), val_string(data));
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_setHeaderField, 3);
 
-static value mloader_setUrl(value handler, value url)
+static value mloader_setHttpBody(value taskId, value data)
 {
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	if (result != NULL)
-		result->setUrl(val_string(url));
+	IfNullReturn(taskId, alloc_null());
+	IfNullReturn(data, alloc_null());
+	HttpLoader::setBody(val_string(taskId), val_string(data));
+	return alloc_null();
+}
+DEFINE_PRIM(mloader_setHttpBody, 2);
 
+static value mloader_setUrl(value taskId, value url)
+{
+	IfNullReturn(taskId, alloc_null());
+	IfNullReturn(url, alloc_null());
+	HttpLoader::setUrl(val_string(taskId), val_string(url));
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_setUrl, 2);
 
-static value mloader_configure(value handler, value method, value data)
+static value mloader_configure(value taskId, value method, value data)
 {
+	IfNullReturn(taskId, alloc_null());
 	IfNullReturn(method, alloc_null());
-	IfNullReturn(data, alloc_null());
-
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	if (result != NULL)
-		result->configure(val_string(method), val_string(data));
-
+	HttpLoader::configure(val_string(taskId), val_string(method), val_string(data));
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_configure, 3);
 
-static value mloader_setListener(value handler, value haxeListener)
+static value mloader_setListener(value taskId, value haxeListener)
 {
 	IfNullReturn(haxeListener, alloc_null());
-
 	AutoGCRoot *listener = new AutoGCRoot(haxeListener);
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	if (result != NULL)
-		result->setListener(listener);
-
+	HttpLoader::setSuccessListener(val_string(taskId), listener);
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_setListener, 2);
 
-static value mloader_setErrorListener(value handler, value haxeListener)
+static value mloader_close(value taskId)
+{
+	IfNullReturn(taskId, alloc_null());
+	HttpLoader::close(val_string(taskId));
+	return alloc_null();	
+}
+
+static value mloader_setErrorListener(value taskId, value haxeListener)
 {
 	IfNullReturn(haxeListener, alloc_null());
-
 	AutoGCRoot *listener = new AutoGCRoot(haxeListener);
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	if (result != NULL)
-		result->setErrorListener(listener);
-
+	HttpLoader::setFailureListener(val_string(taskId), listener);
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_setErrorListener, 2);
 
-static value mloader_setHttpBody(value handler, value url)
+static value mloader_load(value taskId)
 {
-	IfNullReturn(handler, alloc_null());
-	IfNullReturn(url, alloc_null());
-
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	if (result != NULL)
-		result->setHttpBody(val_string(url));
-
+	IfNullReturn(taskId, alloc_null());
+	HttpLoader::load(val_string(taskId));
 	return alloc_null();
 }
-DEFINE_PRIM(mloader_setHttpBody, 2);
+DEFINE_PRIM(mloader_load, 1);
 
 extern "C" void mloader_callListener(AutoGCRoot *listener, const char* data)
 {
@@ -147,15 +138,6 @@ extern "C" void mloader_callErrorListener(AutoGCRoot *listener,
 	NotNull(data);
 	val_call2(listener->get(), alloc_int(code), alloc_string(data));
 }
-
-static value mloader_load(value handler)
-{
-	HttpLoader* result = (HttpLoader*)(intptr_t)val_float(handler);
-	IfNullReturn(result, alloc_null());
-	result->load();
-	return alloc_null();
-}
-DEFINE_PRIM(mloader_load, 1);
 
 #endif
 
