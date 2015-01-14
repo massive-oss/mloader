@@ -35,7 +35,6 @@
 
 - (id)initWithUrl:(NSString*)rawUrl andTaskId:(NSString *)taskId
 {
-	DLog(@"init");
 	if (self == [super init])
 	{
 		taskIdentifier = taskId;
@@ -47,23 +46,34 @@
 	return self;
 }
 
+- (void)close
+{
+	if (operation) [operation cancel];
+
+	operation = nil;
+	variables = nil;
+	source = nil;
+	request = nil;
+	taskIdentifier = nil;
+}
+
 - (void)setHttpBody:(NSString*)data
 {
-	DLog(@"setHttpBody ::: %@", data);
+	// DLog(@"setHttpBody ::: %@", data);
 	NSData* nsData = nil;
-	if (data != nil) nsData = [data dataUsingEncoding:NSUTF8StringEncoding];
+	if (data) nsData = [data dataUsingEncoding:NSUTF8StringEncoding];
 	[request setHTTPBody : nsData];
 }
 
 - (void)setHttpHeaderFor:(NSString*)key withValue:(NSString*)value
 {
-	DLog(@"setHttpHeaderFor ::: %@ = %@", key, value);
+	// DLog(@"setHttpHeaderFor ::: %@ = %@", key, value);
 	[request setValue:value forHTTPHeaderField:key];
 }
 
 - (void)setHttpVariableFor:(NSString*)key withValue:(NSString*)value
 {
-	DLog(@"setHttpVariableFor ::: %@ = %@", key, value);
+	// DLog(@"setHttpVariableFor ::: %@ = %@", key, value);
 	if (variables == nil)
 		variables = [NSMutableDictionary dictionary];
 	[variables setValue:value forKey:key];
@@ -76,7 +86,7 @@
 
 - (void)load
 {
-	DLog(@"load");
+	// DLog(@"load");
 	__weak __typeof__(self) weakSelf = self;
 
 	operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
@@ -84,16 +94,15 @@
 		id responseObject)
 	{
 		__typeof__(self) strongSelf = weakSelf;
-		DLog(@"setCompletionBlockWithSuccess ::: %@", strongSelf.taskIdentifier);
 
 		NSString *result = [completedOperation responseString];
 		const char *taskId = [strongSelf.taskIdentifier UTF8String];
 		const char *resultDatas = [result UTF8String];
 		downloadmanager_onTaskCompleted(taskId, resultDatas);
+		[strongSelf close];
 	} 
 	failure:^(AFHTTPRequestOperation *failedOperation, NSError *error)
 	{
-		DLog(@"failureBlock");
 		__typeof__(self) strongSelf = weakSelf;
 
 		NSString *result = [failedOperation responseString];
@@ -101,6 +110,8 @@
 		const char* taskId = [strongSelf.taskIdentifier UTF8String];
 		const char *datas = [result UTF8String];
 		downloadmanager_onTaskFailed(taskId, datas, statusCode);
+
+		[strongSelf close];
 	}];
 
 	#ifdef DEBUG
@@ -110,11 +121,6 @@
 	#endif
 
 	[[MLoaderQueue instance] addOperation:operation];
-}
-
-- (void)close
-{
-
 }
 
 @end

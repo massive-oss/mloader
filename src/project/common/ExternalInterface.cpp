@@ -41,7 +41,6 @@ AutoGCRoot *errorListener = 0;
 
 static value mloader_setCompletionListener(value listener)
 {
-	printf("mloader_setCompletionListener\n");
 	IfNullReturn(listener, alloc_bool(false));
 	completionListener = new AutoGCRoot(listener);
 	return alloc_bool(true);
@@ -50,7 +49,6 @@ DEFINE_PRIM(mloader_setCompletionListener, 1);
 
 static value mloader_setErrorListener(value listener)
 {
-	printf("mloader_setErrorListener\n");
 	IfNullReturn(listener, alloc_bool(false));
 	errorListener = new AutoGCRoot(listener);
 	return alloc_bool(true);
@@ -60,7 +58,6 @@ DEFINE_PRIM(mloader_setErrorListener, 1);
 extern "C" void downloadmanager_onTaskCompleted(const char* taskIdentifier, 
 	const char* responseDatas)
 {
-	printf("downloadmanager_onTaskCompleted\n");
 	Gc();
 	NotNull(completionListener);
 	NotNull(completionListener->get());

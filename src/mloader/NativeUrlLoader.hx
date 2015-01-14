@@ -22,7 +22,6 @@ class NativeUrlLoader
 	{
 		if (!initialized)
 		{
-			trace("initialized");
 			map = new Map();
 			Native.setCompletionListener(taskCompleted);
 			Native.setErrorListener(taskFailed);
@@ -32,22 +31,32 @@ class NativeUrlLoader
 
 	static function registerTask(task:NativeUrlLoader)
 	{
-		trace("registerTask ::: " + task.taskId);
 		map.set(task.taskId, task);
+	}
+
+	static function closeTask(task:NativeUrlLoader)
+	{
+		map.remove(task.taskId);
 	}
 
 	static function taskCompleted(taskIdentifier:String, datas:String)
 	{
-		trace("taskCompleted ::: " + taskIdentifier);
 		var task = map.get(taskIdentifier);
-		if (task != null) task.onDatas(datas);
+		if (task != null) 
+		{
+			task.onDatas(datas);
+			task.close();
+		}
 	}
 
 	static function taskFailed(taskIdentifier:String, code:Int, datas:String)
 	{
-		trace("taskFailed ::: " + taskIdentifier);
 		var task = map.get(taskIdentifier);
-		if (task != null) task.onError(code, datas);
+		if (task != null) 
+		{
+			task.onError(code, datas);
+			task.close();
+		}
 	}
 
 	public function new()
@@ -93,27 +102,9 @@ class NativeUrlLoader
 		registerTask(this);
 	}
 
-	function listener(data:String)
-	{
-		if (data == null)
-		{
-			errorListener(-1, data);
-		}
-		else if (onDatas != null && data != "" )
-		{
-			onDatas(data);
-		}
-	}
-
-	function errorListener(code:Int, data:String)
-	{
-		if (onError != null)
-			onError(code, data);
-	}
-
 	public function close()
 	{
-		//Native.close(taskId);
+		closeTask(this);
 	}
 }
 
