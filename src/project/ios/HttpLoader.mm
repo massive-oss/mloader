@@ -54,8 +54,10 @@ const char* HttpLoader::create(const char* url)
 void HttpLoader::setUrl(const char* taskId, const char* url)
 {
 	NSString* nsTaskId = [NSString stringWithUTF8String:taskId];
+	NSString* nsUrl = [NSString stringWithUTF8String:url];
 	NativeHttpLoader* loader;
 	loader = (NativeHttpLoader*)[map objectForKey:nsTaskId];
+	if (loader) [loader setUrl:nsUrl];
 }
 
 void HttpLoader::configure(const char* taskId, const char* methodValue, 

@@ -57,6 +57,13 @@
 	taskIdentifier = nil;
 }
 
+- (void)setUrl:(NSString*)rawUrl
+{
+	// DLog(@"setUrl %@", url);
+	NSURL *url = [NSURL URLWithString:rawUrl];
+	if (request) request.URL = url;
+}
+
 - (void)setHttpBody:(NSString*)data
 {
 	// DLog(@"setHttpBody ::: %@", data);

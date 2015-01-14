@@ -29,5 +29,6 @@ extern "C"
 - (void)setHttpHeaderFor:(NSString*)key withValue:(NSString*)value;
 - (void)setHttpMethod:(NSString*)method;
 - (void)setHttpVariableFor:(NSString*)key withValue:(NSString*)value;
+- (void)setUrl:(NSString*)url;
 
 @end
