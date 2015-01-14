@@ -7,7 +7,7 @@ class HttpLoader
 {
 	public:
 		static const char* create(const char* url);
-		static HttpLoader* getLoaderByTask(const char* taskId);
+		// static HttpLoader* getLoaderByTask(const char* taskId);
 		static void setUrl(const char* taskId, const char* url);
 		static void close(const char* taskId);
 		static void setVariable(const char* taskId, const char* key, const char* value);

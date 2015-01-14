@@ -11,12 +11,48 @@ import msignal.Signal;
 class NativeUrlLoader
 {
 	#if ios
+	public var taskId(default, null):String;
 	public var onDatas(default, null):String->Void;
 	public var onError(default, null):Int->String->Void;
 
+	static var initialized = false;
+	static var map:Map<String, NativeUrlLoader>;
+
+	static function initialize()
+	{
+		if (!initialized)
+		{
+			trace("initialized");
+			map = new Map();
+			Native.setCompletionListener(taskCompleted);
+			Native.setErrorListener(taskFailed);
+			initialized = true;
+		}
+	}
+
+	static function registerTask(task:NativeUrlLoader)
+	{
+		trace("registerTask ::: " + task.taskId);
+		map.set(task.taskId, task);
+	}
+
+	static function taskCompleted(taskIdentifier:String, datas:String)
+	{
+		trace("taskCompleted ::: " + taskIdentifier);
+		var task = map.get(taskIdentifier);
+		if (task != null) task.onDatas(datas);
+	}
+
+	static function taskFailed(taskIdentifier:String, code:Int, datas:String)
+	{
+		trace("taskFailed ::: " + taskIdentifier);
+		var task = map.get(taskIdentifier);
+		if (task != null) task.onError(code, datas);
+	}
+
 	public function new()
 	{
-		
+		initialize();
 	}
 
 	public function setListeners(onDatas:String->Void, onError:Int->String->Void)
@@ -27,7 +63,7 @@ class NativeUrlLoader
 
 	public function load(request:URLRequest)
 	{
-		var taskId = Native.create(request.url);
+		taskId = Native.create(request.url);
 		Native.configure(taskId, request.method + "", request.data);
 
 		//Headers
@@ -53,11 +89,8 @@ class NativeUrlLoader
 		{
 			Native.setHttpBody(taskId, request.data);
 		}
-	
-
-		Native.setListener(taskId, listener);
-		Native.setErrorListener(taskId, errorListener);
 		Native.load(taskId);
+		registerTask(this);
 	}
 
 	function listener(data:String)
@@ -80,7 +113,7 @@ class NativeUrlLoader
 
 	public function close()
 	{
-		Native.close(taskId);
+		//Native.close(taskId);
 	}
 }
 
@@ -89,13 +122,14 @@ class NativeUrlLoader
 @CPP_PRIMITIVE_PREFIX("mloader")
 class Native
 {
+	@IOS public static function setCompletionListener(listener:String->String->Void):Void;
+	@IOS public static function setErrorListener(listener:String->Int->String->Void):Void;
+	
 	@IOS public static function configure(taskId:String, method:String, data:String):Void;
 	@IOS public static function create(url:String):String{ throw "iOS only";}
 	@IOS public static function load(handler:Dynamic):Void;
-	@IOS public static function setErrorListener(taskId:String, listener:Int->String->Void):Void;
 	@IOS public static function setHeaderField(taskId:String, name:String, value:String):Void;
 	@IOS public static function setHttpBody(taskId:String, value:String):Void;
-	@IOS public static function setListener(taskId:String, listener:String->Void):Void;
 	@IOS public static function setUrl(taskId:String, url:String):Void;
 	@IOS public static function setUrlVariable(taskId:String,name:String, value:String):Void;
 	@IOS public static function close(taskId:String);

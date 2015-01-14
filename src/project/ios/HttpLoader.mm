@@ -1,5 +1,6 @@
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIKit.h>
+#import "NativeHttpLoader.h"
 
 #include "HttpLoader.h"
 #include "AFNetworking.h"
@@ -13,37 +14,8 @@ extern "C"
 		int code, const char* data);
 }
 
-@interface MLoaderQueue : NSOperationQueue
-+ (id)instance;
-@end
-
-@implementation MLoaderQueue
-
-+ (id)instance
-{
-	static MLoaderQueue *queue = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, 
-	^{
-		queue = [[self alloc] init];
-	});
-	return queue;
-}
-
-- (id)init
-{
-	if (self = [super init]) 
-	{
-		self.name = @"mloader Operation Queue";
-	}
-	return self;
-}
-
-@end
-
 NSMutableDictionary *variables;
-static NSMapTable *map = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory
-	valueOptions:NSMapTableWeakMemory];
+static NSMutableDictionary *map = [[NSMutableDictionary alloc] init];
 
 AutoGCRoot *listener;
 AutoGCRoot *errorListener;
@@ -58,29 +30,101 @@ AFHTTPRequestOperation *op;
 
 void close(const char* taskId)
 {
-	NSString* nsTaskId = [NSString stringWithUTF8String:taskId];
-	HttpLoader* result = (HttpLoader*)[[map objectForKey:nsTaskId] pointerValue];
-	if (result != NULL) result->closeRequest();
-	[map removeObjectForKey:nsTaskId];
+	// NSString* nsTaskId = [NSString stringWithUTF8String:taskId];
+	// HttpLoader* result = (__bridge HttpLoader*)[map objectForKey:nsTaskId];
+	// if (result != NULL) result->closeRequest();
+	// [map removeObjectForKey:nsTaskId];
 }
 
 const char* HttpLoader::create(const char* url)
 {
+	NSString* nsUrl = [NSString stringWithUTF8String:url];
 	NSString *taskId = [[NSUUID UUID] UUIDString];
 	const char* cTaskId = [taskId UTF8String];
-	HttpLoader* loader = new HttpLoader(url, cTaskId);
-	[map setObject:[NSValue valueWithPointer:loader] forKey:taskId];
-	HttpLoader* result = HttpLoader::getLoaderByTask(cTaskId);
+
+	NativeHttpLoader* loader = [[NativeHttpLoader alloc] initWithUrl:nsUrl 
+		andTaskId:taskId];
+
+	[map setObject:loader forKey:taskId];
+	DLog(@"create %@", taskId);
 	return cTaskId;
 }
 
-HttpLoader* HttpLoader::getLoaderByTask(const char* taskId)
+void HttpLoader::setUrl(const char* taskId, const char* url)
 {
 	NSString* nsTaskId = [NSString stringWithUTF8String:taskId];
-	HttpLoader* result = (HttpLoader*)[[map objectForKey:nsTaskId] pointerValue];
-	return result;
+	NativeHttpLoader* loader;
+	loader = (NativeHttpLoader*)[map objectForKey:nsTaskId];
+	// HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
+	// if (loader != NULL) loader->source = url;
 }
 
+void HttpLoader::configure(const char* taskId, const char* methodValue, 
+	const char* dataValue)
+{
+	NSString* nsTaskId = [NSString stringWithUTF8String:taskId];
+	NativeHttpLoader* loader;
+	loader = (NativeHttpLoader*)[map objectForKey:nsTaskId];
+	if (loader != nil)
+	{
+		NSString* method = methodValue != nil 
+			? [NSString stringWithUTF8String:methodValue] : nil;
+		[loader setHttpMethod:method];
+
+		NSString* data = dataValue != nil 
+			? [NSString stringWithUTF8String:dataValue] : nil;
+		[loader setHttpBody:data];
+	}
+}
+
+void HttpLoader::setHeader(const char* taskId, const char* key, const char* value)
+{	
+	NSString *nsTaskId = [NSString stringWithUTF8String:taskId];
+	NSString *nsKey = [NSString stringWithUTF8String:key];
+	NSString *nsValue = [NSString stringWithUTF8String:value];
+	NativeHttpLoader* loader = (NativeHttpLoader*)[map objectForKey:nsTaskId];
+	if (loader != NULL) [loader setHttpHeaderFor:nsKey withValue:nsValue];
+}
+
+void HttpLoader::setVariable(const char* taskId, const char* key, const char* value)
+{
+	NSString *nsTaskId = [NSString stringWithUTF8String:taskId];
+	NSString *nsKey = [NSString stringWithUTF8String:key];
+	NSString *nsValue = [NSString stringWithUTF8String:value];
+	NativeHttpLoader* loader = (NativeHttpLoader*)[map objectForKey:nsTaskId];
+	if (loader != NULL) [loader setHttpVariableFor:nsKey withValue:nsValue];
+}
+
+void HttpLoader::setBody(const char* taskId, const char* value)
+{
+	NSString *nsTaskId = [NSString stringWithUTF8String:taskId];
+	NativeHttpLoader* loader = (NativeHttpLoader*)[map objectForKey:nsTaskId];
+	NSString *nsValue = [NSString stringWithUTF8String:value];
+	if (loader != NULL) [loader setHttpBody:nsValue];
+}
+
+void HttpLoader::load(const char* taskId)
+{
+	NSString *nsTaskId = [NSString stringWithUTF8String:taskId];
+	NativeHttpLoader* loader = [map objectForKey:nsTaskId];
+	if (loader != NULL) [loader load];
+}
+
+void HttpLoader::setSuccessListener(const char* taskId, AutoGCRoot *value)
+{
+	NSString *nsTaskId = [NSString stringWithUTF8String:taskId];
+	NativeHttpLoader* loader = (NativeHttpLoader*)[map objectForKey:nsTaskId];
+	// if (loader != NULL) loader->setListener(value);
+}
+
+void HttpLoader::setFailureListener(const char* taskId, AutoGCRoot *value)
+{
+	// HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
+	// if (loader != NULL) loader->setErrorListener(value);
+}
+
+// Non static ------------------------------------------------------------------
+/*
 HttpLoader::HttpLoader(const char* url, const char* taskId)
 {
 	source = url;
@@ -95,66 +139,6 @@ HttpLoader::HttpLoader(const char* url, const char* taskId)
 		cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:1000];
 }
 
-void HttpLoader::setUrl(const char* taskId, const char* url)
-{
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL) loader->source = url;
-}
-
-void HttpLoader::configure(const char* taskId, const char* methodValue, 
-	const char* dataValue)
-{
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL)
-	{
-		loader->setHttpMethod(methodValue);
-		loader->setHttpBody(dataValue);
-	}
-}
-
-void HttpLoader::setHeader(const char* taskId, const char* key, const char* value)
-{	
-	NSString *nsTaskId = [NSString stringWithUTF8String:taskId];
-	NSString *nsKey = [NSString stringWithUTF8String:key];
-	NSString *nsValue = [NSString stringWithUTF8String:value];
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL) loader->setHttpHeader(key, value);
-}
-
-void HttpLoader::setVariable(const char* taskId, const char* key, const char* value)
-{
-	NSString *nsTaskId = [NSString stringWithUTF8String:taskId];
-	NSString *nsKey = [NSString stringWithUTF8String:key];
-	NSString *nsValue = [NSString stringWithUTF8String:value];
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL) loader->setHttpVariable(key, value);
-}
-
-void HttpLoader::setBody(const char* taskId, const char* value)
-{
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL) loader->setHttpBody(value);
-}
-
-void HttpLoader::load(const char* taskId)
-{
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL) loader->execute();
-}
-
-void HttpLoader::setSuccessListener(const char* taskId, AutoGCRoot *value)
-{
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL) loader->setListener(value);
-}
-
-void HttpLoader::setFailureListener(const char* taskId, AutoGCRoot *value)
-{
-	HttpLoader* loader = HttpLoader::getLoaderByTask(taskId);
-	if (loader != NULL) loader->setErrorListener(value);
-}
-
-// Non static ------------------------------------------------------------------
 
 HttpLoader::~HttpLoader()
 {
@@ -251,3 +235,4 @@ void HttpLoader::execute()
 
 	[[MLoaderQueue instance] addOperation:op];
 }
+*/

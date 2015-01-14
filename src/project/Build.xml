@@ -24,6 +24,7 @@
 		<file name="afnetwork/AFURLSessionManager.m"/>
 
 		<file name="ios/HttpLoader.mm"/>
+		<file name="ios/NativeHttpLoader.mm"/>
 	</files>
 	
 	<set name="SLIBEXT" value=".lib" if="windows"/>

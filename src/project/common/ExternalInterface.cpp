@@ -34,6 +34,59 @@ DEFINE_KIND(kHttpLoader);
 		return b; \
 }
 
+#define AllocString(a) (a != NULL) ? alloc_string(a) : alloc_null();
+
+AutoGCRoot *completionListener = 0;
+AutoGCRoot *errorListener = 0;
+
+static value mloader_setCompletionListener(value listener)
+{
+	printf("mloader_setCompletionListener\n");
+	IfNullReturn(listener, alloc_bool(false));
+	completionListener = new AutoGCRoot(listener);
+	return alloc_bool(true);
+}
+DEFINE_PRIM(mloader_setCompletionListener, 1);
+
+static value mloader_setErrorListener(value listener)
+{
+	printf("mloader_setErrorListener\n");
+	IfNullReturn(listener, alloc_bool(false));
+	errorListener = new AutoGCRoot(listener);
+	return alloc_bool(true);
+}
+DEFINE_PRIM(mloader_setErrorListener, 1);
+
+extern "C" void downloadmanager_onTaskCompleted(const char* taskIdentifier, 
+	const char* responseDatas)
+{
+	printf("downloadmanager_onTaskCompleted\n");
+	Gc();
+	NotNull(completionListener);
+	NotNull(completionListener->get());
+	NotNull(taskIdentifier);
+
+	value taskId = AllocString(taskIdentifier);
+	value datas = AllocString(responseDatas);
+
+	val_call2(completionListener->get(), taskId, datas);
+}
+
+extern "C" void downloadmanager_onTaskFailed(const char* taskIdentifier, 
+	const char* responseDatas, int errorCode)
+{
+	Gc();
+	NotNull(errorListener);
+	NotNull(errorListener->get());
+	NotNull(taskIdentifier);
+
+	value taskId = AllocString(taskIdentifier);
+	value datas = AllocString(responseDatas);
+	value code = alloc_int(errorCode);
+
+	val_call3(errorListener->get(), taskId, code, datas);
+}
+
 static value mloader_create(value url)
 {
 	const char *taskId = HttpLoader::create(val_string(url));
@@ -87,30 +140,12 @@ static value mloader_configure(value taskId, value method, value data)
 }
 DEFINE_PRIM(mloader_configure, 3);
 
-static value mloader_setListener(value taskId, value haxeListener)
-{
-	IfNullReturn(haxeListener, alloc_null());
-	AutoGCRoot *listener = new AutoGCRoot(haxeListener);
-	HttpLoader::setSuccessListener(val_string(taskId), listener);
-	return alloc_null();
-}
-DEFINE_PRIM(mloader_setListener, 2);
-
 static value mloader_close(value taskId)
 {
 	IfNullReturn(taskId, alloc_null());
 	HttpLoader::close(val_string(taskId));
 	return alloc_null();	
 }
-
-static value mloader_setErrorListener(value taskId, value haxeListener)
-{
-	IfNullReturn(haxeListener, alloc_null());
-	AutoGCRoot *listener = new AutoGCRoot(haxeListener);
-	HttpLoader::setFailureListener(val_string(taskId), listener);
-	return alloc_null();
-}
-DEFINE_PRIM(mloader_setErrorListener, 2);
 
 static value mloader_load(value taskId)
 {
@@ -119,25 +154,6 @@ static value mloader_load(value taskId)
 	return alloc_null();
 }
 DEFINE_PRIM(mloader_load, 1);
-
-extern "C" void mloader_callListener(AutoGCRoot *listener, const char* data)
-{
-	Gc();
-	NotNull(listener);
-	NotNull(listener->get());
-	NotNull(data);
-	val_call1(listener->get(), alloc_string(data));
-}
-
-extern "C" void mloader_callErrorListener(AutoGCRoot *listener, 
-	int code, const char* data)
-{
-	Gc();
-	NotNull(listener);
-	NotNull(listener->get());
-	NotNull(data);
-	val_call2(listener->get(), alloc_int(code), alloc_string(data));
-}
 
 #endif
 
