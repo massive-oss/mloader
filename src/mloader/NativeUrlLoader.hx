@@ -1,6 +1,6 @@
 package mloader;
 
-#if ios
+#if (ios || android)
 import openfl.net.URLRequest;
 import openfl.net.URLVariables;
 
@@ -8,9 +8,10 @@ import mloader.NativeUrlLoader;
 
 import msignal.Signal;
 #end
+
 class NativeUrlLoader
 {
-	#if ios
+	#if (ios || android)
 	public var taskId(default, null):String;
 	public var onDatas(default, null):String->Void;
 	public var onError(default, null):Int->String->Void;
@@ -23,8 +24,10 @@ class NativeUrlLoader
 		if (!initialized)
 		{
 			map = new Map();
+			#if ios
 			Native.setCompletionListener(taskCompleted);
 			Native.setErrorListener(taskFailed);
+			#end
 			initialized = true;
 		}
 	}
@@ -72,6 +75,56 @@ class NativeUrlLoader
 
 	public function load(request:URLRequest)
 	{
+		#if ios
+		loadIos(request);
+		#end
+
+		#if android
+		loadAndroid(request);
+		#end
+	}
+
+	#if android
+	function loadAndroid(request:URLRequest)
+	{
+		var loader = new NativeUrlLoaderAndroid();
+
+		//Headers
+		for (header in request.requestHeaders)
+		{
+			loader.setHeader(header.name, header.value);
+		}
+		loader.setContentType(request.contentType);
+		loader.setHeader("User-Agent", request.userAgent);
+
+		//Variables
+		if (request.data != null && Std.is(request.data, URLVariables) 
+			&& Reflect.fields(request.data).length > 0)
+		{
+			var value:String;
+			for(key in Reflect.fields(request.data))
+			{
+				trace("key ::: " + key);
+				value = Reflect.field(request.data, key);
+				loader.setVariable(key, value);
+			}
+		}
+		else if (request.data != null && Std.is(request.data, String) && 
+			request.data != "")
+		{
+			loader.setBody(request.data);
+		}
+
+		loader.onDatas = onDatas;
+		loader.onError = onError;
+		loader.execute(request);
+	}
+	#end
+
+
+	#if ios
+	function loadIos(request:URLRequest)
+	{
 		taskId = Native.create(request.url);
 		Native.configure(taskId, request.method + "", request.data);
 
@@ -101,13 +154,16 @@ class NativeUrlLoader
 		Native.load(taskId);
 		registerTask(this);
 	}
+	#end
 
 	public function close()
 	{
 		closeTask(this);
 	}
+	#end
 }
 
+#if ios
 @:build(ShortCuts.mirrors())
 @CPP_DEFAULT_LIBRARY("mloader")
 @CPP_PRIMITIVE_PREFIX("mloader")
@@ -124,5 +180,5 @@ class Native
 	@IOS public static function setUrl(taskId:String, url:String):Void;
 	@IOS public static function setUrlVariable(taskId:String,name:String, value:String):Void;
 	@IOS public static function close(taskId:String);
-	#end
 }
+#end

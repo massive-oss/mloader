@@ -1,14 +1,18 @@
 	<?xml version="1.0" encoding="utf-8"?>
 	<project>
 
-	<ndll name="mloader" if="ios"/>
-
+	<classpath name="." />
 	<haxelib name="inthebox-macros"/>
 
+	<!-- iOS -->
+	<ndll name="mloader" if="ios"/>
 	<dependency name="MobileCoreServices.framework" if="ios" />
 	<dependency name="Security.framework" if="ios" />
 	<dependency name="SystemConfiguration.framework" if="ios" />
 
-	<classpath name="." />
+
+	<!-- Android -->
+	<dependency name="mloader_android" path="dependencies/mloader_android" if="android" />
+	<dependency name="volley" path="dependencies/volley" if="android" />
 
 	</project>

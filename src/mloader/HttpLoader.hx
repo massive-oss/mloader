@@ -32,7 +32,7 @@ private typedef StringMap<T> = Hash<T>;
 #end
 
 #if openfl
-#if ios
+#if (ios || android)
 typedef URLLoader = NativeUrlLoader;
 #else
 typedef URLLoader = flash.net.URLLoader;
@@ -87,7 +87,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#if (nme || openfl)
 		urlRequest = new flash.net.URLRequest();
 		loader = new URLLoader();
-		#if ios
+		#if (ios || android)
 		loader = new NativeUrlLoader();
 		loader.setListeners(httpData, function(code:Int, error:String)
 		{

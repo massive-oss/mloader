@@ -1,21 +1,34 @@
 package mloader;
 
 import mloader.Http;
-#if ios
+#if (ios || android)
 import mloader.NativeUrlLoader;
 #end
 
 class NativeHttpLoader extends mloader.HttpLoader<Dynamic>
 {
+	#if (ios || android)
+
 	#if ios
 	var nativeLoader:NativeUrlLoader;
+	#end
 
+	#if android
+	var nativeLoader:NativeUrlLoaderAndroid;
+	#end
+	
 	public function new(?url:String, ?http:Http)
 	{
 		super(url, http);
 
+		#if ios
 		nativeLoader = new NativeUrlLoader();
 		nativeLoader.setListeners(httpData, nativeHttpError);
+		#end
+
+		#if android
+		nativeLoader = new NativeUrlLoaderAndroid();
+		#end
 	}
 
 	override public function send(data:Dynamic)
