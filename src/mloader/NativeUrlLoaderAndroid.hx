@@ -17,10 +17,8 @@ class NativeUrlLoaderAndroid extends NativeMloader
 
 	public function execute(request:URLRequest)
 	{
-		trace("execute ::: " + request.url);
 		setUrl(nativeInstance, request.url);
 		setMethod(nativeInstance, request.method);
-		trace("load");
 		load(nativeInstance);
 	}
 
@@ -42,6 +40,14 @@ class NativeUrlLoaderAndroid extends NativeMloader
 	public function setBody(value:String)
 	{
 		setHttpBody(nativeInstance, value);
+	}
+
+	public function onDatasFromJava(datas:String)
+	{
+		haxe.Timer.delay(function()
+		{
+			onDatas(datas);
+		}, 2);
 	}
 }
 

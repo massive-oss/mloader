@@ -48,10 +48,9 @@ public class NativeMLoader implements Response.Listener<String>,
 			@Override
 			public void run()
 			{
-				MassiveUtil.trace("onDatas ::: " + response);
 				try
 				{
-					listener.call1("onDatas", response);
+					listener.call1("onDatasFromJava", response);
 				}
 				catch (Exception exception)
 				{
