@@ -93,7 +93,8 @@ class JsonLoader<T> extends HttpLoader<T>
 
 		try
 		{
-			raw = haxe.Json.parse(data);
+			if (data != "")
+				raw = haxe.Json.parse(data);
 		}
 		catch (e:Dynamic)
 		{
