@@ -93,32 +93,48 @@
 
 - (void)load
 {
-	// DLog(@"load");
 	__weak __typeof__(self) weakSelf = self;
 
 	operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
 	[operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *completedOperation, 
 		id responseObject)
 	{
-		__typeof__(self) strongSelf = weakSelf;
+		if (weakSelf)
+		{
+			__typeof__(self) strongSelf = weakSelf;
 
-		NSString *result = [completedOperation responseString];
-		const char *taskId = [strongSelf.taskIdentifier UTF8String];
-		const char *resultDatas = [result UTF8String];
-		downloadmanager_onTaskCompleted(taskId, resultDatas);
-		[strongSelf close];
+			__block NSString *blockTaskIdentifier = strongSelf.taskIdentifier;
+			__block NSString *blockResult = [completedOperation responseString];
+
+			dispatch_async(dispatch_get_main_queue(), 
+				^{
+					const char *taskId = [blockTaskIdentifier UTF8String];
+					const char *resultDatas = [blockResult UTF8String];
+					downloadmanager_onTaskCompleted(taskId, resultDatas);
+				}
+			);
+			[strongSelf close];
+		}
 	} 
 	failure:^(AFHTTPRequestOperation *failedOperation, NSError *error)
 	{
-		__typeof__(self) strongSelf = weakSelf;
+		if (weakSelf)
+		{
+			__typeof__(self) strongSelf = weakSelf;
 
-		NSString *result = [failedOperation responseString];
-		NSInteger statusCode = failedOperation.response.statusCode;
-		const char* taskId = [strongSelf.taskIdentifier UTF8String];
-		const char *datas = [result UTF8String];
-		downloadmanager_onTaskFailed(taskId, datas, statusCode);
-
-		[strongSelf close];
+			__block NSString *blockTaskIdentifier = strongSelf.taskIdentifier;
+			__block NSString *blockResult = [failedOperation responseString];
+			__block NSInteger statusCode = failedOperation.response.statusCode;
+			
+			dispatch_async(dispatch_get_main_queue(), 
+				^{
+					const char* taskId = [blockTaskIdentifier UTF8String];
+					const char *datas = [blockResult UTF8String];
+					downloadmanager_onTaskFailed(taskId, datas, statusCode);
+				}
+			);
+			[strongSelf close];
+		}
 	}];
 
 	#ifdef DEBUG
