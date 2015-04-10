@@ -16,6 +16,7 @@ import junit.framework.Assert;
 import org.haxe.lime.HaxeObject;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.Exception;
 import java.util.HashMap;
 import org.haxe.extension.Extension;
 
@@ -43,6 +44,7 @@ public class NativeMLoader implements Response.Listener<String>,
 	public void onResponse(final String response)
 	{
 		Assert.assertNotNull(listener);
+		MassiveUtil.trace(">>>> " + sourceUrl);
 		Runnable runnable = new Runnable()
 		{
 			@Override
@@ -65,7 +67,6 @@ public class NativeMLoader implements Response.Listener<String>,
 	public void onErrorResponse(VolleyError error)
 	{
 		final NetworkResponse networkResponse = error.networkResponse;
-
 		try
 		{
 			String body = null;
@@ -76,6 +77,7 @@ public class NativeMLoader implements Response.Listener<String>,
 
 			final String responseBody = body;
 			final int code = networkResponse != null ? networkResponse.statusCode : -1;
+			MassiveUtil.trace("<<<< [" + code + " ] " + sourceUrl);
 			Runnable runnable = new Runnable()
 			{
 				@Override
@@ -87,6 +89,10 @@ public class NativeMLoader implements Response.Listener<String>,
 			Extension.callbackHandler.post(runnable);
 		}
 		catch (UnsupportedEncodingException exception)
+		{
+
+		}
+		catch (Exception exception)
 		{
 
 		}

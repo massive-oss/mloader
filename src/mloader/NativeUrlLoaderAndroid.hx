@@ -2,7 +2,7 @@ package mloader;
 
 import openfl.net.URLRequest;
 
-class NativeUrlLoaderAndroid extends NativeMloader
+class NativeUrlLoaderAndroid extends NativeMLoader
 {
 	public var onDatas:String->Void;
 	public var onError:Int->String->Void;
@@ -11,7 +11,7 @@ class NativeUrlLoaderAndroid extends NativeMloader
 
 	public function new()
 	{
-		nativeInstance = NativeMloader.create();
+		nativeInstance = NativeMLoader.create();
 		setListener(nativeInstance, this);
 	}
 
@@ -55,17 +55,17 @@ class NativeUrlLoaderAndroid extends NativeMloader
 @:build(ShortCuts.mirrors())
 @JNI_DEFAULT_CLASS_NAME("NativeMLoader")
 @JNI_DEFAULT_PACKAGE("massive.mloader")
-class NativeMloader
+class NativeMLoader
 {
-	@JNI @JNI_CONSTRUCTOR static public function create():NativeUrlLoaderAndroid;
-	@JNI public function setHttpContentType(instance:NativeMloader,value:String);
-	@JNI public function setListener(instance:NativeMloader,listener:Dynamic);
-	@JNI public function load(instance:NativeMloader);
-	@JNI public function close(instance:NativeMloader);
-	@JNI public function setMethod(instance:NativeMloader, value:String);
-	@JNI public function setUrl(instance:NativeMloader, value:String);
-	@JNI public function setTaskId(instance:NativeMloader, value:String);
-	@JNI public function setHttpBody(instance:NativeMloader, value:String);
-	@JNI public function setHttpHeader(instance:NativeMloader, key:String, value:String);
-	@JNI public function setHttpVariable(instance:NativeMloader, key:String, value:String);
+	@JNI public static function create():NativeUrlLoaderAndroid;
+	@JNI public function setHttpContentType(instance:NativeMLoader,value:String);
+	@JNI public function setListener(instance:NativeMLoader,listener:Dynamic);
+	@JNI public function load(instance:NativeMLoader);
+	@JNI public function close(instance:NativeMLoader);
+	@JNI public function setMethod(instance:NativeMLoader, value:String);
+	@JNI public function setUrl(instance:NativeMLoader, value:String);
+	@JNI public function setTaskId(instance:NativeMLoader, value:String);
+	@JNI public function setHttpBody(instance:NativeMLoader, value:String);
+	@JNI public function setHttpHeader(instance:NativeMLoader, key:String, value:String);
+	@JNI public function setHttpVariable(instance:NativeMLoader, key:String, value:String);
 }
