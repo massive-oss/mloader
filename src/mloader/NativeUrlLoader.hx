@@ -19,6 +19,8 @@ class NativeUrlLoader
 	static var initialized = false;
 	static var map:Map<String, NativeUrlLoader>;
 
+	public static var defaultUserAgent:String = "mloader";
+
 	static function initialize()
 	{
 		if (!initialized)
@@ -95,7 +97,12 @@ class NativeUrlLoader
 			loader.setHeader(header.name, header.value);
 		}
 		loader.setContentType(request.contentType);
-		loader.setHeader("User-Agent", request.userAgent);
+
+		var userAgent = request.userAgent;
+		if (userAgent == "" || userAgent == null)
+			userAgent = defaultUserAgent;
+
+		loader.setHeader("User-Agent", userAgent);
 
 		//Variables
 		if (request.data != null && Std.is(request.data, URLVariables) 
