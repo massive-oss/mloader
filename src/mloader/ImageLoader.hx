@@ -67,7 +67,6 @@ class ImageLoader extends LoaderBase<LoadableImage>
 		content.onerror = imageError;
 		content.src = url;
 		
-		#if js
 		// Browsers can fail to trigger onload when the image is in cache.
 		// This check determines if the image has loaded synchronously without
 		// triggering an event handler, and if so manually calls loaderComplete().
@@ -78,7 +77,6 @@ class ImageLoader extends LoaderBase<LoadableImage>
 			content.onerror = null;
 			loaderComplete();
 		}
-		#end
 	}
 
 	override function loaderCancel():Void
