@@ -180,8 +180,6 @@ class HttpLoader<T> extends LoaderBase<T>
 		if (defaultUserAgent != null && urlRequest.userAgent == null)
 			urlRequest.userAgent = defaultUserAgent;
 
-		trace(urlRequest.userAgent);
-
 		//OpenFL Native targets cannot set the Content-Type directly in the headers
 		urlRequest.contentType = contentType;
 		#else
