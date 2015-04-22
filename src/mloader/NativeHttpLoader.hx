@@ -70,6 +70,7 @@ class NativeHttpLoader extends mloader.HttpLoader<Dynamic>
 		addHeaders();
 		
 		urlRequest.url = url;
+
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			nativeLoader.load(urlRequest);

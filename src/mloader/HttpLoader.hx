@@ -48,6 +48,9 @@ automatically detects content-type (unless you set a custom content-type header)
 class HttpLoader<T> extends LoaderBase<T>
 {
 	#if (nme || openfl)
+
+	public static var defaultUserAgent:String;
+
 	/**
 	The URLLoader used to load content.
 	*/
@@ -173,6 +176,12 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 
 		#if openfl
+
+		if (defaultUserAgent != null && urlRequest.userAgent == null)
+			urlRequest.userAgent = defaultUserAgent;
+
+		trace(urlRequest.userAgent);
+
 		//OpenFL Native targets cannot set the Content-Type directly in the headers
 		urlRequest.contentType = contentType;
 		#else
