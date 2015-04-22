@@ -10,8 +10,6 @@ import msignal.Signal;
 #end
 class NativeUrlLoader
 {
-	public static var defaultUserAgent:String = "mloader";
-	
 	#if ios
 	public var taskId(default, null):String;
 	public var onDatas(default, null):String->Void;
