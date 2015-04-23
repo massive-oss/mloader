@@ -18,13 +18,19 @@ cleanup()
 armv6()
 {
 	echo "\n\n\\033[1;32mCompiling for armv6"
-	sleep $DELAY
 	rm -rf NDLL"lib"LIB"-debug.iphoneos.a"
 	rm -rf NDLL"lib"LIB".iphoneos.a"
 	$HXCPP_IPHONEOS $VERBOSE $DEBUG $ARC $GCC
-	sleep $DELAY
 	$HXCPP_IPHONEOS $VERBOSE $ARC $GCC
-	sleep $DELAY
+}
+
+arm64()
+{
+	echo "\n\n\\033[1;32mCompiling for arm64"
+	rm -rf NDLL"lib"LIB"-debug.iphoneos-64.a"
+	rm -rf NDLL"lib"LIB".iphoneos-64.a"
+	$HXCPP_IPHONEOS -DHXCPP_ARM64 $VERBOSE $DEBUG $VERSION $ARC $GCC
+	$HXCPP_IPHONEOS -DHXCPP_ARM64 $VERBOSE $VERSION $ARC $GCC
 }
 
 armv7()
@@ -34,9 +40,7 @@ armv7()
 	rm -rf NDLL"lib"LIB".iphoneos-v7.a"
 
 	$HXCPP_IPHONEOS -DHXCPP_ARMV7 $VERBOSE $DEBUG $VERSION $ARC $GCC
-	sleep $DELAY
 	$HXCPP_IPHONEOS -DHXCPP_ARMV7 $VERBOSE $VERSION $ARC $GCC
-	sleep $DELAY
 }
 
 simulator()
@@ -45,9 +49,7 @@ simulator()
 	rm -rf NDLL"lib"LIB"-debug.iphonesim.a"
 	rm -rf NDLL"lib"LIB".iphonesim.a"
 	$HXCPP -Diphonesim $VERBOSE $DEBUG $ARC $VERSION $GCC
-	sleep $DELAY
 	$HXCPP -Diphonesim -DHXCPP_ARMV7 $VERBOSE $VERSION $ARC $GCC
-	sleep $DELAY
 }
 
 case "$1" in
@@ -59,6 +61,10 @@ case "$1" in
 		cleanup
 		armv7
 	;;
+	"64")
+		cleanup
+		arm64
+	;;
 	"simulator")
 		cleanup
 		simulator
@@ -66,8 +72,9 @@ case "$1" in
 	*)
 		cleanup
 		armv6
+		arm64
 		armv7
-		simulator
+		# simulator
 	;;
 esac
 

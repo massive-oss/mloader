@@ -27,13 +27,15 @@
 		<file name="ios/NativeHttpLoader.mm"/>
 	</files>
 	
+	<set name="LIBNAME" value="mloader"/>
 	<set name="SLIBEXT" value=".lib" if="windows"/>
 	<set name="SLIBEXT" value=".a" unless="windows"/>
 	<set name="SLIBEXT" value=".so" if="webos"/>
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
-	
-	<target id="NDLL" output="${LIBPREFIX}mloader${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
-		
+
+	<target id="NDLL" output="${LIBPREFIX}${LIBNAME}${MSVC_LIB_VERSION}${DEBUGEXTRA}${LIBEXTRA}" 
+		tool="linker" toolid="${STD_MODULE_LINK}">
+		<compilerflag value="-DDEBUG" if="debug"/>
 		<outdir name="../ndll/${BINDIR}"/>
 		<ext value=".ndll" if="windows || mac || linux"/>
 		<files id="common"/>
