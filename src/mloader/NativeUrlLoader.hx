@@ -23,8 +23,6 @@ class NativeUrlLoader
 		if (!initialized)
 		{
 			map = new Map();
-			Native.setCompletionListener(taskCompleted);
-			Native.setErrorListener(taskFailed);
 			initialized = true;
 		}
 	}
@@ -98,6 +96,8 @@ class NativeUrlLoader
 		{
 			Native.setHttpBody(taskId, request.data);
 		}
+		Native.setCompletionListener(taskCompleted);
+		Native.setErrorListener(taskFailed);
 		Native.load(taskId);
 		registerTask(this);
 	}
