@@ -1,70 +1,46 @@
-# Flash 9+
--main TestMain
--lib munit
--lib hamcrest
--lib msignal
--lib mconsole
--lib mcore
--cp src
-
--cp test
--swf-version 9
 -swf bin/test/as3_test.swf
-
---next
-
-##Flash 8
-#-main TestMain
-#-lib munit
-#-lib msignal
-#-lib hamcrest
-#-lib mcore
-#-lib mconsole
-#-cp src
-#
-#-cp test
-#-swf-version 8
-#-swf bin/test/as2_test.swf
-
---next
-# JavaScript
+-swf-version 9
 -main TestMain
+-debug
+
 -lib munit
 -lib hamcrest
--lib msignal
+-lib mloader
 -lib mcore
--lib mconsole
--cp src
-
 -cp test
+
+--next
+
 -js bin/test/js_test.js
-
---next
-
-# Neko
 -main TestMain
+-debug
+
 -lib munit
 -lib hamcrest
--lib msignal
--lib mconsole
+-lib mloader
 -lib mcore
--cp src
-
 -cp test
--neko bin/test/neko_test.n
-
 
 --next
 
-## CPP
+-neko bin/test/neko_test.n
+-main TestMain
+-debug
 
-# -main TestMain
-# -lib munit
-# -lib hamcrest
-# -lib msignal
-# -lib mconsole
-# -lib mcore
-# -cp src
-# -cp test
-# -debug
-# -cpp bin/test/cpp_test
+-lib munit
+-lib hamcrest
+-lib mloader
+-lib mcore
+-cp test
+
+--next
+
+-cpp bin/test/cpp_test
+-main TestMain
+-debug
+
+-lib munit
+-lib hamcrest
+-lib mloader
+-lib mcore
+-cp test
