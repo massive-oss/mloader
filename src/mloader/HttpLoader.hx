@@ -176,10 +176,6 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 
 		#if openfl
-
-		if (defaultUserAgent != null && urlRequest.userAgent == null)
-			urlRequest.userAgent = defaultUserAgent;
-
 		//OpenFL Native targets cannot set the Content-Type directly in the headers
 		urlRequest.contentType = contentType;
 		#else
@@ -289,6 +285,12 @@ class HttpLoader<T> extends LoaderBase<T>
 		{
 			requestHeaders.push(new flash.net.URLRequestHeader(name, headers.get(name)));
 		}
+
+		if (defaultUserAgent != null && urlRequest.userAgent == null)
+		{
+			urlRequest.userAgent = defaultUserAgent;
+		}
+
 		urlRequest.requestHeaders = requestHeaders;
 		#else
 		for (name in headers.keys())
