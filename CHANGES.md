@@ -1,3 +1,7 @@
+## 2.2.4
+
+- ImageLoader: Fixed issue where cached images were not always triggering onload.
+
 ## 2.2.3
 
 - ImageLoader now nullifies listeners on loaderCancel

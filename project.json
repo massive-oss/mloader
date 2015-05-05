@@ -2,7 +2,7 @@
 	"project": 
 	{
 		"name": "MassiveLoader",
-		"version": "2.2.3",
+		"version": "2.2.4",
 		"id": "mloader",
 		"devDependencies": 
 		{
