@@ -18,3 +18,4 @@ TestSuite.hx
 /.idea/
 /mloader.iml
 .haxelib
+/haxelib.json
