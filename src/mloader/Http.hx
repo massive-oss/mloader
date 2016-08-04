@@ -21,13 +21,20 @@ class Http extends haxe.Http
 #if flash9
 	var loader:flash.net.URLLoader;
 
+	#if haxe3
+	override public function cancel()
+	#else
 	public function cancel()
+	#end
 	{
 		if (loader != null)
 		{
 			loader.close();
 			loader = null;
 		}
+		#if haxe3
+		super.cancel();
+		#end
 	}
 
 	#if haxe3
@@ -62,9 +69,14 @@ class Http extends haxe.Http
 		// headers
 		var param = false;
 		var vars = new flash.net.URLVariables();
-		for( k in params.keys() ){
-			param = true;
+		#if haxe3
+		for( k in params ) {
+			Reflect.setField(vars, k.parma, k.value);
+		#else
+		for( k in params.keys() ) {
 			Reflect.setField(vars,k,params.get(k));
+		#end
+			param = true;
 		}
 		var small_url = url;
 		if( param && !post ){
@@ -78,8 +90,13 @@ class Http extends haxe.Http
 		var bug = small_url.split("xxx");
 
 		var request = new flash.net.URLRequest( small_url );
+		#if haxe3
+		for( k in headers )
+			request.requestHeaders.push( new flash.net.URLRequestHeader(k.header,k.value) );
+		#else
 		for( k in headers.keys() )
 			request.requestHeaders.push( new flash.net.URLRequestHeader(k,headers.get(k)) );
+		#end
 
 		if( postData != null ) {
 			request.data = postData;
@@ -99,17 +116,20 @@ class Http extends haxe.Http
 #elseif js
 	#if haxe3
 	var loader:js.html.XMLHttpRequest;
+	override public function cancel()
 	#else
 	var loader:js.XMLHttpRequest;
-	#end
-
 	public function cancel()
+	#end
 	{
 		if (loader != null)
 		{
 			loader.abort();
 			loader = null;
 		}
+		#if haxe3
+		super.cancel();
+		#end
 	}
 
 	#if haxe3
@@ -158,12 +178,20 @@ class Http extends haxe.Http
 		var uri = postData;
 		if( uri != null )
 			post = true;
+		#if haxe3
+		else for( p in params ) {
+		#else
 		else for( p in params.keys() ) {
+		#end
 			if( uri == null )
 				uri = "";
 			else
 				uri += "&";
+			#if haxe3
+			uri += StringTools.urlEncode(p.param)+"="+StringTools.urlEncode(p.value);
+			#else
 			uri += StringTools.urlEncode(p)+"="+StringTools.urlEncode(params.get(p));
+			#end
 		}
 		try {
 			if( post )
@@ -179,11 +207,19 @@ class Http extends haxe.Http
 			onError(e.toString());
 			return;
 		}
+		#if haxe3
+		if( !Lambda.exists(headers, function(h) return h.header == "Content-Type") && post && postData == null )
+		#else
 		if( headers.get("Content-Type") == null && post && postData == null )
+		#end
 			r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-
+		#if haxe3
+		for( h in headers )
+			r.setRequestHeader(h.header,h.value);
+		#else
 		for( h in headers.keys() )
 			r.setRequestHeader(h,headers.get(h));
+		#end
 		r.send(uri);
 		if( !async )
 			#if haxe3
