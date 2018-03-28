@@ -1,22 +1,22 @@
 /*
 Copyright (c) 2012 Massive Interactive
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of 
-this software and associated documentation files (the "Software"), to deal in 
-the Software without restriction, including without limitation the rights to 
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
-of the Software, and to permit persons to whom the Software is furnished to do 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
 so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all 
+The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
@@ -31,9 +31,9 @@ private typedef StringMap<T> = Hash<T>;
 #end
 
 /**
-The HttpLoader class is responsible for loading content over Http, falling back 
-to file system access for local paths under Neko (as haxe.Http does not support 
-file:/// urls). Data can also be posted to a url using the `send` method, which 
+The HttpLoader class is responsible for loading content over Http, falling back
+to file system access for local paths under Neko (as haxe.Http does not support
+file:/// urls). Data can also be posted to a url using the `send` method, which
 automatically detects content-type (unless you set a custom content-type header).
 */
 class HttpLoader<T> extends LoaderBase<T>
@@ -72,7 +72,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	function new(?url:String, ?http:Http)
 	{
 		super(url);
-		
+
 		headers = new StringMap();
 
 		#if (nme || openfl)
@@ -92,9 +92,8 @@ class HttpLoader<T> extends LoaderBase<T>
 		http.onStatus = httpStatus;
 		#end
 	}
-	
-	#if (sys && !openfl)
 
+	#if (sys && !openfl)
 	/**
 	Local urls are loaded from the file system in neko or cpp.
 	*/
@@ -111,12 +110,30 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 	}
 	#end
-	
+
+	#if (nodejs)
 	/**
-	Configures and makes the http request. The send method can also pass 
-	through data with the request. It also traps any security errors and 
+	Local urls are loaded from the file system in nodejs.
+	*/
+	function loadFromFileSystem(url:String)
+	{
+		if (!js.node.Fs.existsSync(url))
+		{
+			loaderFail(IO("Local file does not exist: " + url));
+		}
+		else
+		{
+			var contents = js.node.Fs.readFileSync(url).toString();
+			httpData(contents);
+		}
+	}
+	#end
+
+	/**
+	Configures and makes the http request. The send method can also pass
+	through data with the request. It also traps any security errors and
 	dispatches a failed signal.
-	
+
 	@param url The url to load.
 	@param data Data to post to the url.
 	*/
@@ -136,7 +153,7 @@ class HttpLoader<T> extends LoaderBase<T>
 
 		// default content type
 		var contentType = "application/octet-stream";
-		
+
 		if (Std.is(data, Xml))
 		{
 			// convert to string and send as application/xml
@@ -177,7 +194,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#else
 		http.url = url;
 		http.setPostData(data);
-		
+
 		try
 		{
 			http.request(true);
@@ -192,12 +209,12 @@ class HttpLoader<T> extends LoaderBase<T>
 	}
 
 	//-------------------------------------------------------------------------- private
-	
+
 	override function loaderLoad()
 	{
 		httpConfigure();
 		addHeaders();
-		
+
 		#if (nme || openfl)
 		urlRequest.url = url;
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
@@ -220,13 +237,13 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		#else
 		http.url = url;
-		#if sys
+		#if (sys || nodejs)
 		if (url.indexOf("http:") == 0 || url.indexOf("https:") == 0)
 		{
 			http.request(false);
 		}
 		else
-		{	
+		{
 			loadFromFileSystem(url);
 		}
 		#else
@@ -242,7 +259,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#end
 		#end
 	}
-	
+
 	override function loaderCancel():Void
 	{
 		#if (nme || openfl)
@@ -256,7 +273,7 @@ class HttpLoader<T> extends LoaderBase<T>
 	{
 		// abstract
 	}
-	
+
 	function addHeaders()
 	{
 		#if (nme || openfl)
@@ -273,18 +290,18 @@ class HttpLoader<T> extends LoaderBase<T>
 		}
 		#end
 	}
-	
+
 	function httpData(data:String)
 	{
 		content = cast data;
 		loaderComplete();
 	}
-	
+
 	function httpStatus(status:Int)
 	{
 		statusCode = status;
 	}
-	
+
 	function httpError(error:String)
 	{
 		#if !openfl
@@ -292,7 +309,7 @@ class HttpLoader<T> extends LoaderBase<T>
 		#end
 		loaderFail(IO(error));
 	}
-	
+
 	function httpSecurityError(error:String)
 	{
 		loaderFail(Security(error));
@@ -316,13 +333,13 @@ class HttpLoader<T> extends LoaderBase<T>
 		{
 			case flash.events.HTTPStatusEvent.HTTP_STATUS:
 			httpStatus(e.status);
-			
+
 			case flash.events.Event.COMPLETE:
 			httpData(Std.string(e.target.data));
 
 			case flash.events.IOErrorEvent.IO_ERROR:
 			httpError(Std.string(e));
-			
+
 			case flash.events.SecurityErrorEvent.SECURITY_ERROR:
 			httpSecurityError(Std.string(e));
 		}
