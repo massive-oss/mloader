@@ -34,7 +34,7 @@ class LoaderBase<T> implements Loader<T>
 	/**
 	The current url of the loader.
 	*/
-	public var url(default, set_url):String;
+	public var url(default, set):String;
 
 	/**
 	If the url changes while loading, cancel the request.

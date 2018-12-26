@@ -93,19 +93,19 @@ class LoaderQueue implements Loader<Array<Loader<Dynamic>>>
 	/**
 	The current size of the queue. Includes both active and pending Loaders.
 	*/
-	public var size(get_size, null):Int;
+	public var size(get, null):Int;
 	function get_size() { return pendingQueue.length + activeLoaders.length; }
 
 	/**
 	The number of Loaders sitting in the queue waiting to start their loading.
 	*/
-	public var numPending(get_numPending, null):Int;
+	public var numPending(get, null):Int;
 	function get_numPending() { return pendingQueue.length; }
 
 	/**
 	The number of loaders currently loading.
 	*/
-	public var numLoading(get_numLoading, null):Int;
+	public var numLoading(get, null):Int;
 	function get_numLoading() { return activeLoaders.length; }
 
 	/**
@@ -130,7 +130,7 @@ class LoaderQueue implements Loader<Array<Loader<Dynamic>>>
 	This value is not used by the LoaderQueue. Added to adhere to the Loader 
 	interface.
 	*/
-	public var url(default, set_url):String;
+	public var url(default, set):String;
 	function set_url(value:String):String { return value; }
 
 	var pendingQueue:Array<PendingLoader>;

@@ -39,7 +39,7 @@ interface Loader<T>
 	/**
 	The url to load the resource from.
 	*/
-	var url(default, set_url):String;
+	var url(default, set):String;
 
 	/**
 	The percentage of loading complete. Between 0 and 1.
