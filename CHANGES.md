@@ -1,3 +1,8 @@
+## 2.2.5
+
+- Haxe 4 compatibility
+- NodeJS compatibility
+
 ## 2.2.4
 
 - ImageLoader: Fixed issue where cached images were not always triggering onload.
