@@ -154,7 +154,7 @@ class ImageLoader extends LoaderBase<LoadableImage>
 		#end
 	}
 	
-	function loaderProgressed(event)
+	function loaderProgressed(event:flash.events.ProgressEvent)
 	{
 		progress = 0.0;
 

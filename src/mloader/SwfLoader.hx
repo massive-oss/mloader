@@ -58,7 +58,7 @@ class SwfLoader extends LoaderBase<flash.display.DisplayObject>
 		loader.close();
 	}
 	
-	function loadProgress(event)
+	function loadProgress(event:flash.events.ProgressEvent)
 	{
 		progress = 0.0;
 
