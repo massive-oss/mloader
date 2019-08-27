@@ -254,7 +254,7 @@ class LoaderQueue implements Loader<Array<Loader<Dynamic>>>
 			var info = pendingQueue.shift();
 			var loader = info.loader;
 
-			loader.loaded.add(loaderLoaded);
+			loader.loaded.addWithPriority(loaderLoaded, -1);
 			activeLoaders.push(loader);
 
 			loader.load();
