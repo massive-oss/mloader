@@ -154,19 +154,19 @@ class HttpLoader<T> extends LoaderBase<T>
 		// default content type
 		var contentType = "application/octet-stream";
 
-		if (Std.is(data, Xml))
+		if (Std.isOfType(data, Xml))
 		{
 			// convert to string and send as application/xml
 			data = Std.string(data);
 			contentType = "application/xml";
 		}
-		else if (!Std.is(data, String))
+		else if (!Std.isOfType(data, String))
 		{
 			// stringify and send as application/json
 			data = haxe.Json.stringify(data);
 			contentType = "application/json";
 		}
-		else if (Std.is(data, String) && validateJSONdata(data))
+		else if (Std.isOfType(data, String) && validateJSONdata(data))
 		{
 			//data is already a valid JSON string
 			contentType = "application/json";

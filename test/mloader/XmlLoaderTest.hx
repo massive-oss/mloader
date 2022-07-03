@@ -80,7 +80,7 @@ class XmlLoaderTest
 		loader.load();
 		
 		Assert.isTrue(Type.enumEq(events[0].type, Complete));
-		Assert.isTrue(Std.is(loader.content, Xml));
+		Assert.isTrue(Std.isOfType(loader.content, Xml));
 		Assert.areEqual(xml.toString(), loader.content.toString());
 	}
 
@@ -98,7 +98,7 @@ class XmlLoaderTest
 
 
 		Assert.isTrue(Type.enumEq(events[0].type, Complete));
-		Assert.isTrue(Std.is(loader.content, Xml));
+		Assert.isTrue(Std.isOfType(loader.content, Xml));
 		Assert.areEqual(xml.firstChild().toString(), loader.content.toString());
 	}
 
